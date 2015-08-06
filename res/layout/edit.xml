@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- 
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    >
+ -->
+    <com.jsoftware.j.android.FileEdit xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/edit"
+        android:layout_width="fill_parent" 
+        android:layout_height="fill_parent"
+        android:autoLink="none"
+        android:saveEnabled="true"
+        android:freezesText="true"
+        android:inputType="textMultiLine|textNoSuggestions" 
+        android:bufferType="editable"
+        android:typeface="monospace"
+        android:gravity="top"
+        android:scrollHorizontally="true"
+        android:scrollbars="horizontal|vertical"
+        android:cursorVisible="true"
+       >
+        <requestFocus />
+	</com.jsoftware.j.android.FileEdit>
+<!-- 
+</LinearLayout>
+ -->

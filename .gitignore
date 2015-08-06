@@ -1,0 +1,10 @@
+android-assets/
+assets/
+bin/
+dist/
+gen/
+libs/
+obj/
+.classpath
+local.properties
+jassets.tar.gz

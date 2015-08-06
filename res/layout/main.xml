@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <com.jsoftware.j.android.Console xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/ws"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:cursorVisible="true"
+        android:textSize="16sp"
+        android:textColor="@color/basetext"
+        android:typeface="monospace"
+        android:editable="true" 
+        android:saveEnabled="true"
+        android:freezesText="true"
+        android:imeActionId="@+id/wsk"
+        android:imeActionLabel="Go"
+        android:inputType="textMultiLine|textNoSuggestions" 
+        android:scrollHorizontally="true"
+        android:scrollbars="horizontal|vertical"
+        android:gravity="top"
+        android:textCursorDrawable="@null"
+        >
+
+        <requestFocus />
+
+   </com.jsoftware.j.android.Console>

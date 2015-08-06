@@ -1,0 +1,73 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.jsoftware.j.android"
+    android:versionCode="1"
+    android:versionName="1.0.0" >
+
+    <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="15"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.PERSISTENT_ACTIVITY"/>
+    <uses-permission android:name="android.permission.BIND_INPUT_METHOD"/>
+    <uses-permission android:name="android.permission.READ_INPUT_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"/>
+    <uses-permission android:name="android.permission.REORDER_TASKS"/>
+    
+    <application
+        android:name="com.jsoftware.j.android.JConsoleApp"
+        android:icon="@drawable/jblue"
+        android:label="@string/app_name" 
+        android:enabled="true" 
+        android:hasCode="true" 
+        android:persistent="true">
+
+        <activity
+            android:label="@string/app_name"
+            android:launchMode="singleInstance"
+            android:name=".JActivity">
+            android:configChanges="orientation|uiMode|screenLayout|fontScale|keyboard|keyboardHidden|navigation" >
+            <intent-filter >
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.jsoftware.j.android.EditActivity" 
+            android:configChanges="orientation|uiMode|screenLayout|fontScale|keyboard|keyboardHidden|navigation" >
+            <intent-filter >
+                <action android:name="com.jsoftware.j.android.EDIT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:label="@string/help_name"
+            android:name=".HelpActivity" >
+            <intent-filter >
+                <action android:name="com.jsoftware.j.android.HELP" />
+            </intent-filter>
+        </activity>
+            
+        <activity
+            android:label="@string/activity_name"
+            android:name="com.jsoftware.jn.wd.JwdActivity" >
+            android:configChanges="orientation|uiMode|screenLayout|fontScale|keyboard|keyboardHidden|navigation" >
+        </activity>
+            
+        <service android:name=".SoftKeyboard"
+            android:permission="android.permission.BIND_INPUT_METHOD" 
+            android:exported="true" 
+            android:enabled="true" 
+            android:label="JKeyboard">
+            <intent-filter>
+                <action android:name="android.view.InputMethod" />
+            </intent-filter>
+            <meta-data android:name="android.view.im" android:resource="@xml/method" />
+        </service>
+    </application>
+    <supports-screens android:resizeable="true"
+                      android:smallScreens="true"
+                      android:normalScreens="true"
+                      android:largeScreens="true"
+                      android:anyDensity="true" />
+
+</manifest>

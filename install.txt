@@ -1,0 +1,44 @@
+android sdk and java should already installed.
+
+ant is required but not eclipse.
+
+download J binaries from 
+
+http://www.jsoftware/download/android/libs
+
+and copy them to libs folder
+
+copy the 4 files 
+
+template_copyassets.sh
+template_deploy.sh
+template_genkey.sh
+template_local.properties
+
+to 
+
+copyassets.sh
+deploy.sh
+genkey.sh
+local.properties
+
+and make shell scripts executable
+
+edit genkey.sh and deploy.sh to use your own 
+$STOREPASS and $KEYPASS
+
+run ./genkey.sh to generate signing key.
+
+edit copyassets.sh to change to your own J install folders
+and addons packages to be bundled.
+
+run ./copyassets.sh to copy J system and addons scripts 
+to the assets folder.
+
+edit local.properties and change the last line to point to
+your own android sdk folder
+
+to build and sign the app:
+
+ant release && ./deploy.sh
+

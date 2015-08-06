@@ -1,0 +1,32 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/file" android:title="File"  android:menuCategory="container" android:orderInCategory="1">
+        <menu>
+            <item android:id="@+id/newf" android:title="New" android:orderInCategory="1"/>
+            <item android:id="@+id/open" android:title="Open..." android:orderInCategory="2"/>
+            <item android:id="@+id/save" android:title="Save" android:orderInCategory="3"/>
+            <item android:id="@+id/saveas" android:title="Save As..." android:orderInCategory="4"/>
+       		<item android:id="@+id/clear" android:title="Clear" android:orderInCategory="6"/>
+            <item android:id="@+id/exit" android:title="Exit" android:orderInCategory="8"/>
+        </menu>
+    </item>
+
+    <item android:id="@+id/script" android:title="Script" android:menuCategory="container" android:orderInCategory="2">
+        <menu>
+            <item android:id="@+id/runl" android:title="Run Line"  android:orderInCategory="1"/>
+            <item android:id="@+id/runf" android:title="Run File"  android:orderInCategory="3"/>
+            <item android:id="@+id/upgrade" android:title="Update J"  android:orderInCategory="5"/>
+            <item android:id="@+id/jbreak" android:title="Break"  android:orderInCategory="6"/>
+        </menu>
+    </item>
+    <item android:id="@+id/window" android:title="Window"  android:menuCategory="container" android:orderInCategory="3">
+    </item>
+    <item android:id="@+id/log" android:title="Input Log"  android:menuCategory="container" android:orderInCategory="4">
+    </item>
+    <item android:id="@+id/help" android:title="Help"  android:menuCategory="container" android:orderInCategory="5">
+        <menu>
+            <item android:id="@+id/vocab" android:title="Help"  android:orderInCategory="1"/>
+            <item android:id="@+id/learning" android:title="Learning J"  android:orderInCategory="2"/>
+            <item android:id="@+id/aboutj" android:title="About J"  android:orderInCategory="4"/>
+            </menu>
+    </item>
+</menu>
