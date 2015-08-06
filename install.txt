@@ -40,5 +40,7 @@ your own android sdk folder
 
 to build and sign the app:
 
+mkdir -p dist
+
 ant release && ./deploy.sh
 

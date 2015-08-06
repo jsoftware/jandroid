@@ -1,6 +1,6 @@
 #!/bin/bash
 
-S=~/dev/apps/ide/jca
+S=~/dev/apps/ide/jandroid
 
 A=assets
 
