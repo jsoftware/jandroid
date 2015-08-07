@@ -2,7 +2,9 @@ package com.jsoftware.jn.wd;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.os.Build;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -367,11 +369,11 @@ public class Form extends LinearLayout
 // {
 //   int k=e.key();
 //   if (ismodifier(k)) return;
-//   if (k==Qt::Key_Back) {
+//   if (k==KEYCODE_Back) {
 //     View::keyPressEvent(e);
 //     return;
 //   }
-//   if (k==Qt::Key_Escape) {
+//   if (k==KEYCODE_Escape) {
 //     e.ignore();
 //     if (closed) return;
 //     if (escclose) {
@@ -390,11 +392,11 @@ public class Form extends LinearLayout
 //       JConsoleApp.theWd.form=this;
 //       signalevent(null);
 //     }
-//   } else if (k>=Qt::Key_F1 && k<=Qt::Key_F35) {
+//   } else if (k>=KEYCODE_F1 && k<=KEYCODE_F12) {
 //     event="fkey";
 //     JConsoleApp.theWd.form=this;
 //     signalevent(null,e);
-//   } else if (k>=Qt::Key_A && k<=Qt::Key_Z && (e.modifiers() & Qt::ControlModifier)) {
+//   } else if (k>=KEYCODE_A && k<=KEYCODE_Z && (e.modifiers() & Qt::ControlModifier)) {
 //     event="fkey";
 //     JConsoleApp.theWd.form=this;
 //     signalevent(null,e);
@@ -405,7 +407,7 @@ public class Form extends LinearLayout
 // // ---------------------------------------------------------------------
 // void keyReleaseEvent(QKeyEvent e)
 // {
-//   if (e.key()==Qt::Key_Back) {
+//   if (e.key()==KEYCODE_Back) {
 //     if (!(backButtonPressed||(Qt::NonModal!=windowModality()))) {
 //       backButtonPressed=true;
 //       QTimer::singleShot(2000, this, SLOT(backButtonTimer()));
@@ -526,11 +528,11 @@ public class Form extends LinearLayout
 // ---------------------------------------------------------------------
   public void signalevent(Child c)
   {
-    signalevent(c,0);
+    signalevent(c,null);
   }
 
 // ---------------------------------------------------------------------
-  public void signalevent(Child c, int e)
+  public void signalevent(Child c, KeyEvent e)
   {
     if ((0!=Util.NoEvents) || closed) return;
     String loc = locale;
@@ -545,32 +547,38 @@ public class Form extends LinearLayout
       loc = (!c.locale.isEmpty())?c.locale:locale;
     } else {
       evtchild=null;
-      if (event.equals("dialog")) {
-        if (0==e)
-          fakeid="positive";
-        else if (1==e)
-          fakeid="negative";
-        else
-          fakeid="neutral";
+      if (event.equals("dialogpositive")) {
+        fakeid="dialog";
+        event="positive";
+      } else if (event.equals("dialognegative")) {
+        fakeid="dialog";
+        event="negative";
+      } else if (event.equals("dialogneutral")) {
+        fakeid="dialog";
+        event="neutral";
+      } else if (event.equals("fkey")) {
+        int k=e.getKeyCode();
+        int meta=e.getMetaState();
+        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB) {
+          if (k>=KeyEvent.KEYCODE_A && k<=KeyEvent.KEYCODE_Z && e.isCtrlPressed()) {
+            fakeid=Character.toString((char)(k+32));  // lower case
+            fakeid=fakeid + "ctrl" + new String( (e.isShiftPressed()) ? "shift" : "" );
+          } else if (k>=KeyEvent.KEYCODE_F1 && k<=KeyEvent.KEYCODE_F12) {
+            fakeid="f"+ Character.toString((char)(k+1-KeyEvent.KEYCODE_F1)) + new String((e.isCtrlPressed()) ? "ctrl" : "") + new String((e.isShiftPressed()) ? "shift" : "");
+          }
+        } else {
+          if (k>=KeyEvent.KEYCODE_F1 && k<=KeyEvent.KEYCODE_F12) {
+            fakeid="f"+ Character.toString((char)(k+1-KeyEvent.KEYCODE_F1)) + new String((e.isShiftPressed()) ? "shift" : "");
+          }
+        }
       }
-//     if (event.equals("fkey")) {
-//       int k=e.key();
-//       if (k>=Qt::Key_A && k<=Qt::Key_Z && (e.modifiers() & Qt::ControlModifier)) {
-//         fakeid=(char)e.key()+32;  // lower case
-//         fakeid=fakeid + "ctrl" + new String( (e.modifiers() & Qt::ShiftModifier) ? "shift" : "" );
-//       } else if (k>=Qt::Key_F1 && k<=Qt::Key_F35) {
-//         oStringstream ostr;
-//         ostr << e.key()+1-Qt::Key_F1;
-//         fakeid="f"+ ostr.str() + new String((e.modifiers() & Qt::ControlModifier) ? "ctrl" : "") + new String((e.modifiers() & Qt::ShiftModifier) ? "shift" : "");
-//       }
-//     }
     }
     String fc=getfocus();
     if (!fc.isEmpty()) lastfocus=fc;
     boolean jecallback=false;
     if (jecallback) {
 //     term.removeprompt();
-      jInterface.Jnicmd("wdhandlerx_jqtide_ '" + Util.s2q(loc) + "'");
+      jInterface.Jnicmd("wdhandlerx_jca_ '" + Util.s2q(loc) + "'");
     } else
       jInterface.Jnicmd("wdhandler_" + Util.s2q(loc) + "_$0");
   }

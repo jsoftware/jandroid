@@ -271,7 +271,7 @@ void Psel::reject()
 void Psel::keyReleaseEvent(QKeyEvent *event)
 {
 #ifdef QT_OS_ANDROID
-  if (event.key()==Qt::Key_Back) {
+  if (event.key()==KeyEvent.KEYCODE_Back) {
     reject();
   } else QDialog::keyReleaseEvent(event);
 #else

@@ -323,12 +323,12 @@ public class JIsigraph extends Child
 //   int key=event.key();
 //   if (ismodifier(key)) return;
 // #ifdef QT_OS_ANDROID
-//   if (key==Qt.Key_Back) {
+//   if (key==KeyEvent.KEYCODE_Back) {
 //     View.keyPressEvent(event);
 //     return;
 //   }
 // #endif
-//   if ((key>0x10000ff)||((key>=Qt.Key_F1)&&(key<=Qt.Key_F35))) {
+//   if ((key>0x10000ff)||((key>=KeyEvent.KEYCODE_F1)&&(key<=KeyEvent.KEYCODE_F12))) {
 //     View.keyPressEvent(event);
 //     return;
 //   } else

@@ -146,10 +146,10 @@ void Tedit::keyPressEvent(QKeyEvent *e)
 
   if (ctrl>shift) {
     switch (key) {
-    case Qt::Key_D :
+    case KeyEvent.KEYCODE_D :
       new Slog();
       break;
-    case Qt::Key_Return:
+    case KeyEvent.KEYCODE_Return:
       enter();
       break;
     default:
@@ -165,10 +165,10 @@ void Tedit::keyPressEvent(QKeyEvent *e)
 
   if (shift) {
     switch (key) {
-    case Qt::Key_Up :
+    case KeyEvent.KEYCODE_Up :
       promptreplace(dlog_scroll (-1));
       break;
-    case Qt::Key_Down :
+    case KeyEvent.KEYCODE_Down :
       promptreplace(dlog_scroll (1));
       break;
     default:
@@ -178,15 +178,15 @@ void Tedit::keyPressEvent(QKeyEvent *e)
   }
 
   switch (key) {
-  case Qt::Key_Home:
+  case KeyEvent.KEYCODE_Home:
     home();
     break;
     return;
-  case Qt::Key_Return:
-  case Qt::Key_Enter:
+  case KeyEvent.KEYCODE_Return:
+  case KeyEvent.KEYCODE_Enter:
     enter();
     break;
-  case Qt::Key_Escape:
+  case KeyEvent.KEYCODE_Escape:
     e.ignore();
     break;
 
@@ -201,7 +201,7 @@ void Tedit::keyReleaseEvent(QKeyEvent *event)
 // separate ANDROID code avoids compiler warnings
 #ifdef QT_OS_ANDROID
   switch (event.key()) {
-  case Qt::Key_Back:
+  case KeyEvent.KEYCODE_Back:
     if (2>backButtonPressed) {
       if (0==backButtonPressed) QTimer::singleShot(2000, this, SLOT(backButtonTimer()));
       backButtonPressed++;

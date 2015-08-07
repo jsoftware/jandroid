@@ -18,23 +18,23 @@ void LineEdit::keyPressEvent(QKeyEvent *event)
   int key=event.key();
   if (ismodifier(key)) return;
 #ifdef QT_OS_ANDROID
-  if (key==Qt::Key_Back) {
+  if (key==KeyEvent.KEYCODE_Back) {
     QLineEdit::keyPressEvent(event);
     return;
   }
 #endif
   if (!(event.modifiers() & Qt::CTRL) && !(event.modifiers() & Qt::SHIFT)) {
     switch (key) {
-    case Qt::Key_Enter:
-    case Qt::Key_Return:
-    case Qt::Key_Escape:
+    case KeyEvent.KEYCODE_Enter:
+    case KeyEvent.KEYCODE_Return:
+    case KeyEvent.KEYCODE_Escape:
       QLineEdit::keyPressEvent(event);
       return;
     default:
       break;
     }
   }
-  if ((key>0x10000ff)||((key>=Qt::Key_F1)&&(key<=Qt::Key_F35))) {
+  if ((key>0x10000ff)||((key>=KeyEvent.KEYCODE_F1)&&(key<=KeyEvent.KEYCODE_F12))) {
     QLineEdit::keyPressEvent(event);
     return;
   } else

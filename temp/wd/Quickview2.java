@@ -71,7 +71,7 @@ void QuickView2::keyPressEvent(QKeyEvent *event)
 {
 #ifdef QT_OS_ANDROID
   int key=event.key();
-  if (key==Qt::Key_Back) {
+  if (key==KeyEvent.KEYCODE_Back) {
     QQuickView::keyPressEvent(event);
     return;
   }
@@ -83,7 +83,7 @@ void QuickView2::keyPressEvent(QKeyEvent *event)
 void QuickView2::keyReleaseEvent(QKeyEvent *e)
 {
 #ifdef QT_OS_ANDROID
-  if (e.key()==Qt::Key_Back) {
+  if (e.key()==KeyEvent.KEYCODE_Back) {
     showide(true);
     if (Forms.size()>0)
       (Forms.at(Forms.size()-1)).setVisible(true);

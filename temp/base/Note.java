@@ -179,7 +179,7 @@ String Note::gettabstate()
 void Note::keyPressEvent(QKeyEvent *event)
 {
   switch (event.key()) {
-  case Qt::Key_Escape:
+  case KeyEvent.KEYCODE_Escape:
     if (config.EscClose)
       close();
   default:
@@ -191,7 +191,7 @@ void Note::keyPressEvent(QKeyEvent *event)
 void Note::keyReleaseEvent(QKeyEvent *event)
 {
 #ifdef QT_OS_ANDROID
-  if (event.key() == Qt::Key_Back) {
+  if (event.key() == KeyEvent.KEYCODE_Back) {
     term.activate();
   } else QWidget::keyReleaseEvent(event);
 #else

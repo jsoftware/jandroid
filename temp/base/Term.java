@@ -16,7 +16,7 @@ import com.jsortware.jn.base.recent;
 
 #ifdef QT_OS_ANDROID
 import com.jsortware.jn.wd.form;
-static int fkeys[]= {Qt::Key_F1,Qt::Key_F2,Qt::Key_F3,Qt::Key_F4,Qt::Key_F5,Qt::Key_F6,Qt::Key_F7,Qt::Key_F8,Qt::Key_F9,Qt::Key_F10,Qt::Key_F11,Qt::Key_F12};
+static int fkeys[]= {KeyEvent.KEYCODE_F1,KeyEvent.KEYCODE_F2,KeyEvent.KEYCODE_F3,KeyEvent.KEYCODE_F4,KeyEvent.KEYCODE_F5,KeyEvent.KEYCODE_F6,KeyEvent.KEYCODE_F7,KeyEvent.KEYCODE_F8,KeyEvent.KEYCODE_F9,KeyEvent.KEYCODE_F10,KeyEvent.KEYCODE_F11,KeyEvent.KEYCODE_F12};
 #endif
 
 
@@ -217,7 +217,7 @@ void Term::keyPressEvent(QKeyEvent *event)
 {
   switch (event.key()) {
 #ifdef JQT
-  case Qt::Key_Escape:
+  case KeyEvent.KEYCODE_Escape:
     if (config.EscClose) {
       if (!filequit(false))
         event.accept();
@@ -328,16 +328,16 @@ void Term::vfuncClicked()
 // menu shortcut does not work in android
   int c = sender().objectName().toInt() - 1;
   switch (fkeys[c]) {
-  case Qt::Key_F1:
+  case KeyEvent.KEYCODE_F1:
     if (!Forms.isEmpty()) {
       form=Forms.last();
       wdactivateform();
     } else term.repaint();
     break;
-  case Qt::Key_F2:
+  case KeyEvent.KEYCODE_F2:
     tedit.cu0 = tedit.textCursor();
     break;
-  case Qt::Key_F6:
+  case KeyEvent.KEYCODE_F6:
     tedit.docmds("labs_run_jqtide_ 0", false);
     break;
   default:

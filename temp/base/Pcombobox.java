@@ -11,7 +11,7 @@ PComboBox::PComboBox(QWidget *parent) : QComboBox(parent)
 void PComboBox::keyReleaseEvent(QKeyEvent *event)
 {
 #ifdef QT_OS_ANDROID
-  if ((event.key()==Qt::Key_Back) && (!isEditable()) && (!acceptKeyBack)) {
+  if ((event.key()==KeyEvent.KEYCODE_Back) && (!isEditable()) && (!acceptKeyBack)) {
     QComboBox::keyReleaseEvent(event);
     event.ignore();
     return;

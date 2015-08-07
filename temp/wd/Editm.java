@@ -166,7 +166,7 @@ void EditmPTE::keyPressEvent(QKeyEvent *event)
 {
   int key=event.key();
   if (ismodifier(key)) return;
-  if ((key==Qt::Key_Enter || key==Qt::Key_Return) && !(event.modifiers() & Qt::CTRL) && !(event.modifiers() & Qt::SHIFT)) {
+  if ((key==KeyEvent.KEYCODE_Enter || key==KeyEvent.KEYCODE_Return) && !(event.modifiers() & Qt::CTRL) && !(event.modifiers() & Qt::SHIFT)) {
     if (isReadOnly()) {
       char sysmodifiers[20];
       sprintf(sysmodifiers , "%d", (2*(!!(event.modifiers() & Qt::CTRL))) + (!!(event.modifiers() & Qt::SHIFT)));
@@ -178,7 +178,7 @@ void EditmPTE::keyPressEvent(QKeyEvent *event)
     return;
   }
   int key1=0;
-  if ((key>0x10000ff)||((key>=Qt::Key_F1)&&(key<=Qt::Key_F35))) {
+  if ((key>0x10000ff)||((key>=KeyEvent.KEYCODE_F1)&&(key<=KeyEvent.KEYCODE_F12))) {
     PlainTextEdit::keyPressEvent(event);
     return;
   } else

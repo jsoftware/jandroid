@@ -6,5 +6,9 @@ gen/
 libs/
 obj/
 .classpath
-local.properties
+buildbase.sh
 jassets.tar.gz
+local.properties
+copyassets.sh
+deploy.sh
+genkey.sh

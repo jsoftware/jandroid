@@ -3,6 +3,7 @@ package com.jsoftware.jn.wd;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.widget.Toast;
 import com.jsoftware.j.android.JConsoleApp;
 import com.jsoftware.jn.base.Util;
 import com.jsoftware.jn.base.Utils;
@@ -17,17 +18,24 @@ import java.util.Map;
 // import com.jsoftware.jn.base.state;
 
 // the syntax for messages is:
-//   wd 'mb type buttons title message'
+//   wd 'mb type title message buttons '
 //
 // type specifies the icon and default behaviour:
 //  about
 //  info      (same as about)
 //  query     (requires two or three buttons)
 //
-// if one button, there is no result,
-// otherwise the result is the button name (ok, cancel, ...)
+// if zero or button, there is no result,
+// otherwise the result be signal an dialog event, either
+//  form_dialog_positive
+//  form_dialog_negative
+//  form_dialog_neutral
 //
 // At most three buttons: positive, negative, neutral
+//
+// if type is toast, format is
+// mb toast message [duration]
+//   duration is "long" or "short"
 
 public class JMb
 {
@@ -56,6 +64,8 @@ public class JMb
 
     if (type.equals("about"))
       return mbmsg();
+    if (type.equals("toast"))
+      return mbtoast();
 //   if (type.equals("color"))
 //     return mbcolor();
 //   if (type.equals("dir"))
@@ -73,18 +83,38 @@ public class JMb
   }
 
 // ---------------------------------------------------------------------
+  String mbtoast()
+  {
+    String m;
+    boolean longduration=false;
+
+    if (arg.length==1) {
+      m=arg[0];
+    } else if (arg.length>1) {
+      m=arg[0];
+      longduration=arg[1].equals("1");
+    } else {
+      JConsoleApp.theWd.error("Need message: "+Util.q2s(Util.sajoinstr(arg," ")));
+      return "";
+    }
+    Toast.makeText(form.activity, m, (longduration)?Toast.LENGTH_LONG:Toast.LENGTH_SHORT).show();
+
+    return "";
+  }
+
+
+// ---------------------------------------------------------------------
   String mbmsg()
   {
     String t,m;
 
     int ptr;
 
-
     if (arg.length==1) {
-      t="Message Box";
+      t="";
       m=arg[0];
       ptr=1;
-    } else if (arg.length==2) {
+    } else if (arg.length>1) {
       t=arg[0];
       m=arg[1];
       ptr=2;
@@ -221,22 +251,22 @@ public class JMb
     if (!pos.isEmpty())builder.setPositiveButton(pos, new DialogInterface.OnClickListener() {
       public void onClick(DialogInterface dialog, int id) {
         // User clicked positive
-        form.event="dialog";
-        form.signalevent(null,0);
+        form.event="dialogpositive";
+        form.signalevent(null,null);
       }
     });
     if (!neg.isEmpty()) builder.setNegativeButton(neg, new DialogInterface.OnClickListener() {
       public void onClick(DialogInterface dialog, int id) {
         // User clicked negative
-        form.event="dialog";
-        form.signalevent(null,1);
+        form.event="dialognegative";
+        form.signalevent(null,null);
       }
     });
-    if (!neu.isEmpty()) builder.setNeutralButton(neg, new DialogInterface.OnClickListener() {
+    if (!neu.isEmpty()) builder.setNeutralButton(neu, new DialogInterface.OnClickListener() {
       public void onClick(DialogInterface dialog, int id) {
         // User clicked neutral
-        form.event="dialog";
-        form.signalevent(null,2);
+        form.event="dialogneutral";
+        form.signalevent(null,null);
       }
     });
     builder.show();

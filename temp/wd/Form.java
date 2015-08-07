@@ -358,12 +358,12 @@ void Form::keyPressEvent(QKeyEvent *e)
   int k=e.key();
   if (ismodifier(k)) return;
 #ifdef QT_OS_ANDROID
-  if (k==Qt::Key_Back) {
+  if (k==KeyEvent.KEYCODE_Back) {
     View::keyPressEvent(e);
     return;
   }
 #endif
-  if (k==Qt::Key_Escape) {
+  if (k==KeyEvent.KEYCODE_Escape) {
     e.ignore();
     if (closed) return;
     if (escclose) {
@@ -382,11 +382,11 @@ void Form::keyPressEvent(QKeyEvent *e)
       form=this;
       signalevent(0);
     }
-  } else if (k>=Qt::Key_F1 && k<=Qt::Key_F35) {
+  } else if (k>=KeyEvent.KEYCODE_F1 && k<=KeyEvent.KEYCODE_F12) {
     event="fkey";
     form=this;
     signalevent(0,e);
-  } else if (k>=Qt::Key_A && k<=Qt::Key_Z && (e.modifiers() & Qt::ControlModifier)) {
+  } else if (k>=KeyEvent.KEYCODE_A && k<=KeyEvent.KEYCODE_Z && (e.modifiers() & Qt::ControlModifier)) {
     event="fkey";
     form=this;
     signalevent(0,e);
@@ -398,7 +398,7 @@ void Form::keyPressEvent(QKeyEvent *e)
 void Form::keyReleaseEvent(QKeyEvent *e)
 {
 #ifdef QT_OS_ANDROID
-  if (e.key()==Qt::Key_Back) {
+  if (e.key()==KeyEvent.KEYCODE_Back) {
     if (!(backButtonPressed||(Qt::NonModal!=windowModality()))) {
       backButtonPressed=true;
       QTimer::singleShot(2000, this, SLOT(backButtonTimer()));
@@ -574,12 +574,12 @@ void Form::signalevent(Child c, QKeyEvent *e)
     evtchild=0;
     if (event.equals("fkey")) {
       int k=e.key();
-      if (k>=Qt::Key_A && k<=Qt::Key_Z && (e.modifiers() & Qt::ControlModifier)) {
+      if (k>=KeyEvent.KEYCODE_A && k<=KeyEvent.KEYCODE_Z && (e.modifiers() & Qt::ControlModifier)) {
         fakeid=(char)e.key()+32;  // lower case
         fakeid=fakeid + "ctrl" + String( (e.modifiers() & Qt::ShiftModifier) ? "shift" : "" );
-      } else if (k>=Qt::Key_F1 && k<=Qt::Key_F35) {
+      } else if (k>=KeyEvent.KEYCODE_F1 && k<=KeyEvent.KEYCODE_F12) {
         oStringstream ostr;
-        ostr << e.key()+1-Qt::Key_F1;
+        ostr << e.key()+1-KeyEvent.KEYCODE_F1;
         fakeid="f"+ ostr.str() + String((e.modifiers() & Qt::ControlModifier) ? "ctrl" : "") + String((e.modifiers() & Qt::ShiftModifier) ? "shift" : "");
       }
     }

@@ -81,7 +81,7 @@ void TextView::keyPressEvent(QKeyEvent *event)
 {
   Qt::KeyboardModifiers mod = QApplication::keyboardModifiers();
   boolean ctrl = mod.testFlag(Qt::ControlModifier);
-  if (ctrl && event.key()==Qt::Key_W)
+  if (ctrl && event.key()==KeyEvent.KEYCODE_W)
     ev.setLineWrapMode((1==ev.lineWrapMode()) ? QPlainTextEdit::NoWrap : QPlainTextEdit::WidgetWidth);
   else QDialog::keyPressEvent(event);
 }
@@ -90,7 +90,7 @@ void TextView::keyPressEvent(QKeyEvent *event)
 void TextView::keyReleaseEvent(QKeyEvent *event)
 {
 #ifdef QT_OS_ANDROID
-  if (event.key()==Qt::Key_Back) {
+  if (event.key()==KeyEvent.KEYCODE_Back) {
     reject();
   } else QDialog::keyReleaseEvent(event);
 #else

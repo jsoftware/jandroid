@@ -3,6 +3,7 @@ package com.jsoftware.jn.wd;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.os.Build;
 import android.util.Log;
 import android.view.View;
 import com.jsoftware.j.android.JConsoleApp;
@@ -18,7 +19,7 @@ public class JView extends View
   {
     super(activity);
     this.child=child;
-    if (android.os.Build.VERSION.SDK_INT>=11)
+    if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)
       setLayerType(View.LAYER_TYPE_SOFTWARE,null);
   }
 // ---------------------------------------------------------------------

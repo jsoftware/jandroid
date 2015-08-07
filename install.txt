@@ -4,7 +4,7 @@ ant is required but not eclipse.
 
 download J binaries from 
 
-http://www.jsoftware/download/android/libs
+http://www.jsoftware/download/jandroid/libs
 
 and copy them to libs folder
 
@@ -37,6 +37,18 @@ to the assets folder.
 
 edit local.properties and change the last line to point to
 your own android sdk folder
+
+you should get the follong folders
+
+assets   # from copyasset.sh
+bin      # created during ant release
+dist     # created during deploy.sh
+gen      # created during ant release
+libs     # files downloaded from jsoftware
+res
+src
+temp
+test
 
 to build and sign the app:
 

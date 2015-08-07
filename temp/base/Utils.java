@@ -26,8 +26,8 @@ void writewinstate(Bedit *);
 boolean ShowIde=true;
 static String hashbuf;
 static List<int> Modifiers =
-  List<int>() << Qt::Key_Alt << Qt::Key_AltGr
-  << Qt::Key_Control << Qt::Key_Meta << Qt::Key_Shift;
+  List<int>() << KeyEvent.KEYCODE_Alt << KeyEvent.KEYCODE_AltGr
+  << KeyEvent.KEYCODE_Control << KeyEvent.KEYCODE_Meta << KeyEvent.KEYCODE_Shift;
 
 // ---------------------------------------------------------------------
 // convert name to full path name

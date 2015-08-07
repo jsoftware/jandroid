@@ -18,7 +18,7 @@ PlainTextEdit::PlainTextEdit(QWidget *parent) : QPlainTextEdit(parent)
 void PlainTextEdit::keyReleaseEvent(QKeyEvent *event)
 {
 #ifdef QT_OS_ANDROID
-  if ((event.key()==Qt::Key_Back) && (!acceptKeyBack)) {
+  if ((event.key()==KeyEvent.KEYCODE_Back) && (!acceptKeyBack)) {
     QPlainTextEdit::keyReleaseEvent(event);
     event.ignore();
     return;

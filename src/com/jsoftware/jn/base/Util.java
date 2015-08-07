@@ -766,7 +766,10 @@ public class Util
     for (String s : a)
       r.append(b).append(a);
     String t=r.toString();
-    return t.substring(b.length());
+    if (t.length()>b.length())
+      return t.substring(b.length());
+    else
+      return "";
   }
 
 // ---------------------------------------------------------------------

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.os.Build;
 import android.util.Log;
 import android.view.View;
 import com.jsoftware.j.android.AndroidJInterface;
@@ -563,16 +564,8 @@ public class Wd
   {
     String c=cmd.getid();
     String p=cmd.getparms();
-    if (noform()) return;
+    if (noform()) return;   // android need form activity and callback
     form.dialog.mb(c,p);
-//  result=Util.s2ba(Util.q2s(mb(c,p)));
-//     if (1==rc)
-//       result=new byte[0];
-//     else {
-// // TODO
-//       result=new byte[0];
-//       rc=-1;
-//     }
   }
 
 // ---------------------------------------------------------------------
@@ -923,7 +916,7 @@ public class Wd
       result=Util.s2ba("android");
       return;
     } else if (s.equals("qosver")) {
-      result=Util.s2ba(Util.i2s(android.os.Build.VERSION.SDK_INT));
+      result=Util.s2ba(Util.i2s(Build.VERSION.SDK_INT));
       return;
     } else if (s.equals("qprinters")) {
       String q="";
@@ -1191,7 +1184,7 @@ public class Wd
       error("extra parameters: " + p);
       return;
     }
-    result=Util.s2ba(APP_VERSION+"/"+Util.i2s(android.os.Build.VERSION.SDK_INT));
+    result=Util.s2ba(APP_VERSION+"/"+Util.i2s(Build.VERSION.SDK_INT));
     rc=-1;
   }
 

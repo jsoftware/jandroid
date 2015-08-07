@@ -134,10 +134,10 @@ boolean Fiw::eventFilter(QObject *obj, QEvent *e)
 {
   if (obj == searchfor && e.type() == QEvent::KeyPress) {
     QKeyEvent *keyEvent = static_cast<QKeyEvent *>(e);
-    if (keyEvent.key() == Qt::Key_Up) {
+    if (keyEvent.key() == KeyEvent.KEYCODE_Up) {
       setsearchdirection(Dir-1);
       return true;
-    } else if (keyEvent.key() == Qt::Key_Down) {
+    } else if (keyEvent.key() == KeyEvent.KEYCODE_Down) {
       setsearchdirection(Dir+1);
       return true;
     }
@@ -156,7 +156,7 @@ void Fiw::keyPressEvent(QKeyEvent *e)
 {
   Qt::KeyboardModifiers mod = QApplication::keyboardModifiers();
   boolean ctrl = mod.testFlag(Qt::ControlModifier);
-  if (ctrl && e.key()==Qt::Key_R && !ifReplace)
+  if (ctrl && e.key()==KeyEvent.KEYCODE_R && !ifReplace)
     on_replaceforward_clicked();
   else
     QDialog::keyPressEvent(e);
@@ -309,7 +309,7 @@ void Fiw::reject()
 void Fiw::keyReleaseEvent(QKeyEvent *event)
 {
 #ifdef QT_OS_ANDROID
-  if (event.key()==Qt::Key_Back) {
+  if (event.key()==KeyEvent.KEYCODE_Back) {
     hide();
   } else QDialog::keyReleaseEvent(event);
 #else
