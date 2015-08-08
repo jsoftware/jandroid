@@ -26,7 +26,7 @@ void Note::runline(boolean advance, boolean show)
       QTextCursor cnext=c;
       while (len>++row) {
         cnext.movePosition(QTextCursor::NextBlock,QTextCursor::MoveAnchor,1);
-        if(cnext.block().text().trimmed().size()) break;
+        if(cnext.block().text().trimmed().length()) break;
         c=cnext;
       }
     }

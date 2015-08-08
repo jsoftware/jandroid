@@ -9,7 +9,7 @@ import com.jsoftware.jn.wd.cmd;
 Opengl::Opengl(String n, String s, Form f, Pane p) : Child(n,s,f,p)
 {
   type="opengl";
-  String qn=Util.s2q(n);
+  String qn=n;
   String[] opt=Cmd.qsplit(s);
   if (invalidoptn(n,opt,"version compatibility")) return;
 #ifdef USE_QOpenGLWidget
@@ -20,9 +20,9 @@ Opengl::Opengl(String n, String s, Form f, Pane p) : Child(n,s,f,p)
 #endif
 #ifdef QT47
   int l=opt.indexOf("version");
-  if ((l!=-1) && (l<opt.size()-1) && 0!=opt.at(l+1).toDouble()) {
+  if ((l!=-1) && (l<opt.length-1) && 0!=opt[l+1].toDouble()) {
     int ver1,ver2;
-    String s=opt.at(l+1);
+    String s=opt[l+1];
     int d=s.indexOf(".");
     if (d==-1) {
       ver1=s.toInt();
@@ -45,7 +45,6 @@ Opengl::Opengl(String n, String s, Form f, Pane p) : Child(n,s,f,p)
 
   Opengl2 *w= new Opengl2(this, qglFormat);
   widget=(View ) w;
-  w.setObjectName(qn);
   childStyle(opt);
   f.opengl = this;
 }
@@ -68,13 +67,13 @@ void Opengl::setform()
 // ---------------------------------------------------------------------
 String Opengl::get(String p,String v)
 {
-  return Child::get(p,v);
+  return super.get(p,v);
 }
 
 // ---------------------------------------------------------------------
 void Opengl::set(String p,String v)
 {
-  Child::set(p,v);
+  super.set(p,v);
 }
 
 // ---------------------------------------------------------------------

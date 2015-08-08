@@ -17,7 +17,7 @@ void Recent::filesadd(String f)
   f=cfcase(f);
   Files.removeOne(f);
   Files.prepend(f);
-  if (Files.size() > config.MaxRecent)
+  if (Files.length() > config.MaxRecent)
     Files=Files.mid(0,config.MaxRecent);
   save_recent();
 }
@@ -37,8 +37,8 @@ void Recent::init()
 
   String[] t = cfreadx(ProjectFile);
   String[] p;
-  for (int i=0; i<t.size(); i++) {
-    p=t.at(i).split('|');     // SkipEmptyParts
+  for (int i=0; i<t.length(); i++) {
+    p=t[i].split('|');     // SkipEmptyParts
     if (cfexist(project.id2qproj(p[0])))
       Projects.append(p);
   }
@@ -50,10 +50,10 @@ String[] Recent::projectget(String id)
   String[] s;
   s.append(id);
   s.append("-1");
-  int n=Projects.size();
+  int n=Projects.length();
   for (int i=0; i<n; i++) {
-    if (id == Projects.at(i).first()) {
-      s=Projects.at(i);
+    if (id == Projects[i].first()) {
+      s=Projects[i];
       break;
     }
   }
@@ -66,9 +66,9 @@ void Recent::projectset(String[] s)
 {
   String id, t;
   id=s.first();
-  int n=Projects.size();
+  int n=Projects.length();
   for (int i=0; i<n; i++)
-    if (id == Projects.at(i).first()) {
+    if (id == Projects[i].first()) {
       Projects.removeAt(i);
       break;
     }
@@ -81,8 +81,8 @@ void Recent::projectset(String[] s)
 void Recent::save_project()
 {
   String t;
-  for (int i=0; i<Projects.size(); i++)
-    t.append(Projects.at(i).join("|") + "\n");
+  for (int i=0; i<Projects.length(); i++)
+    t.append(Projects[i].join("|") + "\n");
   cfwrite(ProjectFile,t);
 }
 

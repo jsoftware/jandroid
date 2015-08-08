@@ -35,8 +35,7 @@ extern Fiw *fiw;
 QAction *Menu::makeact(String id, String text, String shortcut)
 {
   QAction *r = new QAction(text,this);
-  r.setObjectName(id);
-  if (shortcut.size())
+  if (shortcut.length())
     r.setShortcut(shortcut);
   return r;
 }
@@ -45,7 +44,6 @@ QAction *Menu::makeact(String id, String text, String shortcut)
 QAction *Menu::makeuseract(String text, String shortcut)
 {
   QAction *r = new QAction(text,this);
-  r.setObjectName(shortcut);
   r.setShortcut(shortcut);
   connect(r, SIGNAL(triggered()), this, SLOT(on_userAct_triggered()));
   return r;
@@ -450,7 +448,7 @@ void Menu::createscriptMenu()
 // ---------------------------------------------------------------------
 void Menu::createtoolsMenu(String s)
 {
-  if (s.size() == 0) return;
+  if (s.length() == 0) return;
   toolsMenu = addMenu("&Tools");
   toolsMenu.addAction(toolsdirmAct);
   toolsMenu.addSeparator();
@@ -505,7 +503,7 @@ void Menu::createviewMenu(String s)
 // ---------------------------------------------------------------------
 void Menu::createwindowMenu(String s)
 {
-  if (s.size() == 0) return;
+  if (s.length() == 0) return;
   winMenu = addMenu("&Window");
   winMenu.addAction(winotherAct);
   winMenu.addSeparator();
@@ -525,7 +523,7 @@ void Menu::on_userAct_triggered()
 {
   int i;
   String n=sender().objectName();
-  for (i=0; i<config.UserKeys.size(); i++)
+  for (i=0; i<config.UserKeys.length(); i++)
     if (config.UserKeys[i][0]==n) break;
   int mode=config.UserKeys[i][1].toInt();
   String cmd=config.UserKeys[i][3];
@@ -1132,7 +1130,7 @@ void Note::on_winotherAct_triggered()
 void Note::on_winprojAct_triggered()
 {
   String f=cfpath(tofoldername(editPage().fname));
-  if (f.at(0).eqauls("~"))
+  if (f[0].eqauls("~"))
     f=f.mid(1);
   if (f==Id) return;
   project.open(f);

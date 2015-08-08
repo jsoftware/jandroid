@@ -73,7 +73,6 @@ QWidget *Nside::createdefs()
 QToolBar *Nside::createdefsTB()
 {
   QToolBar *t=  new QToolBar(0);
-  t.setObjectName("defsTB");
 #ifdef QT_OS_ANDROID
   t.setIconSize(QSize((int)DM_density*(5.0/3)*18,(int)DM_density*(5.0/3)*18));
 #else
@@ -120,7 +119,6 @@ QWidget *Nside::createfiles()
 QToolBar *Nside::createfileTB()
 {
   QToolBar *t=  new QToolBar(0);
-  t.setObjectName("fileTB");
 #ifdef QT_OS_ANDROID
   t.setIconSize(QSize((int)DM_density*(5.0/3)*16,(int)DM_density*(5.0/3)*16));
 #else
@@ -158,7 +156,6 @@ QWidget *Nside::createsource()
 QToolBar *Nside::createsourceTB()
 {
   QToolBar *t=  new QToolBar(0);
-  t.setObjectName("sourceTB");
 #ifdef QT_OS_ANDROID
   t.setIconSize(QSize((int)DM_density*(5.0/3)*18,(int)DM_density*(5.0/3)*18));
 #else
@@ -197,8 +194,8 @@ void Nside::defs_activated(ListWidgetItem *item)
     info("Defs","Not found: " + name);
     return;
   }
-  dpos=pos+name.size();
-  note.editPage().setselect(pos,name.size());
+  dpos=pos+name.length();
+  note.editPage().setselect(pos,name.length());
 }
 
 // ---------------------------------------------------------------------

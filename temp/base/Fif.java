@@ -92,7 +92,6 @@ Fif::Fif(String s, boolean ifname)
 
   QVBoxLayout g=new QVBoxLayout();
   found=new ListWidget();
-  found.setObjectName("found");
   found.setAlternatingRowColors(true);
   found.hide();
   g.addWidget(found);
@@ -121,7 +120,7 @@ void Fif::initshow(String s, boolean ifname)
 {
   init(s,ifname);
   write();
-  if (s.size())
+  if (s.length())
     searchfor.lineEdit().selectAll();
   else
     searchfor.setCurrentIndex(-1);
@@ -149,7 +148,7 @@ void Fif::init(String s, boolean ifname)
   SearchList=recent.recentFif;
   Subdir=true;
   Types=config.FifExt;
-  Type=Types.at(0);
+  Type=Types[0];
 
   ifResults=false;
 
@@ -307,7 +306,7 @@ void Fif::research()
 {
   if (NoEvents) return;
   read();
-  if (ifResults && Search.size()>0) search();
+  if (ifResults && Search.length()>0) search();
 }
 
 // ---------------------------------------------------------------------
@@ -323,7 +322,7 @@ void Fif::setpathlist(String p)
   String[] r;
   if (p.isEmpty())
     p=(Path.isEmpty()) ? project.Folder : Path;
-  while(p.size()) {
+  while(p.length()) {
     r.append(p);
     p=cfpath(p);
   }
@@ -345,8 +344,8 @@ void Fif::setsearchlist(String s)
 void Fif::setsearchmaxlength()
 {
   String s;
-  for (int i=0; i<SearchList.size(); i++) {
-    s=SearchList.at(i);
+  for (int i=0; i<SearchList.length(); i++) {
+    s=SearchList[i];
     if (s.length()>MaxFif)
       SearchList.replace(i,s.left(MaxFif));
   }
@@ -367,12 +366,12 @@ void Fif::write()
   setenable();
   searchfor.clear();
   searchfor.addItems(SearchList);
-  if (SearchList.size())
+  if (SearchList.length())
     searchfor.setCurrentIndex(0);
 
   infolder.clear();
   infolder.addItems(PathList);
-  if (PathList.size())
+  if (PathList.length())
     infolder.setCurrentIndex(0);
 
   filetypes.clear();

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
@@ -16,8 +17,6 @@ import android.util.TypedValue;
 import com.jsoftware.j.android.JConsoleApp;
 import com.jsoftware.jn.base.Util;
 import com.jsoftware.jn.base.Utils;
-import com.jsoftware.jn.wd.Font;
-import com.jsoftware.jn.wd.JView;
 import java.lang.Character;
 import java.lang.System;
 import java.nio.charset.Charset;
@@ -37,7 +36,7 @@ public class Glcmds
   Canvas canvas;
   Paint paint;
   Path path;
-  int RGBSEQ ;
+  final int RGBSEQ=1;
 
   int    andclipped;
   int    andrgb;
@@ -295,12 +294,9 @@ public class Glcmds
           break;
         }
         tpaint=new Paint();
-        if (1==RGBSEQ)
-          tpaint.setARGB(buf[p+5], buf[p+4], buf[p+3], buf[p+2]);
-        else
-          tpaint.setARGB(buf[p+5], buf[p+2], buf[p+3], buf[p+4]);
+        tpaint.setARGB(buf[p+5], buf[p+2], buf[p+3], buf[p+4]);
         tpaint.setStyle(Paint.Style.FILL);
-        canvas.drawRect (0, 0, view.getWidth(), view.getWidth(), tpaint);
+        canvas.drawRect (0, 0, view.getWidth(), view.getHeight(), tpaint);
         tpaint=null;
         break;
 
@@ -387,6 +383,25 @@ public class Glcmds
       case 2022 :    // glpen
         andpenrgb = andrgb;
         paint.setStrokeWidth(Math.max(1.3f,(float)buf[p+2]));
+        switch (buf[p+3]) {
+        case 1 : // solid
+          paint.setPathEffect(new DashPathEffect(new float[] {1, 0}, 0));
+          break;
+        case 2 : // dash
+          paint.setPathEffect(new DashPathEffect(new float[] {12, 3}, 0));
+          break;
+        case 3 : // dot
+          paint.setPathEffect(new DashPathEffect(new float[] {3, 3}, 0));
+          break;
+        case 4 : // dash dot
+          paint.setPathEffect(new DashPathEffect(new float[] {12, 3, 3, 3}, 0));
+          break;
+        case 5 : // dash dot dot
+          paint.setPathEffect(new DashPathEffect(new float[] {12, 3, 3, 3, 3, 3}, 0));
+          break;
+        default : // no
+          paint.setPathEffect(new DashPathEffect(new float[] {0, 1}, 0));
+        }
         break;
 
       case 2023 :  // glpie
@@ -563,17 +578,11 @@ public class Glcmds
         break;
 
       case 2032 :    // glrgb
-        if (1==RGBSEQ)
-          andrgb = Color.argb (255, buf[p+4], buf[p+3], buf[p+2]);
-        else
-          andrgb = Color.argb (255, buf[p+2], buf[p+3], buf[p+4]);
+        andrgb = Color.argb (255, buf[p+2], buf[p+3], buf[p+4]);
         break;
 
       case 2343 :    // glrgba
-        if (1==RGBSEQ)
-          andrgb = Color.argb (buf[p+5], buf[p+4], buf[p+3], buf[p+2]);
-        else
-          andrgb = Color.argb (buf[p+5], buf[p+2], buf[p+3], buf[p+4]);
+        andrgb = Color.argb (buf[p+5], buf[p+2], buf[p+3], buf[p+4]);
         break;
 
       case 2038 :    // gltext

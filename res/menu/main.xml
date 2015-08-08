@@ -26,6 +26,8 @@
         <menu>
             <item android:id="@+id/vocab" android:title="Help"  android:orderInCategory="1"/>
             <item android:id="@+id/learning" android:title="Learning J"  android:orderInCategory="2"/>
+            <item android:id="@+id/demos" android:title="Demos..."  android:orderInCategory="2"/>
+            <item android:id="@+id/showcase" android:title="Showcase..."  android:orderInCategory="2"/>
             <item android:id="@+id/aboutj" android:title="About J"  android:orderInCategory="4"/>
             </menu>
     </item>

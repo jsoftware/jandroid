@@ -30,7 +30,7 @@ Slog::Slog()
 #endif
   ListWidget *s = new ListWidget();
   s.addItems(makeitems());
-  s.setCurrentRow(InputLog.size()-1);
+  s.setCurrentRow(InputLog.length()-1);
 #ifdef QT_OS_ANDROID
   connect(s, SIGNAL(itemClicked(ListWidgetItem*)),
           this,SLOT(itemActivated()));
@@ -55,8 +55,8 @@ String[] makeitems()
   String[] items;
   String s,t;
   String p=tedit.getprompt();
-  int len=p.size();
-  for (int i=0; i<InputLog.size(); i++) {
+  int len=p.length();
+  for (int i=0; i<InputLog.length(); i++) {
     t = s = InputLog.value(i);
     t.truncate(len);
     if (p == t)
@@ -69,7 +69,7 @@ String[] makeitems()
 // ---------------------------------------------------------------------
 void dlog_add(String s)
 {
-  if (s.size() == 0) return;
+  if (s.length() == 0) return;
   int i = InputLog.indexOf(s);
   if (i >= 0)
     InputLog.removeAt(i);
@@ -98,11 +98,11 @@ void dlog_init()
 // ---------------------------------------------------------------------
 void dlog_max()
 {
-  int p = InputLog.size() - InputLogMax;
+  int p = InputLog.length() - InputLogMax;
   if (p > 0)
     for (int i=0; i<p; i++)
       InputLog.removeFirst();
-  InputLogPos = InputLog.size();
+  InputLogPos = InputLog.length();
 }
 
 // ---------------------------------------------------------------------
@@ -110,7 +110,7 @@ String dlog_scroll(int m)
 {
   int len, pos;
   String s;
-  len = InputLog.size();
+  len = InputLog.length();
   if (len == 0) return "";
   pos = max (0, min(len,InputLogPos + m));
   if (pos == InputLogPos) return "";
@@ -118,7 +118,7 @@ String dlog_scroll(int m)
   if (InputLogPos == len)
     s = InputLog.at (len - 1);
   else
-    s = InputLog.at(InputLogPos);
+    s = InputLog[InputLogPos];
   return config.DefIndent + s;
 }
 
@@ -166,7 +166,7 @@ void Slog::keyReleaseEvent(QKeyEvent *event)
 String[] qsreverse(const String[] list)
 {
   String[] r;
-  for(int i=list.size()-1; i>=0; i--)
-    r.append(list.at(i));
+  for(int i=list.length()-1; i>=0; i--)
+    r.append(list[i]);
   return r;
 }

@@ -1,25 +1,19 @@
 package com.jsoftware.jn.wd;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import com.jsoftware.j.android.AndroidJInterface;
 import com.jsoftware.j.android.JConsoleApp;
-import com.jsoftware.jn.base.Tedit;
 import com.jsoftware.jn.base.Util;
 import com.jsoftware.jn.base.Utils;
-import com.jsoftware.jn.wd.Child;
-import com.jsoftware.jn.wd.Cmd;
-import com.jsoftware.jn.wd.Font;
-import com.jsoftware.jn.wd.Form;
-import com.jsoftware.jn.wd.JIsigraph;
-import com.jsoftware.jn.wd.JwdActivity;
-import com.jsoftware.jn.wd.Menus;
-import com.jsoftware.jn.wd.Pane;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -35,56 +29,68 @@ import java.lang.Math;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-// import com.jsoftware.jn.base.Eview;
-// import com.jsoftware.jn.base.Qtstate;
-// import com.jsoftware.jn.base.State;
-// import com.jsoftware.jn.base.Term;
-// import com.jsoftware.jn.wd.Bitmap;
-// import com.jsoftware.jn.wd.Clipboard;
-// import com.jsoftware.jn.wd.Tabs;
 
 public class Wd
 {
 
-  static final String APP_VERSION="1.4.2";
+  static final String APP_VERSION="1.0.0";
+  static final String bintype="ghlmpsuvz";
   static public int nextId=1;
 
-  public JwdActivity activity;
-  public Cmd cmd;
-  Child cc;
-  public Form form;
-  public Form evtform;
-  public Font fontdef;
-  public Font FontExtent;
-  public JIsigraph isigraph;
+  JWdActivity activity;
+  private Cmd cmd;
+  private Child cc;
+  Form form;
+  Form evtform;
+  private Font fontdef;
+  private Font FontExtent;
+  JIsigraph isigraph;
 
-  public List<Form>Forms;
+  private Handler systimerHandler;
+  private Runnable systimerRunnable;
+  private long systimerInterval;
+  List<Form>Forms;
 
-  public int FormSeq;
-  public int rc;
-  String lasterror="";
-  byte[] result;
+  int FormSeq;
+  int rc;
+  private String lasterror="";
+  private byte[] result;
 
-  String ccmd="";
+  private String ccmd="";
 
-  int verbose;
-  String cmdstrparms="";
-  public final String[] defChildStyle=new String[] {"flush"};
-  public final float dmdensity;
+  private int verbose;
+  private String cmdstrparms="";
+  private final String[] defChildStyle=new String[] {"flush"};
+  final float dmdensity;
 
-  Context context;
-  Tedit tedit;
+  private Context context;
+  private JMb dialog;
 
   public Wd()
   {
+//     DisplayMetrics displaymetrics = new DisplayMetrics();
+//     pform.activity.getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+//     screenHeight = displaymetrics.heightPixels;
+//     screenWidth = displaymetrics.widthPixels;
+
     context=JConsoleApp.theApp.getApplicationContext();
     dmdensity=context.getResources().getDisplayMetrics().density;
-    tedit=JConsoleApp.theApp.tedit;
     Forms=new ArrayList<Form>();
+    dialog=new JMb(null);
+    systimerRunnable = new Runnable() {
+      @Override
+      public void run() {
+        if (0!=systimerInterval) {
+          systimerHandler.postDelayed(systimerRunnable, systimerInterval);
+          JConsoleApp.theApp.jInterface.callJ("(i.0 0)\"_ sys_timer_z_$0");
+        }
+      }
+    };
+
     _wdreset();
   }
 
-// // ---------------------------------------------------------------------
+// ---------------------------------------------------------------------
   public int gl2(int[] buf, Object[] res)
   {
     int cnt=buf.length;
@@ -138,7 +144,7 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  public int glsel(String p)
+  int glsel(String p)
   {
     if (p.isEmpty()) return 1;
     if (0==Forms.size()) return 1;
@@ -197,37 +203,35 @@ public class Wd
       c=cmd.getid();
       if (c.isEmpty()) continue;
       ccmd=c;
-      if ((0!=verbose) && c!="qer") {
+      if ((0!=verbose) && !c.equals("qer")) {
         cmd.markpos();
         cmdstrparms=c + " " + cmd.getparms();
         cmd.rewindpos();
         if (2==verbose || 3==verbose) {
           StringBuilder indent= new StringBuilder();
           if ((null!=form) && (null!=form.pane)) indent.append(new String(new char[2*Math.max(0,form.pane.layouts.size()-1)]).replace("\0", " "));
-          if (2==verbose && (null!=tedit) && Utils.ShowIde) tedit.append_smoutput("wd command: " + Util.s2q(indent.toString()+cmdstrparms));
-          if (3==verbose) Util.qDebug ( "wd command: " + Util.s2q(indent.toString()+cmdstrparms));
+//          if (2==verbose && (null!=tedit) && Utils.ShowIde) tedit.append_smoutput("wd command: " + indent.toString()+cmdstrparms);
+          if (3==verbose) Util.qDebug ( "wd command: " + indent.toString()+cmdstrparms);
         }
       }
       if (c.equals("activity"))
         wdactivity();
-      else if (c.equals("density"))
-        wddensity();
+      else if (c.equals("dm"))
+        wddm();
       else if (c.equals("q"))
         wdq();
       else if (c.equals("beep"))
         wdbeep();
       else if (c.equals("bin"))
-        wdbin();
+        wdbin(false);
+      else if (c.equals("binx"))
+        wdbin(true);
       else if (c.equals("cc"))
         wdcc();
       else if (c.equals("clipcopy"))
         wdclipcopy();
-      else if (c.equals("clipcopyx"))
-        wdclipcopyx();
       else if (c.equals("clippaste"))
         wdclippaste();
-      else if (c.equals("clippastex"))
-        wdclippastex();
       else if (c.equals("cmd"))
         wdcmd();
       else if (c.equals("cn"))
@@ -248,14 +252,10 @@ public class Wd
         wdgetp();
       else if (c.equals("grid"))
         wdgrid();
-      else if (c.startsWith("groupbox"))
-        wdgroupbox(c);
       else if (c.equals("ide"))
         wdide();
       else if (c.equals("immexj"))
         wdimmexj();
-      else if (c.startsWith("line"))
-        wdline(c);
       else if (c.startsWith("mb"))
         wdmb();
       else if (c.startsWith("menu"))
@@ -282,10 +282,6 @@ public class Wd
         wdsetx(c);
       else if (c.startsWith("sm"))
         wdsm(c);
-      else if (c.startsWith("split"))
-        wdsplit(c);
-      else if (c.startsWith("tab"))
-        wdtab(c);
       else if (c.equals("textview"))
         wdtextview();
       else if (c.equals("timer"))
@@ -294,10 +290,12 @@ public class Wd
         wdverbose();
       else if (c.equals("version"))
         wdversion();
-      else if (c.equals("weight"))
-        wdweight();
+      else if (c.equals("wt"))
+        wdwt();
       else if (c.equals("wh"))
         wdwh();
+      else if (c.equals("wwh"))
+        wdwwh();
       else if (c.equals("minwh"))
         wdminwh();
       else if (false) {
@@ -308,13 +306,12 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdactivity()
+  private void wdactivity()
   {
-//     String tlocale=JConsoleApp.theApp.jInterface.getLocale();
     String p=cmd.getparms();
     Log.d(JConsoleApp.LogTag,"activity "+p);
     Intent intent = new Intent();
-    intent.setClass(context, JwdActivity.class);
+    intent.setClass(context, JWdActivity.class);
     intent.putExtra("jlocale", p);
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
     Log.d(JConsoleApp.LogTag,"startActivity");
@@ -322,7 +319,7 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  public void wdactivateform()
+  void wdactivateform()
   {
     if (null!=form) {
       form.setVisibility(View.VISIBLE);
@@ -341,22 +338,25 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdbeep()
+  private void wdbeep()
   {
     cmd.getparms();
 //  QApplication::beep();
   }
 
 // ---------------------------------------------------------------------
-  void wdbin()
+  private void wdbin(boolean withid)
   {
+    String n="";
+    if (withid)
+      n=cmd.getid();
     String p=Util.remquotes(cmd.getparms());
     if (noform()) return;
-    form.pane.bin(p);
+    form.pane.bin(p,n);
   }
 
 // ---------------------------------------------------------------------
-  void wdcc()
+  private void wdcc()
   {
     if (noform()) {
       cmd.getparms();
@@ -370,56 +370,31 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdclipcopy()
+  private void wdclipcopy()
   {
     String p=cmd.getparms();
-//  wdclipwrite(Util.s2ba(p));
+    Util.clipcopy(context,p);
   }
 
 // ---------------------------------------------------------------------
-  void wdclipcopyx()
-  {
-    String n=cmd.getid();
-    String p=cmd.getparms();
-//  if (n.equals("image")) {
-//     if (wdclipwriteimage(s2ba(p)))
-//       error("clipboard or filename error: " + n + " " + p);
-//   } else
-//     error("clipboard format not supported: " + n);
-  }
-
-// ---------------------------------------------------------------------
-  void wdclippaste()
+  private void wdclippaste()
   {
     String p=cmd.getparms();
     int len=-1;
-    byte[] m;
-//   if (null!=(m=wdclipread())) {
-//     rc=-1;
-//     result= m;
-//   } else if (p.equals("1"))
-//     error("clipboard is empty");
-//   else {
-//     rc=-1;
-//     result= new byte[0];
-//   }
+    String m=Util.clipread(context);
+    if (0!=m.length()) {
+      rc=-1;
+      result= Util.s2ba(m);
+    } else if (p.equals("1"))
+      error("clipboard is empty");
+    else {
+      rc=-1;
+      result= new byte[0];
+    }
   }
 
 // ---------------------------------------------------------------------
-  void wdclippastex()
-  {
-    String n=cmd.getid();
-    String p=cmd.getparms();
-    byte[] m;
-//  if (n.equals("image")) {
-//     if (null==(m=wdclipreadimage(Util.s2ba(p))))
-//       error("clipboard or filename error: " + n + " " + p);
-//   } else
-//     error("clipboard format not supported: " + n);
-  }
-
-// ---------------------------------------------------------------------
-  void wdcmd()
+  private void wdcmd()
   {
     String n=cmd.getid();
     String p=cmd.getid();
@@ -428,21 +403,24 @@ public class Wd
     if (0!=type)
       cc.cmd(p,v);
     else
-      error("bad child id");
+      error("bad child id: " + n);
   }
 
 // ---------------------------------------------------------------------
-  void wdcn()
+  private void wdcn()
   {
-    String p=Util.remquotes(cmd.getparms());
+    String p=cmd.getparms();
     if (noform()) return;
     cc=form.child;
     if (nochild()) return;
-    cc.set("caption",p);
+    if (cc.type.equals("togglebutton")||cc.type.equals("switch"))
+      cc.set("texts",p);
+    else
+      cc.set("caption",Util.remquotes(p));
   }
 
 // ---------------------------------------------------------------------
-// void wddirmatch()
+// private void wddirmatch()
 // {
 //   String p=cmd.getparms();
 //   String[] f=Cmd.qsplit(p);
@@ -450,17 +428,17 @@ public class Wd
 //     error("dirmatch requires 2 directories");
 //     return;
 //   }
-//   dirmatch(Util.q2s(f[0]).Util.c_str(),Util.q2s(f[1]).Util.c_str());
+//   dirmatch(f[0].Util.c_str(),f[1].Util.c_str());
 // }
 
 // ---------------------------------------------------------------------
-  void wdend()
+  private void wdend()
   {
     cmd.end();
   }
 
 // ---------------------------------------------------------------------
-  void wdfontdef()
+  private void wdfontdef()
   {
     String p=cmd.getparms();
     if (!p.isEmpty()) {
@@ -475,17 +453,17 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdfontfile()
+  private void wdfontfile()
   {
     String p=Util.remquotes(cmd.getparms());
-//  int id=QFontDatabase::addApplicationFont(Util.s2q(p));
+//  int id=QFontDatabase::addApplicationFont(p);
     int id=0;
     result=Util.s2ba(Util.i2s(id));
     rc=-1;
   }
 
 // ---------------------------------------------------------------------
-  void wdget()
+  private void wdget()
   {
     String n=cmd.getid();
     String p=cmd.getid();
@@ -500,7 +478,7 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdgetp()
+  private void wdgetp()
   {
     String p=cmd.getid();
     String v=cmd.getparms();
@@ -511,7 +489,7 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdgrid()
+  private void wdgrid()
   {
     if (noform()) {
       cmd.getparms();
@@ -523,16 +501,7 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdgroupbox(String c)
-  {
-    String p=cmd.getparms();
-    if (noform()) return;
-    if (!form.pane.groupbox(c,p))
-      error("unrecognized command: " + c + " " + p);
-  }
-
-// ---------------------------------------------------------------------
-  void wdide()
+  private void wdide()
   {
     String p=Util.remquotes(cmd.getparms());
 //   if (p.equals("hide"))
@@ -544,32 +513,25 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdimmexj()
+  private void wdimmexj()
   {
     String p=cmd.getparms();
 //  immexj(p.Util.c_str());
   }
 
 // ---------------------------------------------------------------------
-  void wdline(String c)
-  {
-    String p=cmd.getparms();
-    if (noform()) return;
-    if (!form.pane.line(c,p))
-      error("unrecognized command: " + c + " " + p);
-  }
-
-// ---------------------------------------------------------------------
-  void wdmb()
+  private void wdmb()
   {
     String c=cmd.getid();
-    String p=cmd.getparms();
-    if (noform()) return;   // android need form activity and callback
-    form.dialog.mb(c,p);
+    String p=cmd.getparms(true);
+    if (null!=form)
+      form.dialog.mb(c,p);
+    else
+      dialog.mb(c,p);
   }
 
 // ---------------------------------------------------------------------
-  void wdmenu(String s)
+  private void wdmenu(String s)
   {
     int rc=0;
     if (noform()) {
@@ -600,7 +562,7 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdmsgs()
+  private void wdmsgs()
   {
     String p=cmd.getparms();
     if (!p.isEmpty()) {
@@ -611,27 +573,27 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdnb()
+  private void wdnb()
   {
     cmd.getline();
   }
 
 // ---------------------------------------------------------------------
 // not yet
-  void wdnotyet()
+  private void wdnotyet()
   {
     cmd.getparms();
   }
 
 // ---------------------------------------------------------------------
-  void wdopenj()
+  private void wdopenj()
   {
     String p=cmd.getparms();
 //  openj(Util.c_str(p));
   }
 
 // ---------------------------------------------------------------------
-  void wdp(String c)
+  private void wdp(String c)
   {
     if (c.equals("pactive"))
       wdpactive();
@@ -662,7 +624,7 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdpactive()
+  private void wdpactive()
   {
     String p=cmd.getparms();
     if (!p.isEmpty()) {
@@ -676,34 +638,34 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdpas()
+  private void wdpas()
   {
     String p=cmd.getparms();
     if (noform()) return;
-    String[] n=Util.s2q(p).split(" ");   //,String::SkipEmptyParts);
+    String[] n=Util.qsless(p.split(" "),new String[] {""});   //,String::SkipEmptyParts);
     int l,t,r,b;
     if (n.length==2) {
-      l=r=Util.c_strtoi(Util.q2s(n[0]));
-      t=b=Util.c_strtoi(Util.q2s(n[1]));
+      l=r=Util.c_strtoi(n[0]);
+      t=b=Util.c_strtoi(n[1]);
       form.setpadding(l,t,r,b);
     } else if (n.length==4) {
-      l=Util.c_strtoi(Util.q2s(n[0]));
-      t=Util.c_strtoi(Util.q2s(n[1]));
-      r=Util.c_strtoi(Util.q2s(n[2]));
-      b=Util.c_strtoi(Util.q2s(n[3]));
+      l=Util.c_strtoi(n[0]);
+      t=Util.c_strtoi(n[1]);
+      r=Util.c_strtoi(n[2]);
+      b=Util.c_strtoi(n[3]);
       form.setpadding(l,t,r,b);
     } else
       error("pas requires 2 or 4 numbers: " + p);
   }
 
 // ---------------------------------------------------------------------
-  void wdpc()
+  private void wdpc()
   {
     String c=cmd.getid();
     String p=cmd.getparms();
 // View must be parentless to be top-level window
-    String[] m=Util.s2q(p).split(" ");   //,String::SkipEmptyParts);
-    if (null!=activity.form) {
+    String[] m=Util.qsless(p.split(" "),new String[] {""});   //,String::SkipEmptyParts);
+    if (null==activity || null!=activity.form) {
       error("pc requires a new activity " + p);
       return;
     }
@@ -717,7 +679,7 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdpcenter()
+  private void wdpcenter()
   {
     String p=cmd.getparms();
     if (!p.isEmpty()) {
@@ -728,7 +690,7 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdpclose()
+  private void wdpclose()
   {
     String p=cmd.getparms();
     if (!p.isEmpty()) {
@@ -742,7 +704,7 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdpicon()
+  private void wdpicon()
   {
     String p=Util.remquotes(cmd.getparms());
     if (noform()) return;
@@ -750,21 +712,21 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdpmove()
+  private void wdpmove()
   {
     String p=cmd.getparms();
     if (noform()) return;
-    String[] n=Util.s2q(p).split(" ");   //,String::SkipEmptyParts);
+    String[] n=Util.qsless(p.split(" "),new String[] {""});   //,String::SkipEmptyParts);
     if (n.length!=4)
       error("pmove requires 4 numbers: " + p);
     else {
-      if (Util.c_strtoi(Util.q2s(n[2]))!=-1 && Util.c_strtoi(Util.q2s(n[3]))!=-1)
-        form.resize(Util.c_strtoi(Util.q2s(n[2])),Util.c_strtoi(Util.q2s(n[3])));
+      if (Util.c_strtoi(n[2])!=-1 && Util.c_strtoi(n[3])!=-1)
+        form.resize(Util.c_strtoi(n[2]),Util.c_strtoi(n[3]));
     }
   }
 
 // ---------------------------------------------------------------------
-  void wdpn()
+  private void wdpn()
   {
     String p=Util.remquotes(cmd.getparms());
     if (noform()) return;
@@ -772,7 +734,7 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdpsel()
+  private void wdpsel()
   {
     String p=cmd.getparms();
     if (p.isEmpty()) {
@@ -799,7 +761,7 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdpshow()
+  private void wdpshow()
   {
     String p=Util.remquotes(cmd.getparms());
     if (noform()) return;
@@ -807,7 +769,7 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdptimer()
+  private void wdptimer()
   {
     String p=Util.remquotes(cmd.getparms());
     if (noform()) return;
@@ -815,7 +777,7 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdptop()
+  private void wdptop()
   {
     String p=Util.remquotes(cmd.getparms());
     if (noform()) return;
@@ -830,7 +792,7 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wddensity()
+  private void wddm()
   {
     String p=cmd.getparms();
     if (!p.isEmpty()) {
@@ -838,12 +800,19 @@ public class Wd
       return;
     }
     rc=-1;
-    result=Util.s2ba(Util.d2s(dmdensity));
+    android.util.DisplayMetrics dm=context.getResources().getDisplayMetrics();
+    result=Util.s2ba(Util.d2s((double)dm.density)+" "+
+                     Util.d2s((double)dm.scaledDensity)+" "+
+                     Util.i2s(dm.densityDpi)+" "+
+                     Util.i2s(dm.widthPixels)+" "+
+                     Util.i2s(dm.heightPixels)+" "+
+                     Util.d2s((double)dm.xdpi)+" "+
+                     Util.d2s((double)dm.ydpi));
     return;
   }
 
 // ---------------------------------------------------------------------
-  void wdq()
+  private void wdq()
   {
     String p=cmd.getparms();
     if (!p.isEmpty()) {
@@ -854,14 +823,14 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdqtstate(String p)
+  private void wdqtstate(String p)
   {
     rc=-2;
 //  result=qtstate(p);
   }
 
 // ---------------------------------------------------------------------
-  void wdqueries(String s)
+  private void wdqueries(String s)
   {
     String p=cmd.getparms();
 
@@ -885,8 +854,8 @@ public class Wd
       if (0!=verbose)
         result=Util.s2ba(lasterror + "\012" + cmdstrparms);
       else result=Util.s2ba(lasterror);
-      if (2==verbose && (null!=tedit) && Utils.ShowIde) tedit.append_smoutput("wd **error: " + Util.s2q(lasterror));
-      if (3==verbose) Util.qDebug("wd **error: " + Util.s2q(lasterror));
+//      if (2==verbose && (null!=tedit) && Utils.ShowIde) tedit.append_smoutput("wd **error: " + lasterror);
+      if (3==verbose) Util.qDebug("wd **error: " + lasterror);
       return;
     }
 // queries that form not needed
@@ -933,10 +902,10 @@ public class Wd
       return;
     } else if (s.equals("qfile")) {
       boolean done=false;
-      String path=Util.s2q(Util.remquotes(p));
+      String path=Util.remquotes(p);
       try {
         byte buff[] = new byte[8092];
-        InputStream in = activity.getAssets().open(path);
+        InputStream in = JConsoleApp.theApp.activity.getAssets().open(path);
         ByteArrayOutputStream out=new ByteArrayOutputStream();
         int n;
         while ((n = in.read(buff)) != -1) {
@@ -946,8 +915,8 @@ public class Wd
         out.close();
         in.close();
         if (!done) result=out.toByteArray();
-      } catch (IOException e) {
-        error("IOException");
+      } catch (IOException exc) {
+        error(Log.getStackTraceString(exc));
       };
       return;
     }
@@ -980,20 +949,20 @@ public class Wd
 //       result=Util.s2ba(Util.i2s(pos.x())+" "+Util.i2s(pos.y())+" "+Util.i2s(size.width())+" "+Util.i2s(size.height()));
         result=Util.s2ba("0 0 0 0");
       } else
-        error("TOFO");
+        error("TODO");
       if (rc!=1) form.child=cc;
     } else
       error("command not found");
   }
 
 // ---------------------------------------------------------------------
-  void wdrem()
+  private void wdrem()
   {
     cmd.getparms();
   }
 
 // ---------------------------------------------------------------------
-  public void wdreset()
+  private void wdreset()
   {
     String p=cmd.getparms();
     if (!p.isEmpty()) {
@@ -1005,7 +974,8 @@ public class Wd
 // ---------------------------------------------------------------------
   private void _wdreset()
   {
-//  if (timer) timer.stop();
+    systimerInterval=0;
+    if (null!=systimerHandler) systimerHandler.removeCallbacks(systimerRunnable);
 
     for (Form f : Forms) {
       f.closed=true;
@@ -1026,7 +996,7 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdset()
+  private void wdset()
   {
     String n=cmd.getid();
     String p=cmd.getid();
@@ -1035,7 +1005,7 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdsetp()
+  private void wdsetp()
   {
     String p=cmd.getid();
     String v=cmd.getparms();
@@ -1047,7 +1017,7 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdsetx(String c)
+  private void wdsetx(String c)
   {
     String n=cmd.getid();
     String p=c.substring(3);
@@ -1056,7 +1026,7 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdset1(String n,String p,String v)
+  private void wdset1(String n,String p,String v)
   {
     if (noform()) return;
     Util.noevents(1);
@@ -1078,14 +1048,14 @@ public class Wd
       cc.set(n+" "+p,v);
       break;
     default :
-      error("bad child id");
+      error("bad child id: " + n);
     }
     if (rc!=1) form.child=cc;
     Util.noevents(0);
   }
 
 // ---------------------------------------------------------------------
-  void wdsm(String s)
+  private void wdsm(String s)
   {
     String c,p;
     if (s.equals("sm"))
@@ -1100,16 +1070,7 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdsplit(String c)
-  {
-    String p=cmd.getparms();
-    if (noform()) return;
-    if (!form.pane.split(c,p))
-      error("unrecognized command: " + c + " " + p);
-  }
-
-// ---------------------------------------------------------------------
-  void wdstate(Form f,int event)
+  private void wdstate(Form f,int event)
   {
     if (null!=f)
       result=f.state(event);
@@ -1117,24 +1078,9 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdtab(String c)
+  private void wdtextview()
   {
-    String p=cmd.getparms();
-    if (notab()) return;
-    if (c.equals("tabend"))
-      form.tab.tabend();
-    else if (c.equals("tabnew")) {
-      Util.noevents(1);
-      form.tab.tabnew(p);
-      Util.noevents(0);
-    } else
-      error("unrecognized command: " + c + " " + p);
-  }
-
-// ---------------------------------------------------------------------
-  void wdtextview()
-  {
-    String p, title,header,text;
+    String p, title="",header="",text;
     char d;
     int n;
     p=Util.boxj2utf8(cmd.getparms());
@@ -1142,34 +1088,44 @@ public class Wd
     d=p.charAt(0);
     p=p.substring(1);
     n=p.indexOf(d);
-    title=p.substring(0,n-1);
+    if (-1!=n)
+      title=p.substring(0,n);
     p=p.substring(n+1);
     n=p.indexOf(d);
-    header=p.substring(0,n-1);
+    if (-1!=n)
+      header=p.substring(0,n);
     text=p.substring(n+1);
-//  textview(title,header,text);
+    Intent intent = new Intent();
+    intent.setClass(context, JTextViewActivity.class);
+    intent.putExtra("title", title);
+    intent.putExtra("header", header);
+    intent.putExtra("text", text);
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+    context.startActivity(intent);
   }
 
 // ---------------------------------------------------------------------
-  void wdtimer()
+  private void wdtimer()
   {
     String p=Util.remquotes(cmd.getparms());
-    int n=Util.c_strtoi(p);
-//   if (0!=n)
-//     timer.start(n);
-//   else
-//     timer.stop();
+    systimerInterval=Util.c_strtol(p);
+    if (0!=systimerInterval) {
+      if (null==systimerHandler) systimerHandler = new Handler();
+      systimerHandler.postDelayed(systimerRunnable, systimerInterval);
+    } else {
+      systimerHandler.removeCallbacks(systimerRunnable);
+    }
   }
 
 // ---------------------------------------------------------------------
-  void wdverbose()
+  private void wdverbose()
   {
     String p=Util.remquotes(cmd.getparms());
-    String[] n=Util.s2q(p).split(" ");   //,String::SkipEmptyParts);
+    String[] n=Util.qsless(p.split(" "),new String[] {""});   //,String::SkipEmptyParts);
     if (0==n.length)
       error("verbose requires 1 number: " + p);
     else {
-      int i=Util.c_strtoi(Util.q2s(n[0]));
+      int i=Util.c_strtoi(n[0]);
       if (!(i>=0 && i<=3))
         error("verbose should be 0,1,2 or 3: " + p);
       else verbose=i;
@@ -1177,7 +1133,7 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdversion()
+  private void wdversion()
   {
     String p=Util.remquotes(cmd.getparms());
     if (!p.isEmpty()) {
@@ -1189,73 +1145,63 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void wdweight()
+  private void wdwt()
   {
     String p=cmd.getparms();
     if (noform()) return;
-    String[] n=Util.s2q(p).split(" ");   //,String::SkipEmptyParts);
+    String[] n=Util.qsless(p.split(" "),new String[] {""});   //,String::SkipEmptyParts);
     if (n.length!=1)
-      error("weight requires 1 number: " + p);
+      error("wt requires 1 number: " + p);
     else {
-      form.pane.weight=(float)Util.c_strtod(Util.q2s(n[0]));
+      form.pane.weight=(float)Util.c_strtod(n[0]);
     }
   }
 
 // ---------------------------------------------------------------------
-  void wdwh()
+  private void wdwh()
   {
     String p=cmd.getparms();
     if (noform()) return;
-    String[] n=Util.s2q(p).split(" ");   //,String::SkipEmptyParts);
+    String[] n=Util.qsless(p.split(" "),new String[] {""});   //,String::SkipEmptyParts);
     if (n.length!=2)
       error("wh requires 2 numbers: " + p);
     else {
-      form.pane.sizew=Util.c_strtoi(Util.q2s(n[0]));
-      form.pane.sizeh=Util.c_strtoi(Util.q2s(n[1]));
+      form.pane.sizew=Util.c_strtoi(n[0]);
+      form.pane.sizeh=Util.c_strtoi(n[1]);
     }
   }
 
 // ---------------------------------------------------------------------
-  public void wdminwh()
+  private void wdwwh()
   {
     String p=cmd.getparms();
     if (noform()) return;
-    String[] n=Util.s2q(p).split(" ");   //,String::SkipEmptyParts);
+    String[] n=Util.qsless(p.split(" "),new String[] {""});   //,String::SkipEmptyParts);
+    if (n.length!=3)
+      error("wh requires 3 numbers: " + p);
+    else {
+      form.pane.weight=(float)Util.c_strtod(n[0]);
+      form.pane.sizew=Util.c_strtoi(n[1]);
+      form.pane.sizeh=Util.c_strtoi(n[2]);
+    }
+  }
+
+// ---------------------------------------------------------------------
+  private void wdminwh()
+  {
+    String p=cmd.getparms();
+    if (noform()) return;
+    String[] n=Util.qsless(p.split(" "),new String[] {""});  //,String::SkipEmptyParts);
     if (n.length!=2)
       error("minwh requires 2 numbers: " + p);
     else {
-      form.pane.minsizew=Util.c_strtoi(Util.q2s(n[0]));
-      form.pane.minsizeh=Util.c_strtoi(Util.q2s(n[1]));
+      form.pane.minsizew=Util.c_strtoi(n[0]);
+      form.pane.minsizeh=Util.c_strtoi(n[1]);
     }
   }
 
 // ---------------------------------------------------------------------
-  public void wdsetwh(View widget,String p)
-  {
-    if (null==widget) return;
-    String[] n=Util.s2q(p).split(" ");   //,String::SkipEmptyParts);
-    if (n.length!=2) {
-      error("set wh requires 2 numbers: " + p);
-    } else {
-      int w=Util.c_strtoi(Util.q2s(n[0]));
-      int h=Util.c_strtoi(Util.q2s(n[1]));
-      if (null==widget) return;
-      if (w!=-9 || h!=-9) {
-        if (w==-9)
-          widget.getLayoutParams().height = h;
-        else if (h==-9)
-          widget.getLayoutParams().width = w;
-        else {
-          widget.getLayoutParams().height = h;
-          widget.getLayoutParams().width = w;
-        }
-      }
-//      widget.requestLayout();
-    }
-  }
-
-// ---------------------------------------------------------------------
-  public void error(String s)
+  void error(String s)
   {
     lasterror=ccmd+" : "+s;
     Log.d(JConsoleApp.LogTag,"error: "+lasterror);
@@ -1264,7 +1210,7 @@ public class Wd
 
 // ---------------------------------------------------------------------
 // returns: id of current form child
-  String formchildid()
+  private String formchildid()
   {
     if (noform()) return "";
     if (null==form.child) return "";
@@ -1272,16 +1218,16 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  public boolean invalidopt(String n,String[] opt,String valid)
+  boolean invalidopt(String n,String[] opt,String valid)
   {
-    String[] unopt=Util.qsless(opt,Util.sajoin(defChildStyle,Cmd.qsplit(valid)));
-    if (0==unopt.length) return false;
-    error("unrecognized style for " + n + ": " + Util.q2s(Util.sajoinstr(unopt," ")));
+    String[] unopt=Util.qsless(Util.qsless(opt,Util.sajoin(defChildStyle,Cmd.qsplit(valid))),new String[] {""});
+    if (0==unopt.length || Util.qsnumeric(unopt)) return false;
+    error("unrecognized style for " + n + ": " + Util.sajoinstr(unopt," "));
     return true;
   }
 
 // ---------------------------------------------------------------------
-  boolean nochild()
+  private boolean nochild()
   {
     if (null!=cc) return false;
     error("no child selected");
@@ -1289,7 +1235,7 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  public boolean noform()
+  private boolean noform()
   {
     if (null!=form) return false;
     error("no parent selected");
@@ -1297,19 +1243,10 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  boolean notab()
-  {
-    if (noform()) return true;
-    if (null!=form.tab) return false;
-    error("no tab definition");
-    return true;
-  }
-
-// ---------------------------------------------------------------------
 // returns: 0=id not found
 //          1=child id (cc=child)
 //          2=menu  id (cc=menubar)
-  int setchild(String id)
+  private int setchild(String id)
   {
     Child c;
     if (noform()) return 0;
@@ -1328,7 +1265,7 @@ public class Wd
 
 // ---------------------------------------------------------------------
 // translate event.keyboard key to Private Use Area
-  public int translateqkey(int key)
+  int translateqkey(int key)
   {
     return (key>=0x1000000) ? ((key & 0xff) | 0xf800) : key;
   }

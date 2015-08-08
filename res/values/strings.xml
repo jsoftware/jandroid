@@ -10,14 +10,14 @@
     <string name="label_send_key">Send</string>
     <string name="label_next_key">Next</string>
 
-    <string name="activity_name">Activity</string>
+    <string name="wdactivity_name">Wd</string>
+    <string name="textviewactivity_name">TextView</string>
     
     <string name="help_start">http://www.jsoftware.com/help/dictionary/vocabul.htm</string>
     <string name="learning">http://www.jsoftware.com/help/learning/contents.htm</string>
-    <string name="aboutj">docs/aboutj.txt</string>
-    <string name="readme">docs/readme.txt</string>
+    <string name="demos">demoja_ja_$0</string>
+    <string name="showcase">demowd_ja_$0</string>
 
-    <string name="jhs_start">http://localhost:65001/jijxipad</string>
-    <string name="version">1.0.0</string>
+    <string name="version">1.0.3</string>
         
 </resources>

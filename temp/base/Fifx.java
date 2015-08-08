@@ -56,12 +56,12 @@ String[] Fif::searchdo()
       pat.setPattern(what);
   }
 
-  for (int i=0; i<files.size(); i++)
-    r.append(searchfile(files.at(i)));
+  for (int i=0; i<files.length(); i++)
+    r.append(searchfile(files[i]));
 
-  int len=p.size()+1;
-  for (int i=0; i<r.size(); i++)
-    r.replace(i,r.at(i).mid(len));
+  int len=p.length()+1;
+  for (int i=0; i<r.length(); i++)
+    r.replace(i,r[i].mid(len));
 
   return r;
 }
@@ -96,7 +96,7 @@ String[] Fif::searchfile(String file)
       }
     }
   }
-  if(hit.size()==0) return r;
+  if(hit.length()==0) return r;
   return searchformat(file,hit,dat);
 }
 
@@ -108,13 +108,13 @@ List<int> Fif::searchfilex(String txt)
   List<int> r;
   String[] s=txt.split('\n');
 
-  for (i=0; i<s.size(); i++) {
+  for (i=0; i<s.length(); i++) {
     m=0;
-    while (0<=(n=s.at(i).indexOf(pat,m))) {
+    while (0<=(n=s[i].indexOf(pat,m))) {
       r.append(p+n);
       m=n+1;
     }
-    p+=s.at(i).size()+1;
+    p+=s[i].length()+1;
   }
   return r;
 }
@@ -125,7 +125,7 @@ String[] Fif::searchformat(String file,List<int>hit, String txt)
   String[] r;
 
   if (Fileonly) {
-    r.append(file+":"+String::number(hit.size()));
+    r.append(file+":"+String::number(hit.length()));
     return r;
   }
 
@@ -133,7 +133,7 @@ String[] Fif::searchformat(String file,List<int>hit, String txt)
   hit=removedups(hit);
   String[] lines=txt.split("\n");
   foreach(int i,hit)
-    r.append(String::number(i) + ": " + lines.at(i));
+    r.append(String::number(i) + ": " + lines[i]);
   r=qslprependeach(file+":",r);
   return r;
 }
@@ -145,8 +145,8 @@ List<int> Fif::lineindex(const List<int> hit,const String txt)
   int i,p=0;
   List<int> r;
   List<int> end=lineends(txt);
-  for (i=0; i<hit.size(); i++) {
-    while(end.at(p)<hit.at(i))
+  for (i=0; i<hit.length(); i++) {
+    while(end[p]<hit[i])
       p++;
     r.append(p);
   }
@@ -163,7 +163,7 @@ List<int> Fif::lineends(const String txt)
     r.append(n);
     p=n+1;
   }
-  r.append(txt.size());
+  r.append(txt.length());
   return r;
 }
 
@@ -173,11 +173,11 @@ List<int> Fif::removedups(const List<int> hit)
 {
   int p,q;
   List<int> r;
-  if (hit.size()==0) return r;
-  p=hit.at(0);
+  if (hit.length()==0) return r;
+  p=hit[0];
   r.append(p);
-  for(int i=1; i<hit.size(); i++) {
-    q=hit.at(i);
+  for(int i=1; i<hit.length(); i++) {
+    q=hit[i];
     if (p!=q) r.append((p=q));
   }
   return r;

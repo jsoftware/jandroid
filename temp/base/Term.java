@@ -84,7 +84,6 @@ Term::Term()
     vfunc=new QHBoxLayout;
     for(int i=0; i<nfunc; i++) {
       w[i]=new QPushButton("F"+String::number(i+1),this);
-      w[i].setObjectName(String::number(i+1));
       w[i].setFocusPolicy(Qt::NoFocus);
       QObject::connect(w[i], SIGNAL(clicked()), this, SLOT(vfuncClicked()));
       vfunc.addWidget(w[i]);
@@ -135,9 +134,9 @@ void Term::cleantemp()
   d.setFilter(QDir::Files|QDir::Writable);
   String[] t=d.entryList(String[]() << "*.ijs");
   foreach (String e,t)
-    if (re.exactMatch(e.left(e.size()-4))) {
+    if (re.exactMatch(e.left(e.length()-4))) {
       QFile f(d.filePath(e));
-      if (f.size()==0)
+      if (f.length()==0)
         f.remove();
     }
 }
@@ -235,7 +234,7 @@ void Term::launchpad_triggered(QAction *a)
 {
   String s=a.objectName();
 
-  s=s.mid(config.LaunchPadPrefix.size());
+  s=s.mid(config.LaunchPadPrefix.length());
   QTime t=QTime::currentTime();
   if (LastLaunch==s && LastLaunchTime.secsTo(t)<2) return;
   LastLaunch=s;
@@ -243,7 +242,7 @@ void Term::launchpad_triggered(QAction *a)
   int i=config.LaunchPadKeys.indexOf(s);
 
   if (i<0) return;
-  tedit.loadscript(config.LaunchPadValues.at(i),false);
+  tedit.loadscript(config.LaunchPadValues[i],false);
 }
 
 // ---------------------------------------------------------------------
@@ -262,7 +261,7 @@ void Term::pacman()
 // ---------------------------------------------------------------------
 void Term::projectenable()
 {
-  boolean b=project.Id.size()>0;
+  boolean b=project.Id.length()>0;
   menuBar.runprojectAct.setEnabled(b);
   menuBar.projectcloseAct.setEnabled(b);
 }

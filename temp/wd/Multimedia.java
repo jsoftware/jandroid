@@ -14,7 +14,7 @@ Multimedia::Multimedia(String n, String s, Form f, Pane p) : Child(n,s,f,p)
 {
   type="multimedia";
   isVideo=false;
-  String qn=Util.s2q(n);
+  String qn=n;
   String[] opt=Cmd.qsplit(s);
   if (JConsoleApp.theWd.invalidopt(n,opt,"video")) return;
   childStyle(opt);
@@ -24,7 +24,6 @@ Multimedia::Multimedia(String n, String s, Form f, Pane p) : Child(n,s,f,p)
     QVideoWidget *w=new QVideoWidget;
     mediaPlayer.setVideoOutput(w);
     widget=(View ) w;
-    widget.setObjectName(qn);
   }
 #endif
   QObject::connect(&mediaPlayer, SIGNAL( bufferStatusChanged(int)), this, SLOT( bufferStatusChanged(int)));
@@ -144,7 +143,7 @@ String Multimedia::get(String p,String v)
       r+=String("aspectratio")+"\012"+ "brightness"+"\012"+ "contrast"+"\012"+ "duration"+"\012"+ "error"+"\012"+ "fullscreen"+"\012"+ "hue"+"\012"+ "mute"+"\012"+ "playstate"+"\012"+ "position"+"\012"+ "saturation"+"\012"+ "seekable"+"\012"+ "status"+"\012"+ "volume"+"\012";
     else
       r+=String("duration")+"\012"+ "error"+"\012"+ "mute"+"\012"+ "playstate"+"\012"+ "position"+"\012"+ "seekable"+"\012"+ "status"+"\012"+ "volume"+"\012";
-    r+=Child::get(p,v);
+    r+=super.get(p,v);
   } else if (p.equals("duration"))
     r=d2s(mediaPlayer.duration());
   else if (p.equals("error"))
@@ -176,10 +175,10 @@ String Multimedia::get(String p,String v)
     else if (p.equals("saturation"))
       r=Util.i2s(w.saturation());
     else
-      r=Child::get(p,v);
+      r=super.get(p,v);
 #endif
   } else
-    r=Child::get(p,v);
+    r=super.get(p,v);
   return r;
 }
 
@@ -191,12 +190,12 @@ void Multimedia::set(String p,String v)
 #else
   View w=widget;
 #endif
-  if ((p.equals("pause" || p=="play" || p=="stop")) && v.size()) {
+  if ((p.equals("pause" || p=="play" || p=="stop")) && v.length()) {
     JConsoleApp.theWd.error("extra parameters: " + p + " " + v);
     return;
   }
   if (p.equals("media")) {
-    String f=Util.s2q(Util.remquotes(v));
+    String f=Util.remquotes(v);
     if (f.contains("://"))
       mediaPlayer.setMedia(QUrl(f));
     else
@@ -239,9 +238,9 @@ void Multimedia::set(String p,String v)
     else if (p.equals("saturation"))
       w.setSaturation(Util.c_strtoi(v));
     else
-      Child::set(p,v);
+      super.set(p,v);
 #endif
-  } else Child::set(p,v);
+  } else super.set(p,v);
 }
 
 // ---------------------------------------------------------------------

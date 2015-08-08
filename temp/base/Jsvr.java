@@ -183,7 +183,7 @@ void jepath(char* arg)
 #elif defined(QT_OS_ANDROID)
   QFileInfo fileInfo(LibName);
   strcpy(path,fileInfo.canonicalPath().toUtf8().constData());
-  qDebug() << "jepath " << Util.s2q(path);
+  qDebug() << "jepath " << path;
 #else
 #define sz 4000
   char arg2[sz],arg3[sz];
@@ -300,7 +300,7 @@ int jefirst(int type,char* arg)
       setenv("HOME",QDir::currentPath().toUtf8().constData(),1);
   }
   strcpy(homepath,getenv("HOME"));
-  qDebug() << "homepath: " << Util.s2q(homepath);
+  qDebug() << "homepath: " << homepath;
   String appcurrentpath = QDir::currentPath();
   qDebug() << "application current path: " << appcurrentpath;
 // if(!getenv("TMPDIR"))
@@ -321,18 +321,18 @@ int jefirst(int type,char* arg)
     strcat(install, "/files");
     if(stat(install,&st)) mkdir(install, S_IRWXU | S_IRWXG | S_IRWXO);
     if(stat(install,&st)) {
-      qDebug() << "can not mkdir install: " << Util.s2q(install);
+      qDebug() << "can not mkdir install: " << install;
       strcpy(install, appcurrentpath.toUtf8().constData());
     }
   } else {
     strcpy(install, appcurrentpath.toUtf8().constData());
   }
-  qDebug() << "install path: " << Util.s2q(install);
+  qDebug() << "install path: " << install;
 
   QDir::setCurrent(install);
   qDebug() << "current path: " << QDir::currentPath();
   strcpy(install, QDir::currentPath().toUtf8().constData());
-  qDebug() << "install path: " << Util.s2q(install);
+  qDebug() << "install path: " << install;
 // assume cwd is .../files
 
   String v1, v2;
@@ -402,16 +402,16 @@ int jefirst(int type,char* arg)
   qDebug() << "current path :(home) " << QDir::currentPath();
   strcpy(homepath, QDir::currentPath().toUtf8().constData());
   setenv("HOME",homepath,1);
-  qDebug() << "homepath path: " << Util.s2q(homepath);
+  qDebug() << "homepath path: " << homepath;
 #endif
 
   *input=0;
   QFile sprofile(":/standalone/profile.ijs");
   QFileInfo info=QFileInfo(sprofile);
-  if (info.exists() && info.isFile() && info.size()>0) standAlone=true;
+  if (info.exists() && info.isFile() && info.length()>0) standAlone=true;
   if (standAlone) {
     boolean done=false;
-    qint64 ssize=info.size();
+    qint64 ssize=info.length();
     if(sprofile.open(QFile::ReadOnly)) {
       char * sdata=(char *)malloc(ssize);
       QDataStream in(&sprofile);
@@ -506,7 +506,7 @@ void sigint(int k)
 // return 0 on error
 A dora(String s)
 {
-  if (sizeof(inputline)<8+s.size()) exit(100);
+  if (sizeof(inputline)<8+s.length()) exit(100);
   strcpy(inputline,"r_jrx_=:");
   strcat(inputline,s.Util.c_str());
   int e = jdo(jt,inputline);
@@ -573,9 +573,9 @@ void sets(String name, String s)
   hlen=n*5;
 
   QByteArray nb=name.toUtf8();
-  nlen=nb.size();
+  nlen=nb.length();
 
-  slen=(int)s.size();
+  slen=(int)s.length();
   tlen=n*(1+slen/n);
 
 //  hdr[0]=(4==n) ? 225 : 227;

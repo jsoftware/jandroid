@@ -85,7 +85,6 @@ QWidget *Picm::createview()
   QSplitter *s=new QSplitter();
   times = new ListWidget();
   times.setFont(config.Font);
-  times.setObjectName("times");
   tview = new Eview();
   tview.ensureCursorVisible();
   tview.setLineWrapMode(PlainTextEdit::NoWrap);
@@ -125,16 +124,16 @@ void Picm::init(String v,boolean first)
   t.removeLast();
   if (t.isEmpty())
     t.append((Text+"000000").toUtf8());
-  for (i=0; i<t.size(); i++)
-    s.append(String::fromUtf8(t.at(i)));
+  for (i=0; i<t.length(); i++)
+    s.append(String::fromUtf8(t[i]));
   Stamps.clear();
   Texts.clear();
-  for (i=s.size()-1; i>=0; i--) {
-    m=s.at(i);
-    Texts.append(m.left(m.size()-6));
+  for (i=s.length()-1; i>=0; i--) {
+    m=s[i];
+    Texts.append(m.left(m.length()-6));
     Stamps.append(unstamp(m.right(6)));
   }
-  Stamps.replace(s.size()-1,"start   ");
+  Stamps.replace(s.length()-1,"start   ");
 
   times.clear();
   times.addItems(Stamps);
@@ -148,7 +147,7 @@ void Picm::on_externaldiff_clicked()
 {
   note.savecurrent();
   String s=newtempscript();
-  cfwrite(s,Texts.at(times.currentRow()));
+  cfwrite(s,Texts[times.currentRow()]);
   Temps.append(s);
   xdiff(s,note.editFile());
 }
@@ -158,9 +157,9 @@ void Picm::on_restore_clicked()
 {
   int n=times.currentRow();
   String m="OK to restore file snapshot: ";
-  m+=Stamps.at(n).trimmed() + "?";
+  m+=Stamps[n].trimmed() + "?";
   if(!queryNY(Title,m)) return;
-  note.settext(Texts.at(n));
+  note.settext(Texts[n]);
   closeit();
 }
 
@@ -195,17 +194,17 @@ void Picm::on_times_currentRowChanged(int n)
 // ---------------------------------------------------------------------
 void Picm::on_view_clicked()
 {
-  textview(Texts.at(times.currentRow()));
+  textview(Texts[times.currentRow()]);
 }
 
 // ---------------------------------------------------------------------
 void Picm::tcompare(int n)
 {
   String s,t;
-  t=Texts.at(n);
+  t=Texts[n];
   s="comparing:\n";
-  s+=File + "  " + Stamps.at(n) + "  " + String::number(t.size()) + "\n";
-  s+=File + "  " + "current   " + String::number(Text.size()) + "\n";
+  s+=File + "  " + Stamps[n] + "  " + String::number(t.length()) + "\n";
+  s+=File + "  " + "current   " + String::number(Text.length()) + "\n";
   s+=compare(t.split('\n'),Text.split('\n'));
   tview.setPlainText(s);
   tview.setFocus();
@@ -284,7 +283,7 @@ boolean pic_inidir(String s)
     e.removeOne(p);
   }
 
-  if(e.size()) {
+  if(e.length()) {
     qSort(e);
     e.removeLast();
     foreach (const String m,e)

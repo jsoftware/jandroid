@@ -19,8 +19,8 @@ Rsel::Rsel()
     return;
   }
 
-  for (i=0; i<recent.Files.size(); i++)
-    s.append(tofoldername(recent.Files.at(i)));
+  for (i=0; i<recent.Files.length(); i++)
+    s.append(tofoldername(recent.Files[i]));
 
   QHBoxLayout h=new QHBoxLayout();
   h.setContentsMargins(0,0,0,0);
@@ -29,7 +29,6 @@ Rsel::Rsel()
   flist.setAlternatingRowColors(true);
   flist.addItems(s);
   flist.setCurrentRow(0);
-  flist.setObjectName("flist");
   h.addWidget(flist);
 
   QVBoxLayout v=new QVBoxLayout();
@@ -62,7 +61,6 @@ Rsel::Rsel()
 QPushButton *Rsel::makebutton(QVBoxLayout v,String id)
 {
   QPushButton *p=new QPushButton(id);
-  p.setObjectName(id.remove(' ').toLower());
   v.addWidget(p);
   return p;
 }
@@ -117,6 +115,6 @@ void Rsel::on_view_clicked()
 String Rsel::selected()
 {
   List<ListWidgetItem *> s=flist.selectedItems();
-  if (s.size()) return cpath(s.at(0).text());
+  if (s.length()) return cpath(s[0].text());
   else return "";
 }

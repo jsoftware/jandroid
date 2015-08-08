@@ -33,7 +33,7 @@ WsSvr::WsSvr(int port, int secureMode) : clients()
   server = new QWebSocketServer(this, (QtWebsocket::Protocol)1);
 #endif
   if (! server.listen(QHostAddress::Any, port)) {
-    errString = Util.q2s(server.errorString());
+    errString = server.errorString();
 #ifdef DEBUG_WEBSOCKET
     qDebug() << "Error: Can't launch websocket server";
     qDebug() << String("QWsServer error : %1").arg(server.errorString());
@@ -122,10 +122,10 @@ void WsSvr::messageReceived(QWebSocket* socket, QByteArray ba, boolean binary)
 {
 #ifdef DEBUG_WEBSOCKET
   qDebug() << String("Client 0x%1 message received: ").arg((quintptr)socket , QT_POINTER_SIZE * 2, 16, QChar('0'));
-  qDebug() << "number of bytes received: " + String::number(ba.size());
+  qDebug() << "number of bytes received: " + String::number(ba.length());
   qDebug() << String(ba.toHex());
 #endif
-  jsetc((char *)"wss0_jrx_",(C*)ba.data(), ba.size());
+  jsetc((char *)"wss0_jrx_",(C*)ba.data(), ba.length());
   if (binary)
     jsetc((char *)"wss1_jrx_",(C*)"binary", 6);
   else
@@ -165,8 +165,8 @@ void WsSvr::onError(QAbstractSocket::SocketError error)
   qDebug() << String("Client 0x%1 error: ").arg((quintptr)socket , QT_POINTER_SIZE * 2, 16, QChar('0'));
 #endif
 
-  String er = Util.q2s(socket.errorString()) + '\012';
-  jsetc((char *)"wss0_jrx_",(C*)er.Util.c_str(), er.size());
+  String er = socket.errorString() + '\012';
+  jsetc((char *)"wss0_jrx_",(C*)er.Util.c_str(), er.length());
   jsetc((char *)"wss1_jrx_",(C*)"text", 4);
   wssvr_handler((void *)ONERROR, socket);
 
@@ -184,10 +184,10 @@ void WsSvr::onSslErrors(const List<QSslError>& errors)
 #endif
 
   String er = "";
-  for (int i=0, sz=errors.size(); i<sz; i++) {
-    er = er + Util.q2s(errors.at(i).errorString()) + '\012';
+  for (int i=0, sz=errors.length(); i<sz; i++) {
+    er = er + errors[i].errorString() + '\012';
   }
-  jsetc((char *)"wss0_jrx_",(C*)er.Util.c_str(), er.size());
+  jsetc((char *)"wss0_jrx_",(C*)er.Util.c_str(), er.length());
   jsetc((char *)"wss1_jrx_",(C*)"text", 4);
   wssvr_handler((void *)ONSSLERROR, socket);
 
@@ -229,9 +229,9 @@ void WsSvr::onStateChanged(QAbstractSocket::SocketState socketState)
   }
 
 #ifdef DEBUG_WEBSOCKET
-  qDebug() << String("Client 0x%1 statechange: ").arg((quintptr)socket , QT_POINTER_SIZE * 2, 16, QChar('0')) << Util.s2q(st);;
+  qDebug() << String("Client 0x%1 statechange: ").arg((quintptr)socket , QT_POINTER_SIZE * 2, 16, QChar('0')) << st;;
 #endif
-  jsetc((char *)"wss0_jrx_",(C*)st.Util.c_str(), st.size());
+  jsetc((char *)"wss0_jrx_",(C*)st.Util.c_str(), st.length());
   jsetc((char *)"wss1_jrx_",(C*)"text", 4);
   wssvr_handler((void *)ONSTATECHANGE, socket);
 }

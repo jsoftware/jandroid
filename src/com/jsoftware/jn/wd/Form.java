@@ -3,6 +3,7 @@ package com.jsoftware.jn.wd;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Build;
+import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -12,62 +13,49 @@ import android.widget.LinearLayout.LayoutParams;
 import com.jsoftware.j.android.JConsoleApp;
 import com.jsoftware.jn.base.Util;
 import com.jsoftware.jn.base.Utils;
-import com.jsoftware.jn.wd.Child;
-import com.jsoftware.jn.wd.Cmd;
-import com.jsoftware.jn.wd.Font;
-import com.jsoftware.jn.wd.Font;
-import com.jsoftware.jn.wd.JwdActivity;
-import com.jsoftware.jn.wd.JMb;
-import com.jsoftware.jn.wd.Menus;
-import com.jsoftware.jn.wd.Pane;
-import com.jsoftware.jn.wd.Tabs;
-import com.jsoftware.jn.wd.Wd;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-// import com.jsoftware.jn.base.Jsvr;
-// import com.jsoftware.jn.base.State;
-// import com.jsoftware.jn.base.Svr;
-// import com.jsoftware.jn.base.Term;
-// import com.jsoftware.jn.wd.Opengl2;
+import java.util.HashMap;
+import java.util.Map;
 
-public class Form extends LinearLayout
+class Form extends LinearLayout
 {
   com.jsoftware.j.JInterface jInterface = null;
-  public JMb dialog;
-  public boolean closed;
-  public boolean shown;
-  public int seq;
-  public String id;
-  public String event="";
-  public String lasttype="";
-  public String locale;
-  public String sysdata="";
-  public String sysmodifiers="";
+  JMb dialog;
+  boolean closed;
+  private boolean shown;
+  int seq;
+  String id;
+  String event="";
+  private String lasttype="";
+  String locale;
+  private String sysdata="";
+  private String sysmodifiers="";
+  String dialogchild="dialog";
 
-  public Child child;
-  public Child evtchild;
-  public Child opengl;
-  public ArrayList<Child >children;
-  public Menus menubar;
-  public Pane pane;
-  public ArrayList<Pane >panes;
-//  public QTimer timer;
-  public Tabs tab;
-  public ArrayList<Tabs >tabs;
-//  public QSignalMapper signalMapper;
+  Child child;
+  Child evtchild;
+  Child opengl;
+  ArrayList<Child >children;
+  Menus menubar;
+  Pane pane;
+  ArrayList<Pane >panes;
+  Map<String, Integer> binx;
+  private Handler timerHandler;
+  private Runnable timerRunnable;
 
 // private
-  boolean backButtonPressed;
-  boolean closeok;
-  boolean escclose;
-  String fakeid;
-  String lastfocus="";
-  JwdActivity activity;
+  private long timerInterval;
+  private boolean backButtonPressed;
+  private boolean closeok;
+  private boolean escclose;
+  private String fakeid;
+  private String lastfocus="";
+  JWdActivity activity;
 
 // ---------------------------------------------------------------------
-  public Form(String s, String p, JwdActivity activity, Form parent)
+  Form(String s, String p, JWdActivity activity, Form parent)
   {
     super(activity);
     this.activity=activity;
@@ -78,10 +66,10 @@ public class Form extends LinearLayout
     seq=JConsoleApp.theWd.FormSeq++;
     panes=new ArrayList<Pane >();
     children=new ArrayList<Child>();
-    tabs=new ArrayList<Tabs>();
+    binx=new HashMap<String, Integer>();
     dialog=new JMb(this);
 
-    String[] m=Util.s2q(p).split(" ");     // SkipEmptyParts
+    String[] m=Util.qsless(p.split(" "),new String[] {""});     // SkipEmptyParts
     if (JConsoleApp.theWd.invalidopt(s,m,"escclose closeok dialog popup minbutton maxbutton closebutton ptop owner nosize")) return;
     escclose=Util.sacontains(m,"escclose");
     closeok=Util.sacontains(m,"closeok");
@@ -109,16 +97,23 @@ public class Form extends LinearLayout
     lp.setMargins(0,0,0,0);
     setLayoutParams(lp);
     addpane(0);
-//   signalMapper=new QSignalMapper(this);
-//   connect(signalMapper,SIGNAL(mapped(View )),
-//           this,SLOT(buttonClicked(View )));
-//   timer=new QTimer(this);
-//   connect(timer, SIGNAL(timeout()),this,SLOT(systimer()));
+
+    timerRunnable = new Runnable() {
+      @Override
+      public void run() {
+        if (0!=timerInterval) {
+          timerHandler.postDelayed(timerRunnable, timerInterval);
+          systimer();
+        }
+      }
+    };
+
   }
 
 // ---------------------------------------------------------------------
-  public void dispose()
+  void dispose()
   {
+    if (null!=timerHandler) timerHandler.removeCallbacks(timerRunnable);
     for (Child c : children) c.dispose();
     if (this==JConsoleApp.theWd.form) JConsoleApp.theWd.form = null;
     if (this==JConsoleApp.theWd.evtform) JConsoleApp.theWd.evtform = null;
@@ -136,45 +131,45 @@ public class Form extends LinearLayout
   }
 
 // ---------------------------------------------------------------------
-  public void close()
+  void close()
   {
     closed=true;
     activity.finish();
   }
 
 // ---------------------------------------------------------------------
-  public void show()
+  void show()
   {
 
   }
 
 // ---------------------------------------------------------------------
-  public void raise()
+  void raise()
   {
 
   }
 
 // ---------------------------------------------------------------------
-  public void activateWindow()
+  void activateWindow()
   {
 
   }
 
 // ---------------------------------------------------------------------
-  public void resize(int w, int h)
+  void resize(int w, int h)
   {
 
   }
 
 // ---------------------------------------------------------------------
-  public void addchild(Child c)
+  void addchild(Child c)
   {
     child=c;
     children.add(c);
   }
 
 // ---------------------------------------------------------------------
-  public void addmenu()
+  void addmenu()
   {
     menubar= new Menus("menu","",this,null);
     addchild((Child ) menubar);
@@ -182,7 +177,7 @@ public class Form extends LinearLayout
   }
 
 // ---------------------------------------------------------------------
-  public Pane addpane(int n)
+  Pane addpane(int n)
   {
     pane=new Pane(n,this);
     panes.add(pane);
@@ -190,7 +185,7 @@ public class Form extends LinearLayout
   }
 
 // ---------------------------------------------------------------------
-  public void backButtonTimer()
+  void backButtonTimer()
   {
     backButtonPressed=false;
     if (2>JConsoleApp.theWd.Forms.size()) return;
@@ -227,7 +222,7 @@ public class Form extends LinearLayout
 //
 // ---------------------------------------------------------------------
 // close if not the main pane
-  public void closepane()
+  void closepane()
   {
     if (panes.size()<=1) return;
     panes.remove(panes.size()-1);
@@ -235,24 +230,24 @@ public class Form extends LinearLayout
   }
 
 // ---------------------------------------------------------------------
-  public byte[] get(String p,String v)
+  byte[] get(String p,String v)
   {
     String r="";
-    if ((!v.isEmpty()) && p!="extent") {
+    if ((!v.isEmpty()) && !p.equals("extent")) {
       JConsoleApp.theWd.error("extra parameters: " + p + " " + v);
       return new byte[] {};
     }
     if (p.equals("property")) {
       StringBuilder r1a=new StringBuilder();
-      r1a.append(new String("caption")+"\012"+ "children"+"\012"+ "enable"+"\012"+ "extent"+"\012"+ "focus"+"\012");
-      r1a.append(new String("focusable")+"\012"+ "font"+"\012"+ "hasfocus"+"\012"+ "hwnd"+"\012");
-      r1a.append(new String("id")+"\012"+ "lastfocus"+"\012"+ "locale"+"\012");
-      r1a.append(new String("maxwh")+"\012"+ "minwh"+"\012"+ "property"+"\012"+ "state"+"\012");
-      r1a.append(new String("stylesheet")+"\012"+ "sysdata"+"\012"+ "sysmodifiers"+"\012");
-      r1a.append(new String("tooltip")+"\012"+ "visible"+"\012"+ "wh"+"\012"+ "xywh"+"\012");
+      r1a.append("caption"+"\012"+ "children"+"\012"+ "enable"+"\012"+ "extent"+"\012"+ "focus"+"\012");
+      r1a.append("focusable"+"\012"+ "font"+"\012"+ "hasfocus"+"\012"+ "hwnd"+"\012");
+      r1a.append("id"+"\012"+ "lastfocus"+"\012"+ "locale"+"\012");
+      r1a.append("maxwh"+"\012"+ "minwh"+"\012"+ "property"+"\012"+ "state"+"\012");
+      r1a.append("stylesheet"+"\012"+ "sysdata"+"\012"+ "sysmodifiers"+"\012");
+      r1a.append("tooltip"+"\012"+ "visible"+"\012"+ "wh"+"\012"+ "xywh"+"\012");
       r=r1a.toString();
     } else if (p.equals("caption")) {
-//    r=Util.q2s(this.windowTitle());
+//    r=this.windowTitle();
     } else if (p.equals("children")) {
       StringBuilder r1a=new StringBuilder();
       for (int i=0; children.size()>i; i++)
@@ -262,7 +257,7 @@ public class Form extends LinearLayout
       r=Util.i2s((this.isEnabled())?1:0);
     } else if (p.equals("extent")) {
 //    QFontMetrics fm = QFontMetrics(this.font());
-//    r=Util.i2s(fm.width(Util.s2q(v)))+" "+Util.i2s(fm.height());
+//    r=Util.i2s(fm.width(v))+" "+Util.i2s(fm.height());
       r="1 1";
     } else if (p.equals("focus")) {
       r=this.getfocus();
@@ -281,8 +276,9 @@ public class Form extends LinearLayout
     } else if (p.equals("locale")) {
       r=locale;
     } else if (p.equals("minwh")) {
-// need API 16
-//    r=Util.i2s(getMinimumWidth())+" "+Util.i2s(getMinimumHeight());
+//       if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.JELLY_BEAN)
+//         r=Util.i2s(getMinimumWidth())+" "+Util.i2s(getMinimumHeight());
+//       else
       r=Util.i2s(0)+" "+Util.i2s(0);
     } else if (p.equals("state")) {
       r=Util.ba2s(this.state(0));
@@ -304,18 +300,18 @@ public class Form extends LinearLayout
 // ---------------------------------------------------------------------
   String getfont()
   {
-// return Util.q2s(fontspec(this.font()));
+// return fontspec(this.font());
     return"";
   }
 
 // ---------------------------------------------------------------------
-  public String getsysmodifiers()
+  String getsysmodifiers()
   {
     return Util.i2s(0);
   }
 
 // ---------------------------------------------------------------------
-  public String getfocus()
+  String getfocus()
   {
     View w=findFocus();
     if ((null==w) || (0==children.size())) return "";
@@ -330,26 +326,25 @@ public class Form extends LinearLayout
   }
 
 // ---------------------------------------------------------------------
-  public String hschild()
+  String hschild()
   {
     return Util.i2s((null!=child && (null!=child.widget))?child.widget.getId():0);
   }
 
 // ---------------------------------------------------------------------
-  public String hsform()
+  String hsform()
   {
-    Log.d(JConsoleApp.LogTag,"form hwnd "+id+ " "+getId());
     return Util.i2s(getId());
   }
 
 // ---------------------------------------------------------------------
-  public byte[] qform()
+  byte[] qform()
   {
     return Util.s2ba(Util.i2s(this.getLeft())+" "+Util.i2s(this.getTop())+" "+Util.i2s(this.getWidth())+" "+Util.i2s(this.getHeight()));
   }
 
 // ---------------------------------------------------------------------
-  public Child id2child(String n)
+  Child id2child(String n)
   {
     for (int i=0; i<children.size(); i++)
       if ((!children.get(i).type.equals("menu")) && children.get(i).id.equals(n))
@@ -358,7 +353,7 @@ public class Form extends LinearLayout
   }
 
 // ---------------------------------------------------------------------
-  public boolean ischild(Child n)
+  boolean ischild(Child n)
   {
     return children.contains(n);
   }
@@ -427,18 +422,35 @@ public class Form extends LinearLayout
 // }
 //
 // ---------------------------------------------------------------------
-  public void set(String p,String v)
+  void set(String p,String v)
   {
     if (p.equals("enable")) {
-      setEnabled(Util.remquotes(v)!="0");
+      setEnabled(!Util.remquotes(v).equals("0"));
     } else if (p.equals("font")) {
       setfont(v);
     } else if (p.equals("invalid")) {
       invalidate();
     } else if (p.equals("show")||p.equals("visible")) {
-      setVisibility((Util.remquotes(v)!="0")?View.VISIBLE:View.GONE);
-    } else if (p.equals("wh")) {
-      JConsoleApp.theWd.wdsetwh(this,v);
+      setVisibility((!Util.remquotes(v).equals("0"))?View.VISIBLE:View.GONE);
+    } else if (p.equals("viewshow")) {
+      String[] qs=Util.qsless(v.split(" "),new String[] {""});     // SkipEmptyParts
+      if (0==qs.length) {
+        JConsoleApp.theWd.error("viewshow requires an id: " + p + " " + v);
+        return;
+      }
+      if (!binx.containsKey(qs[0])) {
+        JConsoleApp.theWd.error("view not found: " + p + " " + v);
+        return;
+      }
+      View view=activity.findViewById(binx.get(qs[0]).intValue());
+      if (null==view) {
+        JConsoleApp.theWd.error("viewshow without pshow: " + p + " " + v);
+        return;
+      }
+      if (1==qs.length)
+        view.setVisibility(View.VISIBLE);
+      else
+        view.setVisibility((!Util.remquotes(qs[1]).equals("0"))?View.VISIBLE:View.GONE);
     } else
       JConsoleApp.theWd.error("set command not recognized: " + p + " " + v);
   }
@@ -450,55 +462,54 @@ public class Form extends LinearLayout
   }
 
 // ---------------------------------------------------------------------
-  public Child setmenuid(String id)
+  Child setmenuid(String id)
   {
-    if (null!=menubar && 0!=menubar.getValue(Util.s2q(id)))
+    if (null!=menubar && 0!=menubar.getValue(id))
       return (Child ) menubar;
     else
       return null;
   }
 //
 // ---------------------------------------------------------------------
-  public void setpadding(int l,int t,int r,int b)
+  void setpadding(int l,int t,int r,int b)
   {
     setPadding(l,t,r,b);
   }
 
 // ---------------------------------------------------------------------
-  public void setpn(String p)
+  void setpn(String p)
   {
-//  setTitle(Util.s2q(p).toString());
+    activity.setTitle(p);
   }
 
 // ---------------------------------------------------------------------
-  public void setpicon(String p)
+  void setpicon(String p)
   {
-//  setWindowIcon(QIcon(Util.s2q(p)));
+//  setWindowIcon(QIcon(p));
   }
 
 // ---------------------------------------------------------------------
-  public void settimer(String p)
+  void settimer(String p)
   {
-    int n=Util.c_strtoi(p);
-//   if (n)
-//     timer.start(n);
-//   else
-//     timer.stop();
+    timerInterval=Util.c_strtol(p);
+    if (0!=timerInterval) {
+      if (null==timerHandler) timerHandler = new Handler();
+      timerHandler.postDelayed(timerRunnable, timerInterval);
+    } else {
+      timerHandler.removeCallbacks(timerRunnable);
+    }
   }
 //
 // ---------------------------------------------------------------------
-  public void showit(String p)
+  void showit(String p)
   {
     if (!shown) {
 // showide(false);
 //      if (JConsoleApp.theWd.Forms.size()>1)
 //        (JConsoleApp.theWd.Forms.get(JConsoleApp.theWd.Forms.size()-2)).setVisibility(View.GONE);
-      for (int i=tabs.size()-1; i>=0; i--)
-        tabs.get(i).tabend();
       for (int i=panes.size()-1; i>=0; i--)
         panes.get(i).fini();
 
-      Log.d(JConsoleApp.LogTag,"Form showit addView");
       addView(pane);
 
 //     Button w=new Button(activity);
@@ -507,7 +518,6 @@ public class Form extends LinearLayout
 //     w.setLayoutParams(lp);
 //     addView(w);
 
-      Log.d(JConsoleApp.LogTag,"Form setContentView");
       activity.setContentView(this);
 //      requestLayout();
       shown=true;
@@ -526,13 +536,13 @@ public class Form extends LinearLayout
   }
 
 // ---------------------------------------------------------------------
-  public void signalevent(Child c)
+  void signalevent(Child c)
   {
     signalevent(c,null);
   }
 
 // ---------------------------------------------------------------------
-  public void signalevent(Child c, KeyEvent e)
+  void signalevent(Child c, KeyEvent e)
   {
     if ((0!=Util.NoEvents) || closed) return;
     String loc = locale;
@@ -548,13 +558,13 @@ public class Form extends LinearLayout
     } else {
       evtchild=null;
       if (event.equals("dialogpositive")) {
-        fakeid="dialog";
+        fakeid=dialogchild;
         event="positive";
       } else if (event.equals("dialognegative")) {
-        fakeid="dialog";
+        fakeid=dialogchild;
         event="negative";
       } else if (event.equals("dialogneutral")) {
-        fakeid="dialog";
+        fakeid=dialogchild;
         event="neutral";
       } else if (event.equals("fkey")) {
         int k=e.getKeyCode();
@@ -578,13 +588,13 @@ public class Form extends LinearLayout
     boolean jecallback=false;
     if (jecallback) {
 //     term.removeprompt();
-      jInterface.Jnicmd("wdhandlerx_jca_ '" + Util.s2q(loc) + "'");
+      jInterface.callJ("wdhandlerx_ja_ '" + loc + "'");
     } else
-      jInterface.Jnicmd("wdhandler_" + Util.s2q(loc) + "_$0");
+      jInterface.callJ("wdhandler_" + loc + "_$0");
   }
 
 // ---------------------------------------------------------------------
-  public byte[] state(int evt)
+  byte[] state(int evt)
   {
     String c,c1,e,s,ec="";
 
@@ -599,7 +609,7 @@ public class Form extends LinearLayout
           c=fakeid;
           e=event;
         }
-        c1=(c.isEmpty()) ? new String("") : (c+"_") ;
+        c1=(c.isEmpty()) ? "" : (c+"_") ;
         r.write(Util.spair("syshandler",id+"_handler"));
         r.write(Util.spair("sysevent",id+"_"+c1+e));
         r.write(Util.spair("sysdefault",id+"_default"));
@@ -622,9 +632,9 @@ public class Form extends LinearLayout
       for (int i=0; i<children.size(); i++)
         r.write(children.get(i).state());
     } catch (IOException exc) {
-      Log.d(JConsoleApp.LogTag,"IOException");
+      Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
     } catch (Exception exc) {
-      Log.d(JConsoleApp.LogTag,"Exception");
+      Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
     }
 
     return r.toByteArray();
@@ -632,15 +642,14 @@ public class Form extends LinearLayout
 
 // ---------------------------------------------------------------------
 // for debugging
-  void status(String s)
+  private void status(String s)
   {
-//  qDebug() << "form status: " << Util.s2q(s);
+//  qDebug() << "form status: " << s;
 //  qDebug() << "current pane, panes: " << pane << panes;
-//  qDebug() << "current tab, tabs: " << tab << tabs;
   }
 
 // ---------------------------------------------------------------------
-  public void systimer()
+  private void systimer()
   {
     event="timer";
     fakeid="";

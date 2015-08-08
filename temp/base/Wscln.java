@@ -98,12 +98,12 @@ void * WsCln::openurl(String url)
     String[] n = url.split(":");     // SkipEmptyParts
     String p;
     int i;
-    if (0<=(i=n.at(2).lastIndexOf(QChar('/')))) {
-      port=n.at(2).left(i).toInt();
-      p = n.at(0)+":"+n.at(1)+n.at(2).mid(i);
+    if (0<=(i=n[2].lastIndexOf(QChar('/')))) {
+      port=n[2].left(i).toInt();
+      p = n[0]+":"+n[1]+n[2].mid(i);
     } else {
-      port=n.at(2).toInt();
-      p = n.at(0)+":"+n.at(1);
+      port=n[2].toInt();
+      p = n[0]+":"+n[1];
     }
 #ifdef DEBUG_WEBSOCKET
     qDebug() << String("parsed url: ") + p + " port: " + String::number(port);
@@ -151,11 +151,11 @@ void WsCln::messageReceived(QWebSocket* socket, QByteArray ba, boolean binary)
 {
 #ifdef DEBUG_WEBSOCKET
   qDebug() << String("Server 0x%1 message received: ").arg((quintptr)socket , QT_POINTER_SIZE * 2, 16, QChar('0'));
-  qDebug() << "number of bytes received: " + String::number(ba.size());
+  qDebug() << "number of bytes received: " + String::number(ba.length());
   qDebug() << String(ba.toHex());
 #endif
 
-  jsetc((char *)"wsc0_jrx_",(C*)ba.data(), ba.size());
+  jsetc((char *)"wsc0_jrx_",(C*)ba.data(), ba.length());
   if (binary)
     jsetc((char *)"wsc1_jrx_",(C*)"binary", 6);
   else
@@ -195,8 +195,8 @@ void WsCln::onError(QAbstractSocket::SocketError error)
   qDebug() << String("Server 0x%1 error: ").arg((quintptr)socket , QT_POINTER_SIZE * 2, 16, QChar('0'));
 #endif
 
-  String er = Util.q2s(socket.errorString()) + '\012';
-  jsetc((char *)"wsc0_jrx_",(C*)er.Util.c_str(), er.size());
+  String er = socket.errorString() + '\012';
+  jsetc((char *)"wsc0_jrx_",(C*)er.Util.c_str(), er.length());
   jsetc((char *)"wsc1_jrx_",(C*)"text", 4);
   wscln_handler((void *)ONERROR,socket);
 }
@@ -213,10 +213,10 @@ void WsCln::onSslErrors(const List<QSslError> &errors)
 #endif
 
   String er = "";
-  for (int i=0, sz=errors.size(); i<sz; i++) {
-    er = er + Util.q2s(errors.at(i).errorString()) + '\012';
+  for (int i=0, sz=errors.length(); i<sz; i++) {
+    er = er + errors[i].errorString() + '\012';
   }
-  jsetc((char *)"wsc0_jrx_",(C*)er.Util.c_str(), er.size());
+  jsetc((char *)"wsc0_jrx_",(C*)er.Util.c_str(), er.length());
   jsetc((char *)"wsc1_jrx_",(C*)"text", 4);
   wscln_handler((void *)ONSSLERROR,socket);
 }
@@ -257,9 +257,9 @@ void WsCln::onStateChanged(QAbstractSocket::SocketState socketState)
   }
 
 #ifdef DEBUG_WEBSOCKET
-  qDebug() << String("Server 0x%1 statechange: ").arg((quintptr)socket , QT_POINTER_SIZE * 2, 16, QChar('0')) << Util.s2q(st);;
+  qDebug() << String("Server 0x%1 statechange: ").arg((quintptr)socket , QT_POINTER_SIZE * 2, 16, QChar('0')) << st;;
 #endif
-  jsetc((char *)"wsc0_jrx_",(C*)st.Util.c_str(), st.size());
+  jsetc((char *)"wsc0_jrx_",(C*)st.Util.c_str(), st.length());
   jsetc((char *)"wsc1_jrx_",(C*)"text", 4);
   wscln_handler((void *)ONSTATECHANGE,socket);
 }

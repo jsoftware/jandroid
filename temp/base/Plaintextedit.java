@@ -35,11 +35,11 @@ void PlainTextEdit::printPreview(QPrinter * printer)
   QTextDocument *dd=document().clone();
 #ifdef QT50
   dd.documentLayout().setPaintDevice((QPagedPaintDevice *)printer);
-  dd.setPageSize(QSizeF(printer.pageRect().size()));
+  dd.setPageSize(QSizeF(printer.pageRect().length()));
   dd.print((QPagedPaintDevice *)printer);
 #else
   dd.documentLayout().setPaintDevice(printer);
-  dd.setPageSize(QSizeF(printer.pageRect().size()));
+  dd.setPageSize(QSizeF(printer.pageRect().length()));
   dd.print(printer);
 #endif
   delete dd;

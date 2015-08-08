@@ -120,9 +120,9 @@ void Style::set(String s)
   italic=p.contains("italic");
   p.removeAll("italic");
 
-  if (p.size()!=3) {
+  if (p.length()!=3) {
     info ("Style","Invalid style setting: " + s);
     return;
   }
-  color=QColor(p.at(0).toInt(),p.at(1).toInt(),p.at(2).toInt());
+  color=QColor(p[0].toInt(),p[1].toInt(),p[2].toInt());
 }

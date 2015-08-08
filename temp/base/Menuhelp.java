@@ -306,7 +306,7 @@ void helpcontext(int c,Bedit *e)
 {
   var_set("arg_jqtide_",e.readhelptext(c));
   String s=var_cmdr("helpcontext0_jqtide_ arg_jqtide_");
-  if (s.size())
+  if (s.length())
     htmlhelp(s);
 }
 
@@ -315,7 +315,7 @@ void helpcontextnuvoc(int c,Bedit *e)
 {
   var_set("arg_jqtide_",e.readhelptext(c));
   String s=var_cmdr("helpcontext1_jqtide_ arg_jqtide_");
-  if (s.size())
+  if (s.length())
     wiki("Vocabulary/" + s);
 }
 

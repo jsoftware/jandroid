@@ -10,24 +10,24 @@ import com.jsoftware.jn.wd.qtstate;
 // ---------------------------------------------------------------------
 static String qpair(String s, String t)
 {
-  return spair(Util.q2s(s),Util.q2s(t));
+  return spair(s,t);
 }
 
 // ---------------------------------------------------------------------
 static String qpair(String s, String t)
 {
-  return spair(Util.q2s(s),t);
+  return spair(s,t);
 }
 
 // ---------------------------------------------------------------------
 String qtstate(String p)
 {
-  String[] s=Util.s2q(p).split(" ");     // SkipEmptyParts
+  String[] s=p.split(" ");     // SkipEmptyParts
   String c;
   String r;
 
-  if (s.size()==0) return "";
-  boolean all=s.at(0).equals("all");
+  if (s.length()==0) return "";
+  boolean all=s[0].equals("all");
 
   c="debugpos";
   if (all || s.contains(c))

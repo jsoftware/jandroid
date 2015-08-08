@@ -1,35 +1,17 @@
 package com.jsoftware.jn.base;
 
-import java.lang.Character;
-import java.io.IOException;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.FileOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.nio.charset.Charset;
-import java.lang.System;
-import java.util.ArrayList;
-import java.util.List;
-import java.nio.charset.Charset;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import android.graphics.Typeface;
-
 import android.util.Log;
-
 import com.jsoftware.j.android.JConsoleApp;
-
-import com.jsoftware.jn.base.Util;
-// import com.jsoftware.jn.base.Dialog;
-// import com.jsoftware.jn.base.Note;
-// import com.jsoftware.jn.base.Jsvr;
-// import com.jsoftware.jn.base.Proj;
-// import com.jsoftware.jn.base.Recent;
-// import com.jsoftware.jn.base.State;
-// import com.jsoftware.jn.base.Tedit;
-// import com.jsoftware.jn.base.Term;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.Character;
+import java.lang.System;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 
 public class Utils
 {
@@ -477,7 +459,7 @@ public class Utils
 // public static void setwh(View w, String s)
 // {
 //   List<int>p=config.winpos_read(s);
-//   w.resize(qMax(p[2],300),qMax(p[3],300));
+//   w.resize(Math.max(p[2],300),Math.max(p[3],300));
 // }
 //
 // // ---------------------------------------------------------------------
@@ -485,7 +467,7 @@ public class Utils
 // {
 //   List<int>p=config.winpos_read(s);
 //   w.move(p[0],p[1]);
-//   w.resize(qMax(p[2],300),qMax(p[3],300));
+//   w.resize(Math.max(p[2],300),Math.max(p[3],300));
 // }
 //
 // // ---------------------------------------------------------------------
@@ -619,10 +601,10 @@ public class Utils
 //   int w=z.width();
 //   int h=z.height();
 //
-//   w=qMax(100,qMin(w,config.ScreenWidth));
-//   h=qMax(50,qMin(h,config.ScreenHeight));
-//   x=qMax(0,qMin(x,config.ScreenWidth-w));
-//   y=qMax(0,qMin(y,config.ScreenHeight-h));
+//   w=Math.max(100,Math.min(w,config.ScreenWidth));
+//   h=Math.max(50,Math.min(h,config.ScreenHeight));
+//   x=Math.max(0,Math.min(x,config.ScreenWidth-w));
+//   y=Math.max(0,Math.min(y,config.ScreenHeight-h));
 //
 //   d << x << y << w << h;
 //   return d;

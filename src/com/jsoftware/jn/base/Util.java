@@ -1,27 +1,21 @@
 package com.jsoftware.jn.base;
 
-import java.lang.Math;
-import java.lang.Character;
-import java.io.IOException;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.FileOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.nio.charset.Charset;
-import java.lang.System;
-import java.util.ArrayList;
-import java.util.List;
-
-import android.util.Log;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
-
+import android.content.Context;
+import android.util.Log;
 import com.jsoftware.j.android.JConsoleApp;
-
-import com.jsoftware.jn.base.Utils;
-// import com.jsoftware.jn.base.Term;
-// import com.jsoftware.jn.base.Note;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.Character;
+import java.lang.Math;
+import java.lang.System;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 
 
 public class Util
@@ -31,10 +25,24 @@ public class Util
   public static boolean ShowIde=true;
 
 // ---------------------------------------------------------------------
+  public static int find_first_of(String s, String t, int start)
+  {
+    int pos=s.length();
+    int len=t.length();
+    int j;
+    for (int i=0; i<len; i++) {
+      j=s.indexOf(t.charAt(i),start);
+      if (-1!=j && j<pos) pos=j;
+    }
+    return (pos!=s.length())?pos:-1;
+  }
+
+// ---------------------------------------------------------------------
   public static boolean sacontains(String[] t, String s)
   {
     for (String a : t) {
-      if (s==a) return true;
+      if (s.equals(a)) return true;
+      if (s.isEmpty() && a.isEmpty()) return true;
     }
     return false;
   }
@@ -59,17 +67,17 @@ public class Util
 // converts J 16-26 box chars to utf8
   public static String boxj2utf8(String s)
   {
-    s.replace('\20',(char)9484 );
-    s.replace('\21',(char)9516 );
-    s.replace('\22',(char)9488 );
-    s.replace('\23',(char)9500 );
-    s.replace('\24',(char)9532 );
-    s.replace('\25',(char)9508 );
-    s.replace('\26',(char)9492 );
-    s.replace('\27',(char)9524 );
-    s.replace('\30',(char)9496 );
-    s.replace('\31',(char)9474 );
-    s.replace('\32',(char)9472 );
+    s=s.replace('\20',(char)9484 );
+    s=s.replace('\21',(char)9516 );
+    s=s.replace('\22',(char)9488 );
+    s=s.replace('\23',(char)9500 );
+    s=s.replace('\24',(char)9532 );
+    s=s.replace('\25',(char)9508 );
+    s=s.replace('\26',(char)9492 );
+    s=s.replace('\27',(char)9524 );
+    s=s.replace('\30',(char)9496 );
+    s=s.replace('\31',(char)9474 );
+    s=s.replace('\32',(char)9472 );
     return s;
   }
 
@@ -121,7 +129,8 @@ public class Util
       f.flush();
       f.close();
       return s.length();
-    } catch (IOException e) {
+    } catch (IOException exc) {
+      Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
       return 0;
     }
   }
@@ -135,7 +144,8 @@ public class Util
       f.flush();
       f.close();
       return b.length;
-    } catch (IOException e) {
+    } catch (IOException exc) {
+      Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
       return 0;
     }
   }
@@ -507,7 +517,7 @@ public class Util
 // // ---------------------------------------------------------------------
 // public static boolean isutf8(byte[] b)
 // {
-//   return b==String::fromUtf8(b).toUtf8();
+//   return b.equals(String::fromUtf8(b).toUtf8());
 // }
 //
 // // ---------------------------------------------------------------------
@@ -515,7 +525,7 @@ public class Util
 // public static boolean matchhead(String s, String t)
 // {
 //   if (s.size() > t.size()) return false;
-//   return s == t.left(s.size());
+//   return s.equals(t.left(s.size()));
 // }
 //
 // // ---------------------------------------------------------------------
@@ -754,8 +764,9 @@ public class Util
   public static String[] qsless(String[] a,String[] w)
   {
     ArrayList<String> a1=new ArrayList<String>();
-    for(String s : w)
-      if (sacontains(a,s)) a1.add(s);
+    for(String s : a) {
+      if (!sacontains(w,s)) a1.add(s);
+    }
     return a1.toArray(new String[a1.size()]);
   }
 
@@ -763,8 +774,10 @@ public class Util
   public static String sajoinstr(String[] a,String b)
   {
     StringBuilder r=new StringBuilder();
-    for (String s : a)
-      r.append(b).append(a);
+    for (String s : a) {
+      r.append(b);
+      r.append(s);
+    }
     String t=r.toString();
     if (t.length()>b.length())
       return t.substring(b.length());
@@ -784,16 +797,16 @@ public class Util
     return c;
   }
 
-// // ---------------------------------------------------------------------
-// // return true if all items are numbers
-// public static boolean qsnumeric(String[] a)
-// {
-//   for(String s : a)
-//     if (s.size() && s.at(0)!='_' && s.at(0)!='-' && s.at(0)!='0' && s.at(0)!='1' && s.at(0)!='2' && s.at(0)!='3' && s.at(0)!='4' && s.at(0)!='5' && s.at(0)!='6' && s.at(0)!='7' && s.at(0)!='8' && s.at(0)!='9') return false;
-//   return true;
-// }
-//
-// // ---------------------------------------------------------------------
+// ---------------------------------------------------------------------
+// return true if all items are numbers
+  public static boolean qsnumeric(String[] a)
+  {
+    for(String s : a)
+      if (!isNumber(s)) return false;
+    return true;
+  }
+
+// ---------------------------------------------------------------------
   public static String strless(String a,String w)
   {
     StringBuilder r=new StringBuilder();
@@ -851,12 +864,10 @@ public class Util
       r.write('\0');
       r.write(t.getBytes(Charset.forName("UTF-8")));
       r.write('\0');
-    } catch (IOException e) {
-      Log.d(JConsoleApp.LogTag, "spair io error");
-    } catch (Exception e) {
-      Log.d(JConsoleApp.LogTag, "spair error");
-      Log.d(JConsoleApp.LogTag, "s:"+s);
-      Log.d(JConsoleApp.LogTag, "t:"+t);
+    } catch (IOException exc) {
+      Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
+    } catch (Exception exc) {
+      Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
     }
     return r.toByteArray();
   }
@@ -941,7 +952,6 @@ public class Util
     return android.text.TextUtils.isDigitsOnly(s);
   }
 
-
 // ---------------------------------------------------------------------
   public static boolean isNumber(String s)
   {
@@ -957,11 +967,49 @@ public class Util
     if (counter>1) return false;
     return android.text.TextUtils.isDigitsOnly(s.replace('.','0'));
   }
+
+// ---------------------------------------------------------------------
   public static String int2String ( int[] buf , int pos, int len)
   {
     byte[] b=new byte[len];
     for (int i=0; i<len; i++) b[i]=(byte)buf[pos+i];
     return (new String(b, Charset.forName("UTF-8"))).trim();
+  }
+
+// ---------------------------------------------------------------------
+  @SuppressWarnings( "deprecation" )
+  public static void clipcopy(Context ctx, String text)
+  {
+    int sdk = android.os.Build.VERSION.SDK_INT;
+    if(sdk < android.os.Build.VERSION_CODES.HONEYCOMB) {
+      android.text.ClipboardManager clipboard = (android.text.ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
+      clipboard.setText(text);
+    } else {
+      android.content.ClipboardManager clipboard = (android.content.ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
+      android.content.ClipData clip = android.content.ClipData.newPlainText("j text",text);
+      clipboard.setPrimaryClip(clip);
+    }
+  }
+
+// ---------------------------------------------------------------------
+  @SuppressWarnings( "deprecation" )
+  public static String clipread(Context ctx)
+  {
+    String res="";
+    int sdk = android.os.Build.VERSION.SDK_INT;
+    if (sdk < android.os.Build.VERSION_CODES.HONEYCOMB) {
+      android.text.ClipboardManager clipboard = (android.text.ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
+      if (clipboard.getText() != null) {
+        res=clipboard.getText().toString();
+      }
+    } else {
+      android.content.ClipboardManager clipboard = (android.content.ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
+      android.content.ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
+      if (item.getText() != null) {
+        res=item.getText().toString();
+      }
+    }
+    return res;
   }
 
 }

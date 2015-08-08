@@ -105,7 +105,7 @@ String smclose()
   if (c.equals("tab")) {
     if (note==0 || note.editIndex()<0)
       return smerror ("No active edit window");
-    int ndx=Util.s2q(p).toInt();
+    int ndx=p.toInt();
     if (ndx<0 || ndx>=note.count())
       return smerror ("invalid tab index: " + p);
     note.tabclose(ndx);
@@ -177,7 +177,7 @@ String smfont()
 String smget()
 {
   String p=cmd.getparms();
-  if (p.size()==0)
+  if (p.length()==0)
     return smJConsoleApp.theWd.error("sm get needs additional parameters");
   if (p.equals("active"))
     return smgetactive();
@@ -187,7 +187,7 @@ String smget()
     return smgetxywh();
   String[] s=Cmd.qsplit(p);
   if (s[0].equals("tabs")) {
-    if(s.size()<=1)
+    if(s.length()<=1)
       return smJConsoleApp.theWd.error("sm command requires another parameter: get tabs");
     else
       return smgettabs(s[1]);
@@ -287,9 +287,9 @@ String smgetxywh()
 String smgetxywh1(View w)
 {
   QPoint p=w.pos();
-  QSize z=w.size();
-  return Util.q2s(String::number(p.rx())+" "+String::number(p.ry())+" "+
-                  String::number(z.width())+" "+String::number(z.height()));
+  QSize z=w.length();
+  return String::number(p.rx())+" "+String::number(p.ry())+" "+
+         String::number(z.width())+" "+String::number(z.height());
 }
 
 // ---------------------------------------------------------------------
@@ -314,9 +314,9 @@ String smopen()
   if (p.empty())
     note.newtemp();
   else {
-    String f=Util.s2q(smgetscript(p));
+    String f=smgetscript(p);
     if (!cfexist(f))
-      return smJConsoleApp.theWd.error("file not found: " + Util.q2s(f));
+      return smJConsoleApp.theWd.error("file not found: " + f);
     note.fileopen(f);
   }
   rc=-1;
@@ -327,7 +327,7 @@ String smopen()
 String smprompt()
 {
   String p=cmd.getparms();
-  term.smprompt(Util.s2q(p));
+  term.smprompt(p);
   return"";
 }
 
@@ -342,9 +342,9 @@ String smreplace()
     return smJConsoleApp.theWd.error("unrecognized sm command: replace " + c);
   if (p.empty())
     return smJConsoleApp.theWd.error("replace needs 2 parameters: edit filename");
-  String f=Util.s2q(smgetscript(p));
+  String f=smgetscript(p);
   if (!cfexist(f))
-    return smJConsoleApp.theWd.error("file not found: " + Util.q2s(f));
+    return smJConsoleApp.theWd.error("file not found: " + f);
   note.filereplace(f);
   return"";
 }
@@ -432,9 +432,9 @@ String smset()
 String smsetselect(Bedit *e, String q)
 {
   List<int> s=qsl2intlist(Cmd.qsplit(q));
-  if (s.size()!= 2)
+  if (s.length()!= 2)
     return smJConsoleApp.theWd.error("sm set select should have begin and end parameters");
-  int m=e.toPlainText().size();
+  int m=e.toPlainText().length();
   if (s[1]==-1) s[1]=m;
   s[1]=qMin(m,s[1]);
   s[0]=qMin(s[0],s[1]);
@@ -445,7 +445,7 @@ String smsetselect(Bedit *e, String q)
 // ---------------------------------------------------------------------
 String smsettext(String p,String s)
 {
-  String t=Util.s2q(s);
+  String t=s;
   if (p.equals("term"))
     tedit.setPlainText(t);
   else if (p.equals("edit"))
@@ -467,7 +467,7 @@ String smsetxywh(String m,String q)
     w=note2;
   List<int> s=qsl2intlist(Cmd.qsplit(q));
   QPoint p=w.pos();
-  QSize z=w.size();
+  QSize z=w.length();
   if (s[0]==-1) s[0]=p.rx();
   if (s[1]==-1) s[1]=p.ry();
   if (s[2]==-1) s[2]=z.width();

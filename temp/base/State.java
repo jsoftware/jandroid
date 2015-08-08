@@ -87,14 +87,14 @@ void Config::folder_init()
   String s;
   String[] k,v;
 
-  k=Util.s2q(dors("'',}.;',',&.>{.\"1 UserFolders_j_")).split(",");
-  v=Util.s2q(dors("'',}.;',',&.>{:\"1 UserFolders_j_")).split(",");
+  k=dors("'',}.;',',&.>{.\"1 UserFolders_j_").split(",");
+  v=dors("'',}.;',',&.>{:\"1 UserFolders_j_").split(",");
 
   UserFolderKeys=k;
   UserFolderValues=v;
 
-  k+=Util.s2q(dors("'',}.;',',&.>{.\"1 SystemFolders_j_")).split(",");
-  v+=Util.s2q(dors("'',}.;',',&.>{:\"1 SystemFolders_j_")).split(",");
+  k+=dors("'',}.;',',&.>{.\"1 SystemFolders_j_").split(",");
+  v+=dors("'',}.;',',&.>{:\"1 SystemFolders_j_").split(",");
 
   AllFolderKeys=k;
   AllFolderValues=v;
@@ -172,10 +172,10 @@ void Config::init()
   winpos_init();
 
   if (dors("\":4!:0 <'XDiff_j_'").eqauls("0"))
-    XDiff=Util.s2q(dors("XDiff_j_").eqauls("0"));
+    XDiff=dors("XDiff_j_").eqauls("0");
 
   if (dors("\":4!:0 <'DirTreeX_j_'"))
-    DirTreeX=Util.s2q(dors("DirTreeX_j_")).split(" ");     // SkipEmptyParts
+    DirTreeX=dors("DirTreeX_j_").split(" ");     // SkipEmptyParts
 
   initide();
   initstyle();
@@ -361,8 +361,8 @@ void Config::initide()
 List<int> Config::initposX(List<int> p)
 {
   List<int> r=p;
-  r.replace(0,modpy(ScreenWidth,r.at(0)));
-  r.replace(1,modpy(ScreenHeight,r.at(1)));
+  r.replace(0,modpy(ScreenWidth,r[0]));
+  r.replace(1,modpy(ScreenHeight,r[1]));
   return r;
 }
 
@@ -418,7 +418,7 @@ void delactivewindow(QWidget* w)
 // ---------------------------------------------------------------------
 QWidget* getactivewindow()
 {
-  if (ActiveWindows.size())
+  if (ActiveWindows.length())
     return ActiveWindows.first();
   else
     return term;
@@ -444,7 +444,7 @@ String[] state_about()
   String msg,ver,year;
   ver= "J" JDLLVER;
   year=String::number(QDate::currentDate().year());
-  msg=Util.s2q(dors("JVERSION"));
+  msg=dors("JVERSION");
   msg=msg + "\n\nCopyright 1994-"+year+" Jsoftware\n";
   msg=msg + "www.jsoftware.com";
   r.append("About " + ver);
@@ -536,7 +536,7 @@ int state_run(int argc, char *argv[],char *lib,boolean fhs,void *jproc,void *jt)
   qDebug() << "LibName" << LibName;
   String[] p=LibName.split("/");
   qDebug()<<p;
-  AndroidPackage = p.at(3);
+  AndroidPackage = p[3];
   int p1;
   if (-1!=(p1=AndroidPackage.lastIndexOf("-")))
     AndroidPackage=AndroidPackage.mid(0,p1);
@@ -611,7 +611,7 @@ void var_run(String s)
 void var_runs(String s, boolean show)
 {
   String f=show ? "0!:101" : "0!:100";
-  sets("inputx_jrx_",Util.q2s(s));
+  sets("inputx_jrx_",s);
   jcon.immex(f + " inputx_jrx_");
 }
 

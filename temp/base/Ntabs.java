@@ -26,7 +26,6 @@ Ntabs::Ntabs(Note *p)
   pnote=p;
   watcher=new QFileSystemWatcher(this);
   setDocumentMode(true);
-  setObjectName("ntabs");
   setMovable(true);
   setTabsClosable(true);
   setUsesScrollButtons(true);
@@ -146,9 +145,9 @@ void Ntabs::projectopen(boolean openfiles)
   if (pnote.Id.isEmpty()) return;
 
   s=recent.projectget(pnote.Id);
-  index=s.at(1).toInt();
-  for (i=2; i<s.size(); i++) {
-    t = project.fullname(s.at(i));
+  index=s[1].toInt();
+  for (i=2; i<s.length(); i++) {
+    t = project.fullname(s[i]);
     if (cfexist(t))
       open.append(t);
     else if (i <= index+2) index--;
@@ -158,7 +157,7 @@ void Ntabs::projectopen(boolean openfiles)
   len=0;
   if(openfiles) {
     for (i=open.length-1; i>=0; i--) {
-      if (0<=tabopen1(project.fullname(open.at(i)),-1))
+      if (0<=tabopen1(project.fullname(open[i]),-1))
         len++;
       else
         index=index-(i<index);

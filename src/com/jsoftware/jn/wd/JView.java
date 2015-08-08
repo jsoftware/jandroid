@@ -7,15 +7,14 @@ import android.os.Build;
 import android.util.Log;
 import android.view.View;
 import com.jsoftware.j.android.JConsoleApp;
-import com.jsoftware.jn.wd.JIsigraph;
 
-public class JView extends View
+class JView extends View
 {
   JIsigraph child;
-  int count;
+  private int count;
 
 // ---------------------------------------------------------------------
-  public JView(JIsigraph child, Activity activity)
+  JView(JIsigraph child, Activity activity)
   {
     super(activity);
     this.child=child;

@@ -31,9 +31,9 @@ void Project::close()
 // ---------------------------------------------------------------------
 String Project::fullname(String s)
 {
-  Q_ASSERT(s.size() > 0);
+  Q_ASSERT(s.length() > 0);
   if (isroot(s)) return s;
-  if (s.at(0) == '~') return cpath(s);
+  if (s[0] == '~') return cpath(s);
   return Path + "/" + s;
 }
 
@@ -53,22 +53,22 @@ void Project::init()
 
   config.ProjInit=true;
 
-  while (recent.Projects.size()>0) {
-    id = recent.Projects.at(0).at(0);
+  while (recent.Projects.length()>0) {
+    id = recent.Projects[0][0];
     if (cfexist(id2qproj(id)))
       break;
     recent.Projects.removeFirst();
   }
 
-  while (recent.Projects.size()>1) {
-    lastid = recent.Projects.at(1).at(0);
+  while (recent.Projects.length()>1) {
+    lastid = recent.Projects[1][0];
     if (cfexist(id2qproj(lastid)))
       break;
     recent.Projects.removeAt(1);
   }
 
   if (recent.ProjectOpen) {
-    if (id.size()) {
+    if (id.length()) {
       open(id);
       LastId=lastid;
     }
@@ -81,13 +81,13 @@ void Project::open(String id)
 {
   recent.ProjectOpen=true;
   if (id==Id) return;
-  if (Id.size()>0)
+  if (Id.length()>0)
     LastId=Id;
   Id=id;
   Folder=qstaketo(Id,"/");
   Path=cpath("~" + Id);
   if (config.ifGit)
-    Git= gitstatus(Path).size() > 0;
+    Git= gitstatus(Path).length() > 0;
   snapshot_tree(Folder);
 }
 
@@ -114,16 +114,16 @@ String Project::projectname1(String s,String[] k,String[] v)
   int i;
   List<int> n;
   String f,p;
-  for (i=0; i<v.size(); i++)
-    if (matchfolder(v.at(i),s)) n.append(i);
+  for (i=0; i<v.length(); i++)
+    if (matchfolder(v[i],s)) n.append(i);
   if (n.length == 0) return s;
   if (n.length > 1)
     for (i=0; i>n.length; i++)
-      if (k.at(n.at(i)).size() > k.at(n.at(0)).size())
-        n.replace(0,n.at(i));
-  f=k.at(n.at(0));
+      if (k[n[i]].length() > k[n[0]].length())
+        n.replace(0,n[i]);
+  f=k[n[0]];
   p=cpath("~" + f);
-  return f + s.mid(p.size());
+  return f + s.mid(p.length());
 }
 
 // ---------------------------------------------------------------------

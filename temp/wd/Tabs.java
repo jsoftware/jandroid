@@ -19,10 +19,9 @@ Tabs::Tabs(String n, String s, Form f, Pane p) : Child(n,s,f,p)
 
   form.tabs.append(this);
   form.tab=this;
-  String qn=Util.s2q(n);
+  String qn=n;
   String[] opt=Cmd.qsplit(s);
   if (JConsoleApp.theWd.invalidopt(n,opt,"documentmode movable closable east west south nobar")) return;
-  w.setObjectName(qn);
   childStyle(opt);
   w.setUsesScrollButtons(true);
 
@@ -68,20 +67,20 @@ String Tabs::get(String p,String v)
   String r;
   if (p.equals("property")) {
     r+=String("label")+"\012"+ "select"+"\012";
-    r+=Child::get(p,v);
+    r+=super.get(p,v);
   }
   if (p.equals("label"||p=="select")) {
     int n=w.currentIndex();
     String s,t;
     for (int i=0; i<w.count(); i++)
-      s+=Util.q2s(w.tabText(i)) + '\377';
+      s+=w.tabText(i) + '\377';
     t=(n>=0)?Util.i2s(n):String("_1");
     if (p.equals("label"))
       r=s;
     else
       r=t;
   } else
-    r=Child::get(p,v);
+    r=super.get(p,v);
   return r;
 }
 
@@ -91,30 +90,30 @@ void Tabs::set(String p,String v)
   QTabWidget *w = (QTabWidget *)widget;
   String[] opt=Cmd.qsplit(v);
   if (opt.isEmpty()) return;
-  int ndx=Util.c_strtoi(Util.q2s(opt.at(0)));
+  int ndx=Util.c_strtoi(opt[0]);
   if (p.equals("active"))
     w.setCurrentIndex(ndx);
   else if (p.equals("tabclose"))
     w.removeTab(ndx);
   else if (p.equals("label")) {
-    if (opt.size()<2) return;
-    w.setTabText(ndx,Util.s2q(Util.remquotes(Util.q2s(opt.at(1)))));
+    if (opt.length<2) return;
+    w.setTabText(ndx,Util.remquotes(opt[1]));
   } else if (p.equals("tabenabled")) {
-    if (opt.size()<2) w.setTabEnabled(ndx,true);
-    w.setTabEnabled(ndx,Util.remquotes(Util.q2s(opt.at(1)))!="0");
+    if (opt.length<2) w.setTabEnabled(ndx,true);
+    w.setTabEnabled(ndx,Util.remquotes(opt[1])!="0");
   } else if (p.equals("icon")) {
-    if (opt.size()<2) return;
-    String iconFile=Util.remquotes(Util.q2s(opt.at(1)));
+    if (opt.length<2) return;
+    String iconFile=Util.remquotes(opt[1]);
     QIcon image;
     int spi;
     if (iconFile.substring(0,8).equals("qstyle::") && -1!=(spi=wdstandardicon(iconFile)))
       w.setTabIcon(ndx,w.style().standardIcon((QStyle::StandardPixmap)spi));
     else
-      w.setTabIcon(ndx,QIcon(Util.s2q(iconFile)));
+      w.setTabIcon(ndx,QIcon(iconFile));
   } else if (p.equals("tooltip")) {
-    if (opt.size()<2) w.setTabToolTip(ndx,"");
-    w.setTabToolTip(ndx,Util.s2q(Util.remquotes(Util.q2s(opt.at(1)))));
-  } else Child::set(p,v);
+    if (opt.length<2) w.setTabToolTip(ndx,"");
+    w.setTabToolTip(ndx,Util.remquotes(opt[1]));
+  } else super.set(p,v);
 }
 
 // ---------------------------------------------------------------------
@@ -128,7 +127,7 @@ String Tabs::state()
     n=w.currentIndex();
   String r,s,t;
   for (int i=0; i<w.count(); i++)
-    s+=Util.q2s(w.tabText(i)) + '\377';
+    s+=w.tabText(i) + '\377';
   t=(n>=0)?Util.i2s(n):String("_1");
   r+=spair(id,s);
   r+=spair(id+"_select",t);
@@ -166,6 +165,6 @@ void Tabs::tabnew(String p)
     pform.pane.fini();
   QTabWidget *w=(QTabWidget *) widget;
   pform.addpane(1);
-  w.addTab(pform.pane, Util.s2q(p));
+  w.addTab(pform.pane, p);
   index++;
 }

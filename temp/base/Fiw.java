@@ -121,7 +121,7 @@ void Fiw::initshow(String s)
 {
   setsearchlist(s);
   write();
-  if (s.size())
+  if (s.length())
     searchfor.lineEdit().selectAll();
   show();
   setsearchdirection(0);
@@ -418,7 +418,7 @@ void Fiw::search_replace(int d)
   TextPos=LastPos=hit;
   LastText=Text;
   Inc=1;
-  Text=Text.mid(0,TextPos) + Replace + Text.mid(TextPos+Search.size());
+  Text=Text.mid(0,TextPos) + Replace + Text.mid(TextPos+Search.length());
 
   if (d==0) {
     Win.setPlainText(Text);
@@ -429,10 +429,10 @@ void Fiw::search_replace(int d)
     }
   } else {
     count=1;
-    pad=Replace.size()-1;
+    pad=Replace.length()-1;
     TextPos+=pad;
     while (0 <= (hit=search1(1))) {
-      Text=Text.mid(0,hit) + Replace + Text.mid(hit+Search.size());
+      Text=Text.mid(0,hit) + Replace + Text.mid(hit+Search.length());
       TextPos=hit+pad;
       count++;
     }
@@ -494,14 +494,14 @@ void Fiw::setsearchlist(String s)
 // ---------------------------------------------------------------------
 void Fiw::showhit()
 {
-  Win.setselect(TextPos,Search.size());
+  Win.setselect(TextPos,Search.length());
 }
 
 // ---------------------------------------------------------------------
 void Fiw::showit()
 {
   if (ifReplace)
-    undolast.setEnabled(LastText.size()>0);
+    undolast.setEnabled(LastText.length()>0);
 }
 
 // ---------------------------------------------------------------------
@@ -511,12 +511,12 @@ void Fiw::write()
 
   searchfor.clear();
   searchfor.addItems(SearchList);
-  if (SearchList.size())
+  if (SearchList.length())
     searchfor.setCurrentIndex(0);
 
   replaceby.clear();
   replaceby.addItems(ReplaceList);
-  if (ReplaceList.size())
+  if (ReplaceList.length())
     replaceby.setCurrentIndex(0);
 
 }

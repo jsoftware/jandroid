@@ -102,7 +102,7 @@ QWidget *Pnew::createscriptspanel()
 void Pnew::on_browse_clicked()
 {
   String s=dialogdirectory(this,Title,Path);
-  if (s.size())
+  if (s.length())
     folder.setText(tofoldername(s)+"/");
 }
 
@@ -144,8 +144,8 @@ void Pnew::on_create_clicked()
     p.append("init");
 
   p+=other.text().split(" ");     // SkipEmptyParts
-  for(i=0; i<p.size(); i++)
-    p.replace(i,defext(p.at(i)));
+  for(i=0; i<p.length(); i++)
+    p.replace(i,defext(p[i]));
   p.removeDuplicates();
   foreach(String m,p)
     cfcreate(Dir.filePath(m));
@@ -160,7 +160,7 @@ void Pnew::on_create_clicked()
   cfwrite(pf,m+p.join("\n"));
 
   String id=tofoldername(s);
-  if (id.at(0).equals("~"))
+  if (id[0].equals("~"))
     id=id.mid(1);
 
   if (note == 0)

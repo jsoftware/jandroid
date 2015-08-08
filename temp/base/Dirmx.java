@@ -10,9 +10,9 @@ import com.jsortware.jn.base.view;
 void Dirm::compareallfiles()
 {
   String[] r;
-  for(int i=0; i<Diff.size(); i++) {
+  for(int i=0; i<Diff.length(); i++) {
     if (i) r.append("");
-    r.append(comparefile1(Diff.at(i)));
+    r.append(comparefile1(Diff[i]));
   }
   textview(r.join("\n"));
 }
@@ -35,9 +35,9 @@ String[] Dirm::comparefile1(String s)
   String[] r;
   String t;
   int len,sx,tx;
-  sx=Sourcex.size();
-  tx=Targetx.size();
-  len=2+qMax(sx,tx)+s.size();
+  sx=Sourcex.length();
+  tx=Targetx.length();
+  len=2+qMax(sx,tx)+s.length();
   t=fcompare(Source+"/"+s,Target+"/"+s);
   r.append("comparing:");
   r.append(Sourcex+match_fmt1(s,Source,len-sx));
@@ -80,7 +80,7 @@ void Dirm::copyfile()
     return;
   }
 
-  String w=s.mid(1+Source.size());
+  String w=s.mid(1+Source.length());
   String t=Target + "/" + w;
   String p="OK to copy from source to target:\n\n" + w;
 
@@ -144,9 +144,9 @@ void Dirm::ignorefile()
 
   String w;
   if (matchhead(Source,s))
-    w=s.mid(1+Source.size());
+    w=s.mid(1+Source.length());
   else
-    w=s.mid(1+Target.size());
+    w=s.mid(1+Target.length());
 
   Diff.removeOne(w);
   NotInSource.removeOne(w);
@@ -189,7 +189,7 @@ boolean Dirm::match_do()
   NotInTarget.clear();
   Diff.clear();
 
-  filter=config.DMTypex.at(TypeInx);
+  filter=config.DMTypex[TypeInx];
   dx=folder_tree(Source,filter,Subdir);
   dy=folder_tree(Target,filter,Subdir);
 
@@ -198,26 +198,26 @@ boolean Dirm::match_do()
     return false;
   }
 
-  nx=qsldropeach(1+Source.size(),dx);
-  ny=qsldropeach(1+Target.size(),dy);
+  nx=qsldropeach(1+Source.length(),dx);
+  ny=qsldropeach(1+Target.length(),dy);
 
-  for(i=nx.size()-1; i>=0; i--)
-    if(!ny.contains(nx.at(i))) {
-      NotInTarget.append(nx.at(i));
+  for(i=nx.length()-1; i>=0; i--)
+    if(!ny.contains(nx[i])) {
+      NotInTarget.append(nx[i]);
       nx.removeAt(i);
     }
 
-  for(i=ny.size()-1; i>=0; i--)
-    if(!nx.contains(ny.at(i))) {
-      NotInSource.append(ny.at(i));
+  for(i=ny.length()-1; i>=0; i--)
+    if(!nx.contains(ny[i])) {
+      NotInSource.append(ny[i]);
       //ny.removeAt(i);
     }
 
-  for(i=0; i<nx.size(); i++) {
-    fx.setFileName(Source+"/"+nx.at(i));
-    fy.setFileName(Target+"/"+nx.at(i));
-    if(!(fx.size()==fy.size()&&cfread(&fx)==cfread(&fy)))
-      Diff.append(nx.at(i));
+  for(i=0; i<nx.length(); i++) {
+    fx.setFileName(Source+"/"+nx[i]);
+    fy.setFileName(Target+"/"+nx[i]);
+    if(!(fx.length()==fy.length()&&cfread(&fx)==cfread(&fy)))
+      Diff.append(nx[i]);
   }
 
   return true;
@@ -232,28 +232,28 @@ void Dirm::match_fmt(boolean done)
   Found.clear();
 
   foreach (const String &s, NotInSource)
-    len=qMax(len,s.size());
+    len=qMax(len,s.length());
   foreach (const String &s, NotInTarget)
-    len=qMax(len,s.size());
+    len=qMax(len,s.length());
   foreach (const String &s, Diff)
-    len=qMax(len,s.size());
+    len=qMax(len,s.length());
   len+=2;
 
-  if(NotInSource.size()) {
+  if(NotInSource.length()) {
     Found.append("not in source:");
     foreach (const String &s, NotInSource)
       Found.append(match_fmt1(s,Target,len));
   }
 
-  if(NotInTarget.size()) {
-    if(Found.size()) Found.append("");
+  if(NotInTarget.length()) {
+    if(Found.length()) Found.append("");
     Found.append("not in target:");
     foreach (const String &s, NotInTarget)
       Found.append(match_fmt1(s,Source,len));
   }
 
-  if(Diff.size()) {
-    if(Found.size()) Found.append("");
+  if(Diff.length()) {
+    if(Found.length()) Found.append("");
     Found.append("different contents - source,target:");
     foreach (const String &s, Diff)
       Found.append(match_fmt2(s,len));
@@ -268,11 +268,11 @@ String Dirm::match_fmt1(String s,String d,int len)
 {
   String n,p,t;
   QFileInfo f(d+"/"+s);
-  n=String::number(f.size());
+  n=String::number(f.length());
   t=f.lastModified().toString(Qt::ISODate);
   t.replace('T',' ');
 
-  p.fill(' ',len-s.size());
+  p.fill(' ',len-s.length());
   return s+p+t+"  "+n;
 }
 

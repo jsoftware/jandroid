@@ -9,10 +9,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import com.jsoftware.j.ExecutionListener;
 import com.jsoftware.j.JInterface;
 import com.jsoftware.j.OutputListener;
@@ -99,85 +95,6 @@ public class AndroidJInterface extends JInterface
   public void quit()
   {
     theApp.quit();
-  }
-
-  int downloadFile(String urlS, String fileS)
-  {
-    Log.d(LOGTAG,"downloading " + urlS + " to " + fileS);
-    int result = -1;
-    try {
-      URL url = new URL(urlS);
-
-      HttpGet get = new HttpGet(url.toURI());
-      get.setHeader("User-Agent", "Mozilla/4.0 (compatible;) JConsoleForAndroid-v" + INTERFACE_VERSION);
-      DefaultHttpClient client = new DefaultHttpClient();
-      HttpResponse response = client.execute(get);
-      HttpEntity entity = response.getEntity();
-      InputStream in = null;
-      OutputStream out = null;
-
-      try {
-        File file = new File(fileS);
-        // assure parent folder exists
-        if(file.exists()) {
-          if(!file.canWrite()) {
-            return -2;
-          }
-        } else {
-          file.getParentFile().mkdirs();
-          if(!file.getParentFile().canWrite()) {
-            return -3;
-          }
-        }
-        out = new FileOutputStream(file);
-        in = entity.getContent();
-        int rcode = response.getStatusLine().getStatusCode();
-        if (rcode != 200) {
-          if (rcode == 0) {
-            return -99;
-          }
-          return -rcode;
-        }
-        byte[] buff = new byte[8092];
-        int s;
-        int counter = 0;
-        while ((s = in.read(buff)) != -1) {
-          out.write(buff, 0, s);
-          counter+=s;
-        }
-        result = counter;
-        long cl = entity.getContentLength();
-        if(cl >= 0) {
-          if(cl != result) {
-            Log.w(LOGTAG,"content length reports difference while downloading " + fileS + ". cl = "
-                  + cl + ", downloaded bytes=" + result);
-          }
-        }
-      } finally {
-        try {
-          if (out != null)
-            out.close();
-          if (in != null)
-            in.close();
-        } catch (Exception e) {
-          // quietly ignore
-        }
-      }
-    } catch (MalformedURLException e) {
-      Log.e(LOGTAG, "failed to download file due to malformed url: "
-            + urlS);
-      result = -5;
-    } catch (IOException e) {
-      Log.e(LOGTAG,
-            "failed to download file due to IOException: "
-            + e.getLocalizedMessage(), e);
-      result = -6;
-    } catch (Exception e) {
-      Log.e(LOGTAG, "failed to download file.", e);
-      result = -1;
-    }
-
-    return result;
   }
 
   public Process createProcess(String cmd)

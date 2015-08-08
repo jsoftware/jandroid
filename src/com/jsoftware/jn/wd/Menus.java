@@ -8,18 +8,13 @@ import android.view.View;
 import com.jsoftware.j.android.JConsoleApp;
 import com.jsoftware.jn.base.Util;
 import com.jsoftware.jn.base.Utils;
-import com.jsoftware.jn.wd.Cmd;
-import com.jsoftware.jn.wd.Form;
-import com.jsoftware.jn.wd.Pane;
-import com.jsoftware.jn.wd.Wd;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class Menus extends Child
+class Menus extends Child
 {
-  public Menu curMenu;
+  Menu curMenu;
   private ArrayList<Menu >menus;
   private Map<Integer, String> items;
 
@@ -28,7 +23,7 @@ public class Menus extends Child
   private ArrayList<String >cmdsp;
 
 // ---------------------------------------------------------------------
-  public Menus(String n, String s, Form f, Pane p)
+  Menus(String n, String s, Form f, Pane p)
   {
     super(n,s,f,p);
     type="menu";
@@ -117,7 +112,7 @@ public class Menus extends Child
   }
 
 // ---------------------------------------------------------------------
-  public boolean menu_triggered( MenuItem item)
+  boolean menu_triggered( MenuItem item)
   {
     int idn=item.getItemId();
     if (!items.containsKey(idn)) return false;
@@ -128,13 +123,14 @@ public class Menus extends Child
   }
 
 // ---------------------------------------------------------------------
-  public byte[] get(String p,String v)
+  @Override
+  byte[] get(String p,String v)
   {
     return super.get(p,v);
   }
 
 // ---------------------------------------------------------------------
-  public int getValue(String value)
+  int getValue(String value)
   {
     if (!items.containsValue(value)) return 0;
     for (Map.Entry<Integer, String> e : items.entrySet()) {
@@ -145,8 +141,10 @@ public class Menus extends Child
   }
 
 
+// TODO   set not yet implemented
 // ---------------------------------------------------------------------
-  public void set(String p,String v)
+  @Override
+  void set(String p,String v)
   {
     String id,m,parm,t;
     String[] sel,opt;
@@ -156,28 +154,28 @@ public class Menus extends Child
       JConsoleApp.theWd.error("invalid menu command: " + p + " " + v);
       return;
     }
-
     id=sel[0];
     m=sel[1];
-    t=Util.s2q(v);
-
+    t=v;
     if (0==t.length()) {
       t=m;
       m="checked";
     }
-
     if (m.equals("checked") || m.equals("value")) {
       int idn=getValue(id);
 //       a.setCheckable(true);
 //       a.setChecked(t.equals("1"));
-//     } else if (m.equals("enable")) {
-//       items.value(id).setEnabled(t.equals("1"));
+    } else if (m.equals("show")) {
+//      items.value(id).setVisibilty(t.equals("1"));
+    } else if (m.equals("enable")) {
+//      items.value(id).setEnabled(t.equals("1"));
     } else
       super.set(p,v);
   }
 
 // ---------------------------------------------------------------------
-  public byte[] state()
+  @Override
+  byte[] state()
   {
     return new byte[0];
   }

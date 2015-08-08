@@ -1,5 +1,6 @@
 package com.jsoftware.jn.wd;
 
+import android.os.Build;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -8,31 +9,25 @@ import android.widget.TextView;
 import com.jsoftware.j.android.JConsoleApp;
 import com.jsoftware.jn.base.Util;
 import com.jsoftware.jn.base.Utils;
-import com.jsoftware.jn.wd.Font;
-import com.jsoftware.jn.wd.Form;
-import com.jsoftware.jn.wd.Pane;
-import com.jsoftware.jn.wd.Wd;
-import java.util.List;
 
-public class Child
+class Child
 {
 
-  public boolean grouped;
-  public String id;
-  public String eid;  // for event
-  public String event;
-  public String parms;
-  public String type;
-  public String locale="";  // for isigraph
-  public String sysdata="";
-  public String sysmodifiers="";
-  public Form pform;
-  public Pane ppane;
-  public View widget;
-  public float weight=0f;
+  boolean grouped;
+  String id;
+  String eid;  // for event
+  String event;
+  String parms;
+  String type;
+  String locale="";  // for isigraph
+  String sysdata="";
+  String sysmodifiers="";
+  Form pform;
+  Pane ppane;
+  View widget;
+  float weight=0f;
 
-// private
-  JwdActivity activity;
+  private JWdActivity activity;
 
 // ---------------------------------------------------------------------
   Child(String n, String s, Form f, Pane p)
@@ -52,12 +47,12 @@ public class Child
   }
 
 // ---------------------------------------------------------------------
-  public void dispose()
+  void dispose()
   {
   }
 
 // ---------------------------------------------------------------------
-  public byte[] state()
+  byte[] state()
   {
     return new byte[] {};
   }
@@ -71,25 +66,25 @@ public class Child
   byte[] get(String p,String v)
   {
     String r="";
-    if (!v.isEmpty() && p!="extent") {
+    if (!v.isEmpty() && !p.equals("extent")) {
       JConsoleApp.theWd.error("extra parameters: " + id + " " + p + " " + v);
       return new byte[] {};
     }
     if (p.equals("property")) {
       StringBuilder r1=new StringBuilder();
-      r1.append(new String("enable")+"\012"+ "extent"+"\012");
-      r1.append(new String("focusable")+"\012"+ "font"+"\012"+ "hasfocus"+"\012"+ "hwnd"+"\012");
-      r1.append(new String("id")+"\012"+ "locale"+"\012");
-      r1.append(new String("minwh")+"\012"+ "parent"+"\012");
-      r1.append(new String("property")+"\012"+ "state"+"\012");
-      r1.append(new String("type")+"\012"+ "visible"+"\012"+ "weight"+"\012"+ "wh"+"\012"+ "xywh"+"\012");
+      r1.append("enable"+"\012"+ "extent"+"\012");
+      r1.append("focusable"+"\012"+ "font"+"\012"+ "hasfocus"+"\012"+ "hwnd"+"\012");
+      r1.append("id"+"\012"+ "locale"+"\012");
+      r1.append("minwh"+"\012"+ "parent"+"\012");
+      r1.append("property"+"\012"+ "state"+"\012");
+      r1.append("type"+"\012"+ "visible"+"\012"+ "wt"+"\012"+ "wh"+"\012"+ "wwh"+"\012"+ "xywh"+"\012");
       r=r1.toString();
     } else if (p.equals("enable")) {
       if (null!=widget) r=Util.i2s((widget.isEnabled())?1:0);
     } else if (p.equals("extent")) {
       if (null!=widget) {
 //      QFontMetrics fm = QFontMetrics(widget.font());
-//      r=Util.i2s(fm.width(Util.s2q(v)))+" "+Util.i2s(fm.height());
+//      r=Util.i2s(fm.width(v))+" "+Util.i2s(fm.height());
         r="1 1";
       }
     } else if (p.equals("focusable")) {
@@ -105,11 +100,12 @@ public class Child
     } else if (p.equals("id")) {
       r=id;
     } else if (p.equals("locale")) {
-      r=(locale!="")?locale:pform.locale;
+      r=(!locale.isEmpty())?locale:pform.locale;
     } else if (p.equals("minwh")) {
       if (null!=widget) {
-// need API 16
-//      r=Util.i2s(widget.getMinimumWidth())+" "+Util.i2s(widget.getMinimumHeight());
+//         if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.JELLY_BEAN)
+//           r=Util.i2s(widget.getMinimumWidth())+" "+Util.i2s(widget.getMinimumHeight());
+//         else
         r=Util.i2s(0)+" "+Util.i2s(0);
       }
     } else if (p.equals("parent")) {
@@ -120,12 +116,12 @@ public class Child
       r=type;
     } else if (p.equals("visible")) {
       if (null!=widget) r=Util.i2s((View.VISIBLE==widget.getVisibility())?1:0);
-    } else if (p.equals("weight")) {
+    } else if (p.equals("wt")) {
       r=Util.d2s((double)weight);
     } else if (p.equals("wh")) {
-      if (null!=widget) {
-        r=Util.i2s(widget.getWidth())+" "+Util.i2s(widget.getHeight());
-      }
+      r=Util.i2s(widget.getWidth())+" "+Util.i2s(widget.getHeight());
+    } else if (p.equals("wwh")) {
+      r=Util.d2s((double)weight)+" "+Util.i2s(widget.getWidth())+" "+Util.i2s(widget.getHeight());
     } else if (p.equals("xywh")) {
       if (null!=widget) {
         r=Util.i2s(widget.getLeft())+" "+Util.i2s(widget.getTop())+" "+Util.i2s(widget.getWidth())+" "+Util.i2s(widget.getHeight());
@@ -139,29 +135,29 @@ public class Child
   String getfont()
   {
     if (widget instanceof TextView) {
-//     return Util.q2s(fontspec(((TextView)widget).getTypeface()));
+//     return fontspec(((TextView)widget).getTypeface());
       return"";
     } else
       return"";
   }
 
 // ---------------------------------------------------------------------
-  byte[] getsysdata()
+  String getsysdata()
   {
-    return new byte[0];
+    return "";
   }
 
 // ---------------------------------------------------------------------
   void set(String p,String v)
   {
     if (p.equals("enable")) {
-      if (null!=widget) widget.setEnabled(Util.remquotes(v)!="0");
+      if (null!=widget) widget.setEnabled(!Util.remquotes(v).equals("0"));
     } else if (p.equals("locale")) {
       locale=Util.remquotes(v);
     } else if (p.equals("focus")) {
       if (null!=widget) widget.requestFocus();
     } else if (p.equals("focusable")) {
-      if (null!=widget) widget.setFocusable(Util.remquotes(v)!="0");
+      if (null!=widget) widget.setFocusable(!Util.remquotes(v).equals("0"));
     } else if (p.equals("font")) {
       if (null!=widget) setfont(v);
     } else if (p.equals("invalid")) {
@@ -169,11 +165,15 @@ public class Child
     } else if (p.equals("nofocus")) {
       if (null!=widget) widget.setFocusable(false);
     } else if (p.equals("show")||p.equals("visible")) {
-      if (null!=widget) widget.setVisibility((Util.remquotes(v)!="0")?View.VISIBLE:View.GONE);
+      if (null!=widget) widget.setVisibility((!Util.remquotes(v).equals("0"))?View.VISIBLE:View.GONE);
     } else if (p.equals("wh")) {
       setwh(v);
+    } else if (p.equals("wt")) {
+      setweight(v);
+    } else if (p.equals("wwh")) {
+      setwwh(v);
     } else if (p.equals("minwh")) {
-      setminwhv(v);
+      setminwh(v);
     } else
       JConsoleApp.theWd.error("set command not recognized: " + id + " " + p + " " + v);
   }
@@ -196,15 +196,13 @@ public class Child
   }
 
 // ---------------------------------------------------------------------
-  void setweightv(String p)
+  void setweight(String p)
   {
-    String[] n=Util.s2q(p).split(" ");     // SkipEmptyParts
+    String[] n=Util.qsless(p.split(" "),new String[] {""});     // SkipEmptyParts
     if (n.length!=1) {
-      JConsoleApp.theWd.error("set weight requires 1 number: " + id + " " + p);
-    } else {
-      float wt=(float)Util.c_strtod(Util.q2s(n[0]));
-      setweight(wt);
-    }
+      JConsoleApp.theWd.error("set wt requires 1 number: " + id + " " + p);
+    } else
+      setweight((float)Util.c_strtod(n[0]));
   }
 
 // ---------------------------------------------------------------------
@@ -216,18 +214,13 @@ public class Child
 // ---------------------------------------------------------------------
   void setwh(String p)
   {
-    if (null!=widget) JConsoleApp.theWd.wdsetwh(widget,p);
-  }
-
-// ---------------------------------------------------------------------
-  void setwhv(String p)
-  {
-    String[] n=Util.s2q(p).split(" ");     // SkipEmptyParts
+    if (null==widget) return;
+    String[] n=Util.qsless(p.split(" "),new String[] {""});     // SkipEmptyParts
     if (n.length!=2) {
       JConsoleApp.theWd.error("set wh requires 2 numbers: " + id + " " + p);
     } else {
-      int w=Util.c_strtoi(Util.q2s(n[0]));
-      int h=Util.c_strtoi(Util.q2s(n[1]));
+      int w=Util.c_strtoi(n[0]);
+      int h=Util.c_strtoi(n[1]);
       setwh(w,h);
     }
   }
@@ -235,21 +228,43 @@ public class Child
 // ---------------------------------------------------------------------
   void setwh(int w, int h)
   {
-    if ((null!=widget) && (-9!=w) && (-9!=h)) {
-      LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams((-9==w)?widget.getLayoutParams().width:(w>0)?((int)(0.5f+JConsoleApp.theWd.dmdensity*w)):w,(-9==h)?widget.getLayoutParams().height:(h>0)?((int)(0.5f+JConsoleApp.theWd.dmdensity*h)):h,weight);
-      widget.setLayoutParams(lp);
+    if ((null!=widget) && ((-3!=w) || (-3!=h)))
+      widget.setLayoutParams(new LinearLayout.LayoutParams((-3==w)?widget.getLayoutParams().width:(w>0)?((int)(0.5f+JConsoleApp.theWd.dmdensity*w)):w,(-3==h)?widget.getLayoutParams().height:(h>0)?((int)(0.5f+JConsoleApp.theWd.dmdensity*h)):h,weight));
+  }
+
+// ---------------------------------------------------------------------
+  void setwwh(String p)
+  {
+    if (null==widget) return;
+    String[] n=Util.qsless(p.split(" "),new String[] {""});     // SkipEmptyParts
+    if (n.length!=3) {
+      JConsoleApp.theWd.error("set wwh requires 3 numbers: " + id + " " + p);
+    } else {
+      setweight((float)Util.c_strtod(n[0]));
+      int w=Util.c_strtoi(n[1]);
+      int h=Util.c_strtoi(n[2]);
+      setwh(w,h);
     }
   }
 
 // ---------------------------------------------------------------------
-  void setminwhv(String p)
+  void setwwh(float wt, int w, int h)
   {
-    String[] n=Util.s2q(p).split(" ");     // SkipEmptyParts
+    if (null==widget) return;
+    setweight(wt);
+    if ((-3!=w) || (-3!=h))
+      widget.setLayoutParams(new LinearLayout.LayoutParams((-3==w)?widget.getLayoutParams().width:(w>0)?((int)(0.5f+JConsoleApp.theWd.dmdensity*w)):w,(-3==h)?widget.getLayoutParams().height:(h>0)?((int)(0.5f+JConsoleApp.theWd.dmdensity*h)):h,weight));
+  }
+
+// ---------------------------------------------------------------------
+  void setminwh(String p)
+  {
+    String[] n=Util.qsless(p.split(" "),new String[] {""});     // SkipEmptyParts
     if (n.length!=2) {
       JConsoleApp.theWd.error("set minwh requires 2 numbers: " + id + " " + p);
     } else {
-      int w=Util.c_strtoi(Util.q2s(n[0]));
-      int h=Util.c_strtoi(Util.q2s(n[1]));
+      int w=Util.c_strtoi(n[0]);
+      int h=Util.c_strtoi(n[1]);
       setminwh(w,h);
     }
   }
@@ -258,8 +273,8 @@ public class Child
   void setminwh(int w, int h)
   {
     if (null!=widget) {
-      if (-9!=w) widget.setMinimumWidth((w>0)?((int)(0.5f+JConsoleApp.theWd.dmdensity*w)):w);
-      if (-9!=h) widget.setMinimumHeight((h>0)?((int)(0.5f+JConsoleApp.theWd.dmdensity*h)):h);
+      if (-3!=w) widget.setMinimumWidth((w>0)?((int)(0.5f+JConsoleApp.theWd.dmdensity*w)):w);
+      if (-3!=h) widget.setMinimumHeight((h>0)?((int)(0.5f+JConsoleApp.theWd.dmdensity*h)):h);
     }
   }
 

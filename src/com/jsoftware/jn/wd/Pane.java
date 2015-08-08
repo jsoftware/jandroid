@@ -4,75 +4,35 @@ import android.content.Context;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import com.jsoftware.j.android.JConsoleApp;
 import com.jsoftware.jn.base.Util;
 import com.jsoftware.jn.base.Utils;
-import com.jsoftware.jn.wd.Child;
-import com.jsoftware.jn.wd.Cmd;
-import com.jsoftware.jn.wd.Font;
-import com.jsoftware.jn.wd.Form;
-import com.jsoftware.jn.wd.Layout;
-import com.jsoftware.jn.wd.Wd;
 import java.util.ArrayList;
-import java.util.List;
-// import com.jsoftware.jn.wd.Button;
-// import com.jsoftware.jn.wd.Checkbox;
-// import com.jsoftware.jn.wd.Combobox;
-// import com.jsoftware.jn.wd.Dateedit;
-// import com.jsoftware.jn.wd.Dial;
-// import com.jsoftware.jn.wd.Dspinbox;
-// import com.jsoftware.jn.wd.Dummy;
-// import com.jsoftware.jn.wd.Edit;
-// import com.jsoftware.jn.wd.Edith;
-// import com.jsoftware.jn.wd.Editm;
-// import com.jsoftware.jn.wd.Image;
-// import com.jsoftware.jn.wd.Isidraw;
-// import com.jsoftware.jn.wd.Isigraph;
-// import com.jsoftware.jn.wd.Isigrid;
-// import com.jsoftware.jn.wd.Listbox;
-// import com.jsoftware.jn.wd.Opengl;
-// import com.jsoftware.jn.wd.Progressbar;
-// import com.jsoftware.jn.wd.Qwidget;
-// import com.jsoftware.jn.wd.Radiobutton;
-// import com.jsoftware.jn.wd.Scrollarea;
-// import com.jsoftware.jn.wd.Scrollbar;
-// import com.jsoftware.jn.wd.Slider;
-// import com.jsoftware.jn.wd.Spinbox;
-// import com.jsoftware.jn.wd.Static;
-// import com.jsoftware.jn.wd.Statusbar;
-// import com.jsoftware.jn.wd.Table;
-// import com.jsoftware.jn.wd.Tabs;
-// import com.jsoftware.jn.wd.Timeedit;
-// import com.jsoftware.jn.wd.Toolbar;
-// import com.jsoftware.jn.wd.Webview;
 
-public class Pane extends LinearLayout
+class Pane extends LinearLayout
 {
 
-  public Form pform;
-  public String event;
-  public String lasttype;
-  public String locale;
-  public String sysdata;
-  public String sysmodifiers;
-  public float weight=0f;
-  public int sizew=-2;  // wrap_content
-  public int sizeh=-2;
-  public int minsizew;
-  public int minsizeh;
+  Form pform;
+  private String event;
+  private String lasttype;
+  private String locale;
+  private String sysdata;
+  private String sysmodifiers;
+  float weight=0f;
+  int sizew=-2;  // wrap_content
+  int sizeh=-2;
+  int minsizew;
+  int minsizeh;
 
-//  public QButtonGroup *buttongroup;
-  public Child child;
-  public Child evtchild;
-//  public QGroupBox *groupboxw;
-//  public QSignalMapper *signalMapper;
-  public Layout layout;
-  public ArrayList<Layout >layouts;
-//  public QSplitter *qsplitter;
-//  public List<int> qsplitterp;
+  RadioGroup buttongroup;
+  private Child child;
+  private Child evtchild;
+  Layout layout;
+  ArrayList<Layout >layouts;
 
 // ---------------------------------------------------------------------
-  public Pane(int n,Form f)
+  Pane(int n,Form f)
   {
     super(f.activity);
     setOrientation(LinearLayout.VERTICAL);
@@ -96,64 +56,54 @@ public class Pane extends LinearLayout
       bin("v");
     if (c.equals("button"))
       child=(Child ) new JButton(n,p,pform,this);
-//   else if (c.equals("checkbox"))
-//     child=(Child ) new CheckBox(n,p,pform,this);
-//   else if (c.equals("combobox"))
-//     child=(Child ) new ComboBox(n,p.length()?("edit " + p):"edit",pform,this);
-//   else if (c.equals("combolist"))
-//     child=(Child ) new ComboBox(n,p,pform,this);
-//   else if (c.equals("dateedit"))
-//     child=(Child ) new DateEdit(n,p,pform,this);
-//   else if (c.equals("dial"))
-//     child=(Child ) new Dial(n,p,pform,this);
-//   else if (c.equals("dspinbox"))
-//     child=(Child ) new DSpinBox(n,p,pform,this);
+    else if (c.equals("checkbox"))
+      child=(Child ) new JCheckBox(n,p,pform,this);
+    else if (c.equals("combobox"))
+      child=(Child ) new JSpinner(n,p,pform,this,"combobox");
+    else if (c.equals("combolist"))
+      child=(Child ) new JSpinner(n,p,pform,this,"combolist");
+    else if (c.equals("datepicker"))
+      child=(Child ) new JDatePicker(n,p,pform,this);
     else if (c.equals("edit"))
-      child=(Child ) new JEditText(n,p,pform,this);
-//   else if (c.equals("editm"))
-//     child=(Child ) new Editm(n,p,pform,this);
-//   else if (c.equals("edith"))
-//     child=(Child ) new Edith(n,p,pform,this);
-//   else if (c.equals("image"))
-//     child=(Child ) new Image(n,p,pform,this);
+      child=(Child ) new JEditText(n,p,pform,this,"edit");
+    else if (c.equals("editm"))
+      child=(Child ) new JEditText(n,p,pform,this,"editm");
+    else if (c.equals("image"))
+      child=(Child ) new JImageView(n,p,pform,this);
     else if (c.equals("isidraw"))
       child=(Child ) new JIsigraph(n,p,pform,this,"isidraw");
     else if (c.equals("isigraph"))
       child=(Child ) new JIsigraph(n,p,pform,this,"isigraph");
 //   else if (c.equals("isigrid"))
 //     child=(Child ) new IsiGrid(n,p,pform,this);
-//   else if (c.equals("listbox"))
-//     child=(Child ) new ListBox(n,p,pform,this);
+    else if (c.equals("listbox"))
+      child=(Child ) new JListView(n,p,pform,this);
 //   else if (c.equals("opengl"))
 //     child=(Child ) new Opengl(n,p,pform,this);
-//   else if (c.equals("progressbar"))
-//     child=(Child ) new ProgressBar(n,p,pform,this);
-//   else if (c.equals("qwidget"))
-//     child=(Child ) new QWidgex(n,p,pform,this);
-//   else if (c.equals("radiobutton"))
-//     child=(Child ) new RadioButton(n,p,pform,this);
-//   else if (c.equals("scrollarea"))
-//     child=(Child ) new ScrollArea(n,p,pform,this);
-//   else if (c.equals("scrollbar"))
-//     child=(Child ) new ScrollBar(n,p,pform,this);
-//   else if (c.equals("slider"))
-//     child=(Child ) new Slider(n,p,pform,this);
-//   else if (c.equals("spinbox"))
-//     child=(Child ) new SpinBox(n,p,pform,this);
-//   else if (c.equals("static"))
-//     child=(Child ) new Static(n,p,pform,this);
-//   else if (c.equals("statusbar"))
-//     child=(Child ) new StatusBar(n,p,pform,this);
+    else if (c.equals("progressbar"))
+      child=(Child ) new JProgressBar(n,p,pform,this);
+    else if (c.equals("radiobutton"))
+      child=(Child ) new JRadioButton(n,p,pform,this);
+    else if (c.equals("seekbar"))
+      child=(Child ) new JSeekBar(n,p,pform,this);
+    else if (c.equals("spinbox"))
+      child=(Child ) new JSpinner(n,p,pform,this,"spinbox");
+    else if (c.equals("static"))
+      child=(Child ) new JTextView(n,p,pform,this);
+    else if (c.equals("switch"))
+      child=(Child ) new JSwitch(n,p,pform,this);
 //   else if (c.equals("table"))
 //     child=(Child ) new Table(n,p,pform,this);
-//   else if (c.equals("tab"))
-//     child=(Child ) new Tabs(n,p,pform,this);
-//   else if (c.equals("timeedit"))
-//     child=(Child ) new TimeEdit(n,p,pform,this);
+    else if (c.equals("timepicker"))
+      child=(Child ) new JTimePicker(n,p,pform,this);
+    else if (c.equals("togglebutton"))
+      child=(Child ) new JToggleButton(n,p,pform,this);
 //   else if (c.equals("toolbar"))
 //     child=(Child ) new ToolBar(n,p,pform,this);
-//   else if (c.equals("webview"))
-//     child=(Child ) new WebView(n,p,pform,this);
+    else if (c.equals("videoview"))
+      child=(Child ) new JVideoView(n,p,pform,this);
+    else if (c.equals("webview"))
+      child=(Child ) new JWebView(n,p,pform,this);
     else {
       weight=0f;
       sizew=sizeh=-2;
@@ -168,7 +118,11 @@ public class Pane extends LinearLayout
 //   if (fontdef && child.widget) child.widget.setFont(fontdef.font);
 //   if (!fontdef && child.widget) child.widget.setFont(QApplication::font());
     if (null!=child.widget) child.widget.setId(JConsoleApp.theWd.nextId++);
-    layout.addWidget(child.widget);   // must call even if widget==0
+    if (child.type.equals("radiobutton")) {
+      if (child.grouped)
+        layout.addWidget(buttongroup);
+    } else
+      layout.addWidget(child.widget);   // must call even if widget==0
     child.setminwh(minsizew,minsizeh);
     child.setweight(weight);
     lasttype=child.type;
@@ -187,7 +141,7 @@ public class Pane extends LinearLayout
   }
 
 // ---------------------------------------------------------------------
-  void addlayout(Layout b)
+  void addbin(Layout b)
   {
     layout=b;
     layouts.add(b);
@@ -196,23 +150,36 @@ public class Pane extends LinearLayout
 // ---------------------------------------------------------------------
   void bin(String s)
   {
+    bin(s,"");
+  }
+// ---------------------------------------------------------------------
+  void bin(String s, String id)
+  {
     char c;
     int i,n;
     Layout b;
     String m;
     String[] p=Cmd.bsplit(s);
-    String s1=Util.strless(s," 0123456789ghmpsvz");
+    String s1=Util.strless(s," 0123456789"+Wd.bintype);
     if (0!=s1.length()) {
       JConsoleApp.theWd.error("unrecognized bin type: " + s1);
+      return;
+    }
+    if (0==p.length) {
+      JConsoleApp.theWd.error("missing bin type: " + s);
       return;
     }
     for (i=0; i<p.length; i++) {
       m=p[i];
       c=m.charAt(0);
-      n=Util.c_strtoi(Util.q2s(m.substring(1)));
-      if (c=='h'||c=='v'||c=='g')
-        addlayout(new Layout(c,n,this));
-      else if (c=='m' && layout.type!='g') {
+      n=Util.c_strtoi(m.substring(1));
+      if (c=='h'||c=='v'||c=='u'||c=='l'||c=='g') {
+        addbin(new Layout(c,n,this));
+        if ((!id.isEmpty()) && 0==i) {
+          layout.bin.setId(JConsoleApp.theWd.nextId++);
+          pform.binx.put(id,layout.bin.getId());
+        }
+      } else if (c=='m' && layout.type!='g') {
         layout.setContentsMargins(n,n,n,n);
         layout.setSpacing(n);
       } else if (c=='p' && layout.type!='g')
@@ -241,8 +208,6 @@ public class Pane extends LinearLayout
     if (0!=layouts.size()) {
       while (layouts.size()>1)
         bin("z");
-//    setLayout(layout.bin);
-      Log.d(JConsoleApp.LogTag,"pane fini addView");
       addView(layout.bin);
     }
     pform.closepane();
@@ -266,14 +231,14 @@ public class Pane extends LinearLayout
 //       bin("g");
 //     if (1==n) {
 //       rmax=-1;
-//       cmax=Util.c_strtoi(Util.q2s(opt[0]));
+//       cmax=Util.c_strtoi(opt[0]);
 //       if (cmax<=0) {
 //         JConsoleApp.theWd.error("grid size column_size must be positive: " + p + " " + v);
 //         return;
 //       }
 //     } else {
-//       rmax=Util.c_strtoi(Util.q2s(opt[0]));
-//       cmax=Util.c_strtoi(Util.q2s(opt[1]));
+//       rmax=Util.c_strtoi(opt[0]);
+//       cmax=Util.c_strtoi(opt[1]);
 //       if ((rmax<=0)||(cmax<=0)) {
 //         JConsoleApp.theWd.error("grid size row_size and column_size must be positive: " + p + " " + v);
 //         return;
@@ -299,16 +264,16 @@ public class Pane extends LinearLayout
 //       return;
 //     }
 //     if (4>n) {
-//       r=Util.c_strtoi(Util.q2s(opt[0]));
-//       c=Util.c_strtoi(Util.q2s(opt[1]));
+//       r=Util.c_strtoi(opt[0]);
+//       c=Util.c_strtoi(opt[1]);
 //       rs=cs=1;
-//       if (3==n) alignment=Util.c_strtoi(Util.q2s(opt[2]));
+//       if (3==n) alignment=Util.c_strtoi(opt[2]);
 //     } else {
-//       r=Util.c_strtoi(Util.q2s(opt[0]));
-//       c=Util.c_strtoi(Util.q2s(opt[1]));
-//       rs=Util.c_strtoi(Util.q2s(opt[2]));
-//       cs=Util.c_strtoi(Util.q2s(opt[3]));
-//       if (5==n) alignment=Util.c_strtoi(Util.q2s(opt[4]));
+//       r=Util.c_strtoi(opt[0]);
+//       c=Util.c_strtoi(opt[1]);
+//       rs=Util.c_strtoi(opt[2]);
+//       cs=Util.c_strtoi(opt[3]);
+//       if (5==n) alignment=Util.c_strtoi(opt[4]);
 //     }
 //     if ((r<0)||(c<0)) {
 //       JConsoleApp.theWd.error("grid cell row and column must be non-negative: " + p + " " + v);
@@ -336,8 +301,8 @@ public class Pane extends LinearLayout
 //       return;
 //     }
 //     for (int i=0; i<n ; i+=2) {
-//       c=Util.c_strtoi(Util.q2s(opt[i]));
-//       w=Util.c_strtoi(Util.q2s(opt[i+1]));
+//       c=Util.c_strtoi(opt[i]);
+//       w=Util.c_strtoi(opt[i+1]);
 //       if ((c<0)||(w<0)) {
 //         JConsoleApp.theWd.error("grid colwidth column and width must be non-negative: " + p + " " + v);
 //         return;
@@ -357,8 +322,8 @@ public class Pane extends LinearLayout
 //       return;
 //     }
 //     for (int i=0; i<n ; i+=2) {
-//       c=Util.c_strtoi(Util.q2s(opt[i]));
-//       s=Util.c_strtoi(Util.q2s(opt[i+1]));
+//       c=Util.c_strtoi(opt[i]);
+//       s=Util.c_strtoi(opt[i+1]);
 //       if ((c<0)||(s<0)) {
 //         JConsoleApp.theWd.error("grid colstretch column and stretch must be non-negative: " + p + " " + v);
 //         return;
@@ -378,8 +343,8 @@ public class Pane extends LinearLayout
 //       return;
 //     }
 //     for (int i=0; i<n ; i+=2) {
-//       r=Util.c_strtoi(Util.q2s(opt[i]));
-//       h=Util.c_strtoi(Util.q2s(opt[i+1]));
+//       r=Util.c_strtoi(opt[i]);
+//       h=Util.c_strtoi(opt[i+1]);
 //       if ((r<0)||(h<0)) {
 //         JConsoleApp.theWd.error("grid rowheight row and height must be non-negative: " + p + " " + v);
 //         return;
@@ -399,8 +364,8 @@ public class Pane extends LinearLayout
 //       return;
 //     }
 //     for (int i=0; i<n ; i+=2) {
-//       r=Util.c_strtoi(Util.q2s(opt[i]));
-//       s=Util.c_strtoi(Util.q2s(opt[i+1]));
+//       r=Util.c_strtoi(opt[i]);
+//       s=Util.c_strtoi(opt[i+1]);
 //       if ((r<0)||(s<0)) {
 //         JConsoleApp.theWd.error("grid rowstretch row and stretch must be non-negative: " + p + " " + v);
 //         return;
@@ -416,96 +381,9 @@ public class Pane extends LinearLayout
   }
 
 // ---------------------------------------------------------------------
-  boolean groupbox(String c, String s)
-  {
-//   String cmd=Util.s2q(c);
-//   String id;
-//
-//   if (cmd.equals("groupbox")) {
-//     if (null==layout)
-//       bin("v");
-//     String[] opt=Cmd.qsplit(s);
-//     if (opt.length)
-//       id=opt[0];
-//     groupboxw=new QGroupBox(id);
-//     if (fontdef) groupboxw.setFont(fontdef.font);
-//     layout.addWidget(groupboxw);
-//     QVBoxLayout vb=new QVBoxLayout;
-//     vb.addWidget(pform.addpane(0));
-//     groupboxw.setLayout(vb);
-//     pform.pane.bin("v");
-//     return true;
-//   }
-//
-//   if (cmd.equals("groupboxend")) {
-//     bin("z");
-//     int n=pform.panes.size();
-//     if (n>1) {
-//       Pane p=pform.panes[n-2];
-//       if (p.groupboxw) {
-//         fini();
-//         p.groupboxw=0;
-//         return true;
-//       }
-//       JConsoleApp.theWd.error("no groupbox to end: " + c + " " + s);
-//       return false;
-//     }
-//   }
-    return false;
-  }
-
-// ---------------------------------------------------------------------
-  boolean line(String p, String s)
-  {
-//   String cmd=Util.s2q(p);
-//   if (!(cmd.equals("line") || cmd.equals("lineh") || cmd.equals("linev"))))
-//     return false;
-//   QFrame *f=new QFrame();
-//   f.setFrameShape((cmd.equals("linev")) ? QFrame::VLine : QFrame::HLine);
-//   f.setFrameShadow(QFrame::Sunken);
-//   layout.addWidget(f);
-    return true;
-  }
-
-// ---------------------------------------------------------------------
   void setstretch(Child cc, String factor)
   {
 //  if (layout.type!='g')((QBoxLayout )(layout.bin)).setStretchFactor(cc.widget,atoi(factor.Util.c_str()));
   }
 
-// ---------------------------------------------------------------------
-  boolean split(String p, String s)
-  {
-//   if (p.equals("splith") || p.equals("splitv"))) {
-//     if (null==layout)
-//       bin("v");
-//     qsplitter=new QSplitter((p.equals("splith"))?Qt::Horizontal : Qt::Vertical);
-//     qsplitter.addWidget(pform.addpane(1));
-//     qsplitterp=qs2intlist(Util.s2q(s));
-//     return true;
-//   }
-//
-//   if (!(p.equals("splitend") || p.equals("splitsep")))) return false;
-//
-//   fini();
-//   Pane sp=pform.pane;
-//
-//   if (p.equals("splitend"))
-//     sp.splitend();
-//   else
-//     sp.Cmd.qsplitter.addWidget(pform.addpane(1));
-    return true;
-  }
-
-// ---------------------------------------------------------------------
-  void splitend()
-  {
-//   if (qsplitterp.size()==4)
-//     qsplitter.setSizes(qsplitterp.substring(2));
-//   if (qsplitterp.size()>=2) {
-//     qsplitter.setStretchFactor(0,qsplitterp[0]);
-//     qsplitter.setStretchFactor(1,qsplitterp[1]);
-//   }
-//   layout.addWidget(qsplitter);
-  }
 }

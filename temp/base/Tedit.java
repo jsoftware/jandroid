@@ -38,7 +38,7 @@ void Tedit::append(String s)
 void Tedit::append_smoutput(String s)
 {
   removeprompt();
-  if (s.size())
+  if (s.length())
     appendPlainText(s + "\n" + getprompt());
   else
     appendPlainText(getprompt());
@@ -64,7 +64,7 @@ void Tedit::docmd(String t)
 void Tedit::docmdp(String t,boolean show,boolean same)
 {
   boolean cmt=dlb(t).left(3).equals("NB.");
-  runshow=same && t.size()>0 && !cmt;
+  runshow=same && t.length()>0 && !cmt;
   if (show)
     promptreplace(getprompt() + t);
   if (runshow) {
@@ -112,7 +112,7 @@ void Tedit::enter()
 // ---------------------------------------------------------------------
 String Tedit::getprompt()
 {
-  if (smprompt.size()) {
+  if (smprompt.length()) {
     prompt=smprompt;
     smprompt="";
   }
@@ -227,7 +227,7 @@ void Tedit::loadscript(String s,boolean show)
 // ---------------------------------------------------------------------
 void Tedit::promptreplace(String t)
 {
-  if (t.size() == 0) return;
+  if (t.length() == 0) return;
   moveCursor(QTextCursor::End, QTextCursor::MoveAnchor);
   moveCursor(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
   moveCursor(QTextCursor::Left, QTextCursor::KeepAnchor);

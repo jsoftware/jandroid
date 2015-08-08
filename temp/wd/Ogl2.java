@@ -6,8 +6,8 @@ int gl_updategl(void *g)
 {
   if (!g) return 1;
   Form f;
-  for (int i=0; i<Forms.size(); i++) {
-    f=Forms.at(i);
+  for (int i=0; i<Forms.length(); i++) {
+    f=Forms[i];
     if (f.ischild((Child )g)) {
       if ((((Child )g).type == "opengl") && ((Child )g).widget) {
         ((Opengl2 *)(((Opengl *) g).widget)).updateGL();

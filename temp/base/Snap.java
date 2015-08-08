@@ -61,7 +61,7 @@ void snapshot(boolean force, String path)
 boolean snapshot1(boolean force, String today, String path)
 {
   String p=snapgetpath(path);
-  if (p.size() == 0) return true;
+  if (p.length() == 0) return true;
   p += "/";
   String pfx = p + "s" + today;
   String seq = "001";
@@ -73,14 +73,14 @@ boolean snapshot1(boolean force, String today, String path)
   f.append("s*");
   d=qdir.entryList(f);
 
-  if (d.size()) {
+  if (d.length()) {
     d.sort();
     donetoday = d.last().mid(1,6) == today;
   }
 
 // force snap
   if (force) {
-    if (d.size()>0 && ss_match (p + d.last(),path)) {
+    if (d.length()>0 && ss_match (p + d.last(),path)) {
       ss_info("Last snapshot matches current project.");
       return true;
     }
@@ -95,12 +95,12 @@ boolean snapshot1(boolean force, String today, String path)
 // auto snap
   else {
     if (donetoday) return true;
-    if (d.size()>0 && ss_match (p + d.last(),path)) return true;
+    if (d.length()>0 && ss_match (p + d.last(),path)) return true;
     ss_make (path,pfx + seq);
   }
 
-  for (int i=0; i<d.size()-config.Snapshots; i++)
-    ss_erase(p,d.at(i));
+  for (int i=0; i<d.length()-config.Snapshots; i++)
+    ss_erase(p,d[i]);
 
   return true;
 }
@@ -108,13 +108,13 @@ boolean snapshot1(boolean force, String today, String path)
 // ---------------------------------------------------------------------
 void snapshot_tree(String folder)
 {
-  if (config.Snapshots == 0 || folder.size() == 0) return;
+  if (config.Snapshots == 0 || folder.length() == 0) return;
   if (SnapTrees.contains(folder)) return;
   String p=cpath("~" + folder);
   String[] folders=project_tree(p);
   String t=ss_date();
-  for (int i=0; i<folders.size(); i++)
-    snapshot1(false,t,p + "/" + folders.at(i));
+  for (int i=0; i<folders.length(); i++)
+    snapshot1(false,t,p + "/" + folders[i]);
   SnapTrees.append(folder);
 }
 
@@ -169,8 +169,8 @@ boolean ss_make(String from, String to)
 
   if (!ss_mkdir(to)) return false;
   String[] f=ss_files(from);
-  for (int i=0; i<f.size(); i++)
-    snapfcopy(from+f.at(i),to+f.at(i));
+  for (int i=0; i<f.length(); i++)
+    snapfcopy(from+f[i],to+f[i]);
   return true;
 }
 
@@ -179,14 +179,14 @@ boolean ss_match(String p, String q)
 {
   String[] pf=ss_files(p);
   String[] qf=ss_files(q);
-  if (pf.size() != qf.size()) return false;
+  if (pf.length() != qf.length()) return false;
   pf.sort();
   qf.sort();
   QFile *pn, *qn;
   boolean match;
-  for (int i=0; i<pf.size(); i++) {
-    pn=new QFile(p + "/" + pf.at(i));
-    qn=new QFile(q + "/" + pf.at(i));
+  for (int i=0; i<pf.length(); i++) {
+    pn=new QFile(p + "/" + pf[i]);
+    qn=new QFile(q + "/" + pf[i]);
     match = (cfread(pn) == cfread(qn));
     delete pn;
     delete qn;

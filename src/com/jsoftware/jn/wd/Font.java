@@ -5,9 +5,6 @@ import android.util.Log;
 import com.jsoftware.j.android.JConsoleApp;
 import com.jsoftware.jn.base.Util;
 import com.jsoftware.jn.base.Utils;
-import com.jsoftware.jn.wd.Cmd;
-import com.jsoftware.jn.wd.Wd;
-// import com.jsoftware.jn.base.State;
 
 public class Font
 {
@@ -49,8 +46,8 @@ public class Font
           else if (ss[j].equals("italic")) italic = 1;
           else if (ss[j].equals("underline")) underline = 1;
           else if (ss[j].equals("strikeout")) strikeout = 1;
-          else if (ss[j].startsWith("angle")) angle = Util.c_strtoi(Util.q2s(ss[j].substring(5)));
-          else if (Util.isNumber(ss[j])) size = (float) Util.c_strtod(Util.q2s(ss[j]));
+          else if (ss[j].startsWith("angle")) angle = Util.c_strtoi(ss[j].substring(5));
+          else if (Util.isNumber(ss[j])) size = (float) Util.c_strtod(ss[j]);
           else {
             error=true;
             break;
@@ -69,7 +66,7 @@ public class Font
   Font(String s,int size10, int bold, int italic, int strikeout, int underline, int angle10)
   {
     angle=angle10;
-    String face = Util.s2q(Util.remquotes(s));
+    String face = Util.remquotes(s);
     fontsize=size10/10f;
     Log.d(JConsoleApp.LogTag, "font: " + face + " size=" + fontsize + " bold=" + bold + " italic=" + italic + " strikeout=" + strikeout + " underline=" + underline + " angle=" + angle);
     font= Typeface.create(face,bold*(int)Typeface.BOLD+italic*(int)Typeface.ITALIC);

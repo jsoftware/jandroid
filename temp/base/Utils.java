@@ -36,9 +36,9 @@ String cpath(String s)
   int t;
   String f,p;
 
-  if ((s.size() == 0) || isroot(s))
+  if ((s.length() == 0) || isroot(s))
     return cfcase(s);
-  t=(int) (s.at(0)=='~');
+  t=(int) (s[0]=='~');
   int n = s.indexOf('/');
   if (n < 0) {
     f=s.mid(t);
@@ -48,13 +48,13 @@ String cpath(String s)
     p=s.mid(n);
   }
 
-  if (f.size() == 0) f = "home";
-  boolean par = f.at(0) == '.';
+  if (f.length() == 0) f = "home";
+  boolean par = f[0] == '.';
   if (par) f.remove(0,1);
 
   n = config.AllFolderKeys.indexOf(f);
   if (n<0) return cfcase(s);
-  f = config.AllFolderValues.at(n);
+  f = config.AllFolderValues[n];
 
   if (par) f = cfpath(f);
   return cfcase(f + p);
@@ -92,8 +92,8 @@ String[] folder_tree1(String b,String s,String[] f)
   QDir d(t);
   d.setNameFilters(f);
   String[] r=d.entryList(QDir::Files|QDir::Readable);
-  for(int i=0; i<r.size(); i++)
-    r.replace(i,t+r.at(i));
+  for(int i=0; i<r.length(); i++)
+    r.replace(i,t+r[i]);
 
   QDirIterator p(t,QDir::Dirs|QDir::NoDotAndDotDot);
   while (p.hasNext()) {
@@ -158,9 +158,9 @@ Bedit * getactiveedit()
 // get command String in form: mode)text
 String getcmd(String mode,String t)
 {
-  String v=Util.q2s(t.trimmed());
+  String v=t.trimmed();
   const char *c=v.Util.c_str();
-  int i=0,p=0,s=(int)v.size();
+  int i=0,p=0,s=(int)v.length();
   for (; i<s; i++) {
     if (c[i]==')') p=i;
     if (! (isalnum(c[i]) || c[i]==')' || c[i]=='.')) break;
@@ -169,7 +169,7 @@ String getcmd(String mode,String t)
   size_t b = v.find_last_of(')',p-1);
   if (b==String::npos) return t;
   v.erase(0,b+1);
-  return Util.s2q(v);
+  return v;
 }
 
 #ifdef TABCOMPLETION
@@ -227,9 +227,9 @@ int gethash(const char *s, const char *t, const int wid, char *&msg, int &len)
     hashbuf="Hash type unknown: " + m;
   }
   if (rc==0)
-    hashbuf=Util.q2s(QCryptographicHash::hash(QByteArray(t,wid),a).toHex());
+    hashbuf=QCryptographicHash::hash(QByteArray(t,wid),a).toHex();
   msg=(char *)hashbuf.Util.c_str();
-  len=(int)hashbuf.size();
+  len=(int)hashbuf.length();
   return rc;
 }
 
@@ -269,7 +269,7 @@ String getversion()
 boolean gitavailable()
 {
 #if defined(__MACH__) || defined(Q_OS_LINUX) && !defined(QT_OS_ANDROID)
-  return !shell("which git","").at(0).isEmpty();
+  return !shell("which git","")[0].isEmpty();
 #else
   return false;
 #endif
@@ -290,7 +290,7 @@ void gitgui(String path)
 String gitstatus(String path)
 {
   if (config.ifGit)
-    return shell("git status",path).at(0);
+    return shell("git status",path)[0];
   return "";
 }
 
@@ -313,10 +313,10 @@ String[] globalassigns(String s,String ext)
 
   qSort(p);
   i=0;
-  while (i<p.size()) {
-    t=p.at(i);
+  while (i<p.length()) {
+    t=p[i];
     c=i++;
-    while (i<p.size()&&t==p.at(i)) i++;
+    while (i<p.length()&&t==p[i]) i++;
     if (1<i-c)
       t=t + " (" + String::number(i-c) + ")";
     r.append(t);
@@ -328,7 +328,7 @@ String[] globalassigns(String s,String ext)
 void helpabout()
 {
   String[] s=state_about();
-  about(s.at(0),s.at(1));
+  about(s[0],s[1]);
 }
 
 // ---------------------------------------------------------------------
@@ -363,7 +363,7 @@ String newtempscript()
   String[] s=cflist(config.TempPath.absolutePath(),"*" + config.DefExt);
 
   List<int> n;
-  len = config.DefExt.size();
+  len = config.DefExt.length();
   foreach (String p, s) {
     p.chop(len);
     m=p.toInt();
@@ -568,22 +568,22 @@ String tofoldername(String f)
   String g,p,s,t;
   if (f.isEmpty()) return f;
 
-  for (i=0; i<config.AllFolderValues.size(); i++) {
-    t=config.AllFolderValues.at(i);
-    if (matchfolder(t,f) && t.size() > s.size())
+  for (i=0; i<config.AllFolderValues.length(); i++) {
+    t=config.AllFolderValues[i];
+    if (matchfolder(t,f) && t.length() > s.length())
       s=t;
-    else if (matchfolder(cfpath(t),f) && t.size() > p.size())
+    else if (matchfolder(cfpath(t),f) && t.length() > p.length())
       p=t;
   }
 
-  if (s.size()) {
+  if (s.length()) {
     i=config.AllFolderValues.indexOf(s);
-    return '~' + config.AllFolderKeys.at(i) + f.mid(s.size());
+    return '~' + config.AllFolderKeys[i] + f.mid(s.length());
   }
 
-  if (p.size()) {
+  if (p.length()) {
     i=config.AllFolderValues.indexOf(p);
-    return "~." + config.AllFolderKeys.at(i) + f.mid(cfpath(p).size());
+    return "~." + config.AllFolderKeys[i] + f.mid(cfpath(p).length());
   }
 
   return f;
@@ -595,11 +595,11 @@ String toprojectname(String f)
 {
   String s=cpath(f);
 
-  if (project.Id.size() && matchfolder(project.Path,s))
+  if (project.Id.length() && matchfolder(project.Path,s))
     s=cfsname(s);
   else {
     s=tofoldername(s);
-    if (s.at(0).equals("~"))
+    if (s[0].equals("~"))
       s=s.mid(1);
   }
   return s;
@@ -636,7 +636,7 @@ List<int> winpos_get(QWidget *s)
 {
   List<int> d;
   QPoint p=s.pos();
-  QSize z=s.size();
+  QSize z=s.length();
   int x=p.rx();
   int y=p.ry();
   int w=z.width();
@@ -672,15 +672,15 @@ void writewinstate(Bedit *w)
   int e=c.selectionEnd();
   String t=w.toPlainText();
   String s=String::number(b)+" "+String::number(e);
-  sets("WinText_jqtide_",Util.q2s(t));
-  sets("inputx_jrx_",Util.q2s(s));
+  sets("WinText_jqtide_",t);
+  sets("inputx_jrx_",s);
   var_cmd("WinSelect_jqtide_=: 0 \". inputx_jrx_");
 }
 
 // ---------------------------------------------------------------------
 void xdiff(String s,String t)
 {
-  if (config.XDiff.size()==0) {
+  if (config.XDiff.length()==0) {
     info ("External Diff","First define XDiff in the config");
     return;
   }

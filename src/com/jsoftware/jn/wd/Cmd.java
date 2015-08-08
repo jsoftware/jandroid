@@ -7,9 +7,6 @@ import java.util.List;
 
 public class Cmd
 {
-
-  final String LOGTAG="jandroid";
-
   int bgn;
   int len;
   int pos;
@@ -22,18 +19,14 @@ public class Cmd
   final static String WS=" \f\r\t";
   final static String WSLF=WS+LF;
 
-  static String s2q(String s)
-  {
-    return s;
-  }
-
   static int find_first_not_of(String str, String searchChars, int pos)
   {
+    if (-1==pos) return -1;
     if (isEmpty(str) || isEmpty(searchChars)) {
       return -1;
     }
     for (int i = pos; i < str.length(); i++) {
-      if (searchChars.indexOf(str.charAt(i)) < 0) {
+      if (searchChars.indexOf(str.charAt(i)) == -1) {
         return i;
       }
     }
@@ -74,7 +67,7 @@ public class Cmd
   }
 
 // ---------------------------------------------------------------------
-// split on g h m p v s z and remove blanks
+// split on g h l m p u v s z and remove blanks
   public String[] bsplits()
   {
     List<String> r=new ArrayList<String>();
@@ -82,12 +75,12 @@ public class Cmd
     len=str.length();
     while (pos<len) {
       bgn=pos++;
-      pos=str.indexOf("ghmpsvz",pos);
+      pos=Util.find_first_of(str,Wd.bintype,pos);
       if (pos==-1) {
-        r.add(s2q(str.substring(bgn)));
+        r.add(str.substring(bgn));
         break;
       } else
-        r.add(s2q(str.substring(bgn,bgn+pos-bgn)));
+        r.add(str.substring(bgn,bgn+pos-bgn));
     }
     return r.toArray(new String[r.size()]);
   }
@@ -203,20 +196,20 @@ public class Cmd
       bgn=pos;
       c=str.charAt(pos++);
       if (c=='*') {
-        r.add(s2q(str.substring(pos)));
+        r.add(str.substring(pos));
         break;
       }
       if (c=='"' || c==DEL) {
         skippast(c);
-        r.add(s2q(str.substring(bgn+1,bgn+1+pos-bgn-2)));
+        r.add(str.substring(bgn+1,bgn+1+pos-bgn-2));
       } else {
         skiptows();
-        r.add(s2q(str.substring(bgn,bgn+pos-bgn)));
+        r.add(str.substring(bgn,bgn+pos-bgn));
         if (pos<len && str.charAt(pos)==LF)
           pos++;
       }
     }
-    return r.toArray(new String[r.size()]);
+    return Util.qsless(r.toArray(new String[r.size()]),new String[] {""});
   }
 
 // ---------------------------------------------------------------------
@@ -313,7 +306,7 @@ public class Cmd
     if (star) {
       int p=find_first_not_of(s,WS,0);
       if (p!=-1 && s.charAt(p)=='*')
-        return new String[] {(s2q(s.substring(p+1)))};
+        return new String[] {(s.substring(p+1))};
     }
     Cmd c=new Cmd();
     c.init(s);
@@ -329,7 +322,7 @@ public class Cmd
       return new String[] {};
     if (s.charAt(n-1)==c)
       s=s.substring(0,(n-1)-1);
-    return s2q(s).split(String.valueOf(c));
+    return s.split(String.valueOf(c));
   }
 
 // ---------------------------------------------------------------------

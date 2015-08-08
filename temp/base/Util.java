@@ -84,7 +84,7 @@ public class Util
     QTextStream out(file);
     out << s;
     file.close();
-    return s.size();
+    return s.length();
   }
 
 // ---------------------------------------------------------------------
@@ -168,8 +168,8 @@ public class Util
   {
     String[] r=cflist(b,filters);
     String t=b+"/";
-    for(int i=0; i<r.size(); i++)
-      r.replace(i,t+r.at(i));
+    for(int i=0; i<r.length(); i++)
+      r.replace(i,t+r[i]);
     return r;
   }
 
@@ -184,7 +184,7 @@ public class Util
     String[] r;
     foreach (String s,p) {
       f.setFileName(s);
-      if (f.size() < 1e6 && f.open(QIODevice::ReadOnly)) {
+      if (f.length() < 1e6 && f.open(QIODevice::ReadOnly)) {
         if(isutf8(f.readAll()))
           r.append(s);
         f.close();
@@ -207,7 +207,7 @@ public class Util
   public static String cfread(QFile *file)
   {
     if (!file.open(QIODevice::ReadOnly|QIODevice::Text))
-      return Util.s2q("");
+      return "";
     QTextStream in(file);
     in.setCodec("UTF-8");
     String r = in.readAll();
@@ -243,8 +243,8 @@ public class Util
     s=cfread(file);
     if (s.isEmpty()) return r;
     s = s.remove('\r').replace('\t',' ');
-    for (i=s.size(); i>0; i--)
-      if (s.at(i-1) != '\n') break;
+    for (i=s.length(); i>0; i--)
+      if (s[i-1] != '\n') break;
     return s.left(i).split('\n');
   }
 
@@ -261,9 +261,9 @@ public class Util
     String[] r=cfreads(s);
     String t;
     r.removeDuplicates();
-    for(int i=r.size()-1; i>=0; i--) {
-      t=r.at(i);
-      if (t.isEmpty() || t.at(0)=='#' || t.mid(0,3).equals("NB."))
+    for(int i=r.length()-1; i>=0; i--) {
+      t=r[i];
+      if (t.isEmpty() || t[0]=='#' || t.mid(0,3).equals("NB."))
         r.removeAt(i);
     }
     return r;
@@ -316,7 +316,7 @@ public class Util
     out.setCodec("UTF-8");
     out << t;
     file.close();
-    return t.size();
+    return t.length();
   }
 
 // ---------------------------------------------------------------------
@@ -353,8 +353,8 @@ public class Util
 // ---------------------------------------------------------------------
   public static String dlb(String s)
   {
-    for (int n=0; n<s.size(); n++) {
-      if (!s.at(n).isSpace()) {
+    for (int n=0; n<s.length(); n++) {
+      if (!s[n].isSpace()) {
         return s.mid(n);
       }
     }
@@ -364,8 +364,8 @@ public class Util
 // ---------------------------------------------------------------------
   public static String dtb(String s)
   {
-    for (int n = s.size()-1; n>=0; n--) {
-      if (!s.at(n).isSpace()) {
+    for (int n = s.length()-1; n>=0; n--) {
+      if (!s[n].isSpace()) {
         return s.left(n + 1);
       }
     }
@@ -387,8 +387,8 @@ public class Util
     String p;
     QRegExp sep("(\\s|,)");
     String[] f=s.split(sep);     // SkipEmptyParts
-    for(i=0; i<f.size(); i++) {
-      p=f.at(i);
+    for(i=0; i<f.length(); i++) {
+      p=f[i];
       if(!p.contains("*"))
         f.replace(i,"*."+p);
     }
@@ -443,7 +443,7 @@ public class Util
   public static String intlist2qs(List<int> p)
   {
     String s("");
-    int n=p.size();
+    int n=p.length();
     for(int i=0; i<n; i++) {
       if (i>0) s.append(" ");
       s.append(String::number(p[i]));
@@ -455,7 +455,7 @@ public class Util
 // is non-empty and all digit
   public static boolean isint(const String s)
   {
-    int n=(int)s.size();
+    int n=(int)s.length();
     if (n==0) return false;
     for(int i=0; i<n; i++)
       if(!isdigit(s[i])) return false;
@@ -465,7 +465,7 @@ public class Util
 // ---------------------------------------------------------------------
   public static boolean isroot(String s)
   {
-    return s.size()>0 && s.at(0) == '/';
+    return s.length()>0 && s[0] == '/';
   }
 
 // ---------------------------------------------------------------------
@@ -478,17 +478,17 @@ public class Util
 // match smaller vs larger
   public static boolean matchhead(String s, String t)
   {
-    if (s.size() > t.size()) return false;
-    return s == t.left(s.size());
+    if (s.length() > t.length()) return false;
+    return s == t.left(s.length());
   }
 
 // ---------------------------------------------------------------------
 // match foldername vs path
   public static boolean matchfolder(String s, String t)
   {
-    if (s.size()>t.size()) return false;
-    if (s.size()==t.size()) return s==t;
-    return (s+"/")==t.left(s.size() + 1);
+    if (s.length()>t.length()) return false;
+    if (s.length()==t.length()) return s==t;
+    return (s+"/")==t.left(s.length() + 1);
   }
 
 // ---------------------------------------------------------------------
@@ -513,19 +513,19 @@ public class Util
   public static int matchparens(QChar mode, String p)
   {
     Q_UNUSED(mode);
-    String s=Util.q2s(p);
+    String s=p;
     char c;
-    int n, len=(int)s.size();
+    int n, len=(int)s.length();
     String t="";
     for(int i=0; i<len; i++) {
       if(s[i] == '(' || s[i] == '[' || s[i] == '{')
         t.append(s[i]);
       else if(s[i] == ')' || s[i] == ']' || s[i] == '}') {
-        n=(int)t.size()-1;
+        n=(int)t.length()-1;
         if(n<0)
           return 2;
         else {
-          c=t.at(n);
+          c=t[n];
           t.resize(n);
           if (!((s[i] == ')' && c == '(') || (s[i] == '}' && c == '{')
                 || (s[i] == ']' && c == '[')))
@@ -533,7 +533,7 @@ public class Util
         }
       }
     }
-    return (t.size()==0) ? 0 : 2;
+    return (t.length()==0) ? 0 : 2;
   }
 
 // ---------------------------------------------------------------------
@@ -616,8 +616,8 @@ public class Util
   public static List<int> qsl2intlist(String[] s)
   {
     List<int> r;
-    for (int i=0; i<s.size(); i++)
-      r.append(s.at(i).toInt());
+    for (int i=0; i<s.length(); i++)
+      r.append(s[i].toInt());
     return r;
   }
 
@@ -625,8 +625,8 @@ public class Util
 // if s has only characters in t
   public static boolean qshasonly(const String s, const String t)
   {
-    for (int i=0; i<s.size(); i++)
-      if (!t.contains(s.at(i))) return false;
+    for (int i=0; i<s.length(); i++)
+      if (!t.contains(s[i])) return false;
     return true;
   }
 
@@ -634,9 +634,9 @@ public class Util
   public static QVector<int> qs2intvector(String c)
   {
     String[] s=c.split(' ');     // SkipEmptyParts
-    QVector<int> r(s.size());
-    for (int i=0; i<s.size(); i++)
-      r[i]=s.at(i).toInt();
+    QVector<int> r(s.length());
+    for (int i=0; i<s.length(); i++)
+      r[i]=s[i].toInt();
     return r;
   }
 
@@ -652,8 +652,8 @@ public class Util
   public static String[] qsldtbeach(String[] s)
   {
     String[] r;
-    for(int i=0; i<s.size(); i++)
-      r.append(dtb(s.at(i)));
+    for(int i=0; i<s.length(); i++)
+      r.append(dtb(s[i]));
     return r;
   }
 
@@ -661,8 +661,8 @@ public class Util
   public static String[] qsldropeach(int n,String[] s)
   {
     String[] r;
-    for(int i=0; i<s.size(); i++)
-      r.append(s.at(i).mid(n));
+    for(int i=0; i<s.length(); i++)
+      r.append(s[i].mid(n));
     return r;
   }
 
@@ -680,8 +680,8 @@ public class Util
   public static String[] qslfcase(String[] s)
   {
     String[] r;
-    for(int i=0; i<s.size(); i++)
-      r.append(cfcase(s.at(i)));
+    for(int i=0; i<s.length(); i++)
+      r.append(cfcase(s[i]));
     return r;
   }
 
@@ -689,15 +689,15 @@ public class Util
   public static String[] qslprependeach(String p,String[] s)
   {
     String[] r;
-    for(int i=0; i<s.size(); i++)
-      r.append(p+s.at(i));
+    for(int i=0; i<s.length(); i++)
+      r.append(p+s[i]);
     return r;
   }
 
 // ---------------------------------------------------------------------
   public static String[] qslreverse(String[] s)
   {
-    int i,n=s.size();
+    int i,n=s.length();
     for(i=0; i<n/2; i++) s.swap(i,n-1-i);
     return s;
   }
@@ -705,12 +705,12 @@ public class Util
 // ---------------------------------------------------------------------
   public static String[] qsltrim(String[] p)
   {
-    while (p.size()) {
-      if (p.first().trimmed().size()) break;
+    while (p.length()) {
+      if (p.first().trimmed().length()) break;
       p.removeFirst();
     }
-    while (p.size()) {
-      if (p.last().trimmed().size()) break;
+    while (p.length()) {
+      if (p.last().trimmed().length()) break;
       p.removeLast();
     }
     return p;
@@ -720,8 +720,8 @@ public class Util
   public static String[] qsltrimeach(String[] s)
   {
     String[] r;
-    for(int i=0; i<s.size(); i++)
-      r.append(s.at(i).simplified());
+    for(int i=0; i<s.length(); i++)
+      r.append(s[i].simplified());
     return r;
   }
 
@@ -739,7 +739,7 @@ public class Util
   public static boolean qsnumeric(String[] a)
   {
     foreach(String s,a)
-      if (s.size() && s.at(0)!='_' && s.at(0)!='-' && s.at(0)!='0' && s.at(0)!='1' && s.at(0)!='2' && s.at(0)!='3' && s.at(0)!='4' && s.at(0)!='5' && s.at(0)!='6' && s.at(0)!='7' && s.at(0)!='8' && s.at(0)!='9') return false;
+      if (s.length() && s[0]!='_' && s[0]!='-' && s[0]!='0' && s[0]!='1' && s[0]!='2' && s[0]!='3' && s[0]!='4' && s[0]!='5' && s[0]!='6' && s[0]!='7' && s[0]!='8' && s[0]!='9') return false;
     return true;
   }
 
@@ -747,7 +747,7 @@ public class Util
   public static String strless(String a,String w)
   {
     String r="";
-    for (size_t i=0; i<a.size(); i++) {
+    for (size_t i=0; i<a.length(); i++) {
       if (String::npos == w.find_first_of(a[i])) r+=a[i];
     }
     return r;
@@ -759,21 +759,15 @@ public class Util
     String[] t = s.split(" ");     // SkipEmptyParts
     List<int> r;
     for (int i=0; i<4; i++)
-      r.append(t.at(i).toInt());
+      r.append(t[i].toInt());
     return r;
-  }
-
-// ---------------------------------------------------------------------
-  public static String Util.q2s(String s)
-  {
-    return s.toUtf8().constData();
   }
 
 // ---------------------------------------------------------------------
   public static String remsep(String s)
   {
     if (s.endsWith("/"))
-      s=s.left(s.size()-1);
+      s=s.left(s.length()-1);
     return s;
   }
 
@@ -786,13 +780,6 @@ public class Util
   }
 
 // ---------------------------------------------------------------------
-  public static String Util.s2q(String s)
-  {
-    String r=String::fromUtf8(s.Util.c_str());
-    return r;
-  }
-
-// ---------------------------------------------------------------------
 // pair Strings with zero delimeter
   public static byte[] spair(String s,String t)
   {
@@ -801,7 +788,7 @@ public class Util
     r.add('\0');
     r.add(s.getByte(Charset.forName("UTF-8")));
     r.add('\0');
-    return r.toArray(new byte[r.size()]);
+    return r.toArray(new byte[r.length()]);
   }
 
 // ---------------------------------------------------------------------
@@ -821,11 +808,11 @@ public class Util
 // ---------------------------------------------------------------------
   public static String toqlist(String[] s)
   {
-    int n=s.size();
+    int n=s.length();
     if (n == 0) return "";
-    String r = "(\"" + s.at(0) + "\"";
+    String r = "(\"" + s[0] + "\"";
     for (int i=1; i<n; i++)
-      r.append(";\"" + s.at(i) + "\"");
+      r.append(";\"" + s[i] + "\"");
     r.append(")");
     return r;
   }
@@ -836,9 +823,9 @@ public class Util
   public static String trimtws(String s)
   {
     String[] r=s.split('\n');
-    for (int i=0; i<r.size(); i++)
-      r[i]=dtb(r.at(i));
-    while ((r.size()>1) && (r.at(r.size()-1).isEmpty()) && (r.at(r.size()-2).isEmpty()))
+    for (int i=0; i<r.length(); i++)
+      r[i]=dtb(r[i]);
+    while ((r.length()>1) && (r[r.length()-1].isEmpty()) && (r[r.length()-2].isEmpty()))
       r.removeLast();
     return r.join("\n");
   }
@@ -846,7 +833,7 @@ public class Util
 // ---------------------------------------------------------------------
   public static int Util.c_strtoi(String s)
   {
-    if (!s.size()) return 0;
+    if (!s.length()) return 0;
     String p=s;
     if (p[0]=='_') p[0]='-';
     return (int)strtol(p.Util.c_str(),NULL,0);
@@ -855,7 +842,7 @@ public class Util
 // ---------------------------------------------------------------------
   public static SI Util.c_strtol(String s)
   {
-    if (!s.size()) return 0;
+    if (!s.length()) return 0;
     String p=s;
     if (p[0]=='_') p[0]='-';
     return strtol(p.Util.c_str(),NULL,0);
@@ -864,7 +851,7 @@ public class Util
 // ---------------------------------------------------------------------
   public static double Util.c_strtod(String s)
   {
-    if (!s.size()) return 0;
+    if (!s.length()) return 0;
     String p=s;
     if (p[0]=='_') p[0]='-';
     return strtod(p.Util.c_str(),NULL);

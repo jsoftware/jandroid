@@ -5,39 +5,30 @@ import android.graphics.Canvas;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import com.jsoftware.j.android.JConsoleApp;
 import com.jsoftware.jn.base.Util;
 import com.jsoftware.jn.base.Utils;
-import com.jsoftware.jn.wd.Cmd;
-import com.jsoftware.jn.wd.Font;
-import com.jsoftware.jn.wd.Form;
-import com.jsoftware.jn.wd.Glcmds;
-import com.jsoftware.jn.wd.JView;
-import com.jsoftware.jn.wd.Pane;
-import java.util.List;
 
-public class JIsigraph extends Child
+class JIsigraph extends Child
 {
 
   Glcmds glcmds;
 
   Bitmap bitmap;
-  Canvas canvas;
+  private Canvas canvas;
 // sysdata
-  int cx,cy,andw,andh,button1,button2,control,shift,button3;
+  private int cx,cy,andw,andh,button1,button2,control,shift,button3;
 
 // ---------------------------------------------------------------------
-  public JIsigraph(String n, String s, Form f, Pane p, String type)
+  JIsigraph(String n, String s, Form f, Pane p, String type)
   {
     super(n,s,f,p);
     this.type=type;
     JView w= new JView(this, f.activity);
     widget=(View ) w;
-    String qn=Util.s2q(n);
+    String qn=n;
     String[] opt=Cmd.qsplit(s);
     if (JConsoleApp.theWd.invalidopt(n,opt,"")) return;
-//  w.setObjectName(qn);
     childStyle(opt);
 
     w.setFocusable(true);
@@ -63,14 +54,14 @@ public class JIsigraph extends Child
 
 // ---------------------------------------------------------------------
   @Override
-  public void dispose()
+  void dispose()
   {
     if ((null!=bitmap) && !bitmap.isRecycled()) bitmap.recycle();
     if (this==JConsoleApp.theWd.isigraph) JConsoleApp.theWd.isigraph=null;
   }
 
 // ---------------------------------------------------------------------
-  public void onDraw (Canvas canvas)
+  void onDraw (Canvas canvas)
   {
     Log.d(JConsoleApp.LogTag,"JIsigraph onDraw");
     if (type.equals("isidraw"))
@@ -80,7 +71,7 @@ public class JIsigraph extends Child
   }
 
 // ---------------------------------------------------------------------
-  public void onSizeChanged (int w, int h, int oldw, int oldh)
+  void onSizeChanged (int w, int h, int oldw, int oldh)
   {
     andw=w;
     andh=h;
@@ -106,62 +97,66 @@ public class JIsigraph extends Child
   }
 
 // ---------------------------------------------------------------------
-  public boolean onTounch(View view, MotionEvent event)
+  boolean onTounch(View view, MotionEvent event)
   {
-    int action=event.getAction();
     String name;
+    int action=event.getAction();
     if (action==MotionEvent.ACTION_DOWN) name="mbldown";
     else if (action==MotionEvent.ACTION_UP) name="mblup";
     else if (action==MotionEvent.ACTION_MOVE) name="mmove";
-    else return true;
-    int cx=(int)event.getX();
-    int cy=(int)event.getY();
+    else return false;
     long dt=event.getEventTime() - event.getDownTime();
     if ((dt>500) && (action==MotionEvent.ACTION_UP)) name="mbldbl";
+    cx=(int)event.getX();
+    cy=(int)event.getY();
     button1=1;
     sysmodifiers=Util.i2s(shift+2*control);
+    this.sysdata=getsysdata();
     this.event=name;
     pform.signalevent(this);
-    return false;
+    return true;
   }
 
 // ---------------------------------------------------------------------
   @Override
-  byte[] getsysdata()
+  String getsysdata()
   {
 //    (cx,cy,andwh,button1,button2,control,shift,button3,0,0,0)
-    return Util.s2ba(Util.i2s(cx)+" "+Util.i2s(cy)+" "+Util.i2s(andw)+" "+Util.i2s(andh)+" "+Util.i2s(button1)+" "+Util.i2s(button2)+" "+Util.i2s(button3)+" 0 0 0");
+    return Util.i2s(cx)+" "+Util.i2s(cy)+" "+Util.i2s(andw)+" "+Util.i2s(andh)+" "+Util.i2s(button1)+" "+Util.i2s(button2)+" "+Util.i2s(button3)+" 0 0 0";
   }
 
 // ---------------------------------------------------------------------
   @Override
-  public void setform()
+  void setform()
   {
-    if (!(event=="paint" || event=="resize")) super.setform();
+    if (!(event.equals("paint") || event.equals("resize"))) super.setform();
     JConsoleApp.theWd.isigraph=this;
   }
 
 // ---------------------------------------------------------------------
-  public byte[] get(String p,String v)
+  @Override
+  byte[] get(String p,String v)
   {
     return super.get(p,v);
   }
 
 // ---------------------------------------------------------------------
-  public void set(String p,String v)
+  @Override
+  void set(String p,String v)
   {
     super.set(p,v);
   }
 
 // ---------------------------------------------------------------------
-  public byte[] state()
+  @Override
+  byte[] state()
   {
     return new byte[0];
   }
 
 // Isigraph2
 // ---------------------------------------------------------------------
-  void fill(int[] p)
+  private void fill(int[] p)
   {
 //   QColor c(*(p), *(p + 1), *(p + 2), *(p + 3));
 //   if (bitmap)
@@ -171,7 +166,7 @@ public class JIsigraph extends Child
   }
 //
 // // ---------------------------------------------------------------------
-  Bitmap getbitmap()
+  private Bitmap getbitmap()
   {
 //   Bitmap m=new Bitmap();
 //   if (null!=bitmap)
@@ -183,14 +178,14 @@ public class JIsigraph extends Child
   }
 //
 // ---------------------------------------------------------------------
-  void paintEvent_isidraw(Canvas canvas)
+  private void paintEvent_isidraw(Canvas canvas)
   {
     if (null==bitmap) return;
     canvas.drawBitmap(bitmap,0f,0f,glcmds.paint);
   }
 //
 // ---------------------------------------------------------------------
-  void paintEvent_isigraph(Canvas canvas)
+  private void paintEvent_isigraph(Canvas canvas)
   {
     JConsoleApp.theWd.isigraph=this;
     glcmds.canvas=canvas;
@@ -199,7 +194,7 @@ public class JIsigraph extends Child
     glcmds.canvas=null;
   }
 // // ---------------------------------------------------------------------
-// void buttonEvent(QEvent.Type type, QMouseEvent *event)
+// private void buttonEvent(QEvent.Type type, QMouseEvent *event)
 // {
 //   JConsoleApp.theWd.isigraph=this;
 //
@@ -250,7 +245,7 @@ public class JIsigraph extends Child
 // }
 //
 // // ---------------------------------------------------------------------
-// void wheelEvent(QWheelEvent *event)
+// private void wheelEvent(QWheelEvent *event)
 // {
 //   JConsoleApp.theWd.isigraph=this;
 //
@@ -275,31 +270,31 @@ public class JIsigraph extends Child
 // }
 //
 // // ---------------------------------------------------------------------
-// void mousePressEvent(QMouseEvent *event)
+// private void mousePressEvent(QMouseEvent *event)
 // {
 //   buttonEvent(QEvent.MouseButtonPress, event);
 // }
 //
 // // ---------------------------------------------------------------------
-// void mouseMoveEvent(QMouseEvent *event)
+// private void mouseMoveEvent(QMouseEvent *event)
 // {
 //   buttonEvent(QEvent.MouseMove, event);
 // }
 //
 // // ---------------------------------------------------------------------
-// void mouseDoubleClickEvent(QMouseEvent *event)
+// private void mouseDoubleClickEvent(QMouseEvent *event)
 // {
 //   buttonEvent(QEvent.MouseButtonDblClick, event);
 // }
 //
 // // ---------------------------------------------------------------------
-// void mouseReleaseEvent(QMouseEvent *event)
+// private void mouseReleaseEvent(QMouseEvent *event)
 // {
 //   buttonEvent(QEvent.MouseButtonRelease, event);
 // }
 //
 // // ---------------------------------------------------------------------
-// void focusInEvent(QFocusEvent *event)
+// private void focusInEvent(QFocusEvent *event)
 // {
 //   event="focus";
 //   sysmodifiers="";
@@ -308,7 +303,7 @@ public class JIsigraph extends Child
 // }
 //
 // // ---------------------------------------------------------------------
-// void focusOutEvent(QFocusEvent *event)
+// private void focusOutEvent(QFocusEvent *event)
 // {
 //   event="focuslost";
 //   sysmodifiers="";
@@ -317,7 +312,7 @@ public class JIsigraph extends Child
 // }
 //
 // // ---------------------------------------------------------------------
-// void keyPressEvent(QKeyEvent *event)
+// private void keyPressEvent(QKeyEvent *event)
 // {
 //   int key1=0;
 //   int key=event.key();

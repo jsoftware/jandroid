@@ -64,6 +64,5 @@ void Nmain::createToolBar()
 QAction *Nmain::makeact(String id, String icon, String text)
 {
   QAction *r = new QAction(QIcon(":/images/" + icon),text,this);
-  r.setObjectName(id);
   return r;
 }

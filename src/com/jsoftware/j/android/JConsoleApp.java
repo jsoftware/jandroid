@@ -15,9 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import com.jsoftware.j.JInterface;
 
 import android.app.Activity;
@@ -642,8 +639,8 @@ public class JConsoleApp extends Application
       installDirectory(base, "system");
       installDirectory(base, "bin");
 
-      publishProgress("installing help files");
-      installDirectory(base, "docs");
+//       publishProgress("installing help files");
+//       installDirectory(base, "docs");
 
       publishProgress("installing addons");
       installDirectory(base, "addons");
@@ -794,6 +791,26 @@ public class JConsoleApp extends Application
 //    }
 //   }
 //   return 0;
+  }
+
+  public int wdreadimg(String s, Object[] res)
+  {
+    return com.jsoftware.jn.wd.JBitmap.wdreadimg(s, res);
+  }
+
+  public int wdgetimg(byte[] data, Object[] res)
+  {
+    return com.jsoftware.jn.wd.JBitmap.wdgetimg(data, res);
+  }
+
+  public int wdwriteimg(int[] p, int w, int h, String f, String format, int quality)
+  {
+    return com.jsoftware.jn.wd.JBitmap.wdwriteimg(p, w, h, f, format, quality);
+  }
+
+  public int wdputimg(int[] p, int w, int h, String format, int quality, Object[] res)
+  {
+    return com.jsoftware.jn.wd.JBitmap.wdputimg(p, w, h, format, quality, res);
   }
 
 }

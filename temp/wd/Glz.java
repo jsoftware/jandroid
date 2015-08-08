@@ -228,13 +228,13 @@ int glzprinter (char *printername)
     prtobj.painter=0;
   }
   if (printername[0]!='_') {
-    Printer.setPrinterName(Util.s2q(printername));
+    Printer.setPrinterName(printername);
     Printer.setOutputFormat(QPrinter::NativeFormat);
   } else {
-    String p=Util.s2q(printername);
-    if (p==Util.s2q("_pdf")) Printer.setOutputFormat(QPrinter::PdfFormat);
+    String p=printername;
+    if (p=="_pdf") Printer.setOutputFormat(QPrinter::PdfFormat);
 #ifndef QT50
-    else if (p==Util.s2q("_ps")) Printer.setOutputFormat(QPrinter::PostScriptFormat);
+    else if (p=="_ps") Printer.setOutputFormat(QPrinter::PostScriptFormat);
 #endif
     else return 1;
   }
@@ -245,8 +245,8 @@ int glzprinter (char *printername)
 int glzstartdoc (char *jobname, char *filename)
 {
   CHKPAINTER2
-  if (jobname) Printer.setDocName(Util.s2q(jobname));
-  if (filename) Printer.setOutputFileName(Util.s2q(filename));
+  if (jobname) Printer.setDocName(jobname);
+  if (filename) Printer.setOutputFileName(filename);
   if (prtobj.painter) delete prtobj.painter;
   prtobj.painter=new QPainter(Printer);
   if (!prtobj.painter) return 1;

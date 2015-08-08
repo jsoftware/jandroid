@@ -60,7 +60,7 @@ String QmlJE::getvar(String n)
 // ---------------------------------------------------------------------
 void QmlJE::setvar(String n,String s)
 {
-  jsetc(n.toUtf8().data(), s.toUtf8().data(), s.toUtf8().size());
+  jsetc(n.toUtf8().data(), s.toUtf8().data(), s.toUtf8().length());
 }
 
 #ifdef QT50

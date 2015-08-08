@@ -53,14 +53,13 @@ Table::Table(String n, String s, Form f, Pane p) : Child(n,s,f,p)
 
   QTableWidgex *w=new QTableWidgex(this);
   widget=(View*) w;
-  w.setObjectName(Util.s2q(n));
   String[] opt=Cmd.qsplit(s);
   if (invalidoptn(n,opt,"selectrows sortable")) return;
   String[] shape;
 
-  if (opt.size()>=2) {
-    if ((isint(Util.q2s(opt.at(0)))) && ((isint(Util.q2s(opt.at(1)))))) {
-      shape=Cmd.qsplit((Util.q2s(opt.at(0)))+" "+(Util.q2s(opt.at(1))));
+  if (opt.length>=2) {
+    if ((isint(opt[0])) && ((isint(opt[1])))) {
+      shape=Cmd.qsplit((opt[0])+" "+(opt[1]));
       setshape(shape);
     }
   }
@@ -108,10 +107,10 @@ void Table::applyhdralign()
   QTableWidget *w=(QTableWidget*) widget;
   if (hdralign.isEmpty() || !ifhdr) return;
   if (hdralign.length==1)
-    w.horizontalHeader().setDefaultAlignment(getalign(hdralign.at(0)));
+    w.horizontalHeader().setDefaultAlignment(getalign(hdralign[0]));
   else {
     for (int i=0; i<cls; i++)
-      (w.horizontalHeaderItem(i)).setTextAlignment(getalign(hdralign.at(i)));
+      (w.horizontalHeaderItem(i)).setTextAlignment(getalign(hdralign[i]));
   }
 }
 
@@ -124,44 +123,44 @@ String Table::get(String p,String v)
   if (p.equals("property")) {
     String r;
     r+=String("cell")+"\012"+ "col"+"\012"+ "row"+"\012"+ "table"+"\012";
-    r+=Child::get(p,v);
+    r+=super.get(p,v);
     return r;
   } else if (p.equals("cell")) {
     opt=Cmd.qsplit(v);
-    if (!(opt.size()==2)) {
-      JConsoleApp.theWd.error("get cell must specify row, column: " + Util.q2s(opt.join(" ")));
+    if (!(opt.length==2)) {
+      JConsoleApp.theWd.error("get cell must specify row, column: " + opt.join(" "));
       return"";
     }
-    r=Util.c_strtoi(Util.q2s(opt.at(0)));
-    c=Util.c_strtoi(Util.q2s(opt.at(1)));
+    r=Util.c_strtoi(opt[0]);
+    c=Util.c_strtoi(opt[1]);
     if (!(((r>=0) && (r<rws)) && ((c>=0) && (c<cls)))) {
-      JConsoleApp.theWd.error("cell index out of bounds: " + Util.q2s(opt.join(" ")));
+      JConsoleApp.theWd.error("cell index out of bounds: " + opt.join(" "));
       return"";
     }
     rc=-1;
     return (readcellvalue(r,c));
   } else if (p.equals("row")) {
     opt=Cmd.qsplit(v);
-    if (!(opt.size()==1)) {
-      JConsoleApp.theWd.error("get row must specify row: " + Util.q2s(opt.join(" ")));
+    if (!(opt.length==1)) {
+      JConsoleApp.theWd.error("get row must specify row: " + opt.join(" "));
       return"";
     }
-    r=Util.c_strtoi(Util.q2s(opt.at(0)));
+    r=Util.c_strtoi(opt[0]);
     if (!((r>=0) && (r<rws))) {
-      JConsoleApp.theWd.error("row index out of bounds: " + Util.q2s(opt.join(" ")));
+      JConsoleApp.theWd.error("row index out of bounds: " + opt.join(" "));
       return"";
     }
     rc=-1;
     return (readrowvalue(r));
   } else if (p.equals("col")) {
     opt=Cmd.qsplit(v);
-    if (!(opt.size()==1)) {
-      JConsoleApp.theWd.error("get col must specify column: " + Util.q2s(opt.join(" ")));
+    if (!(opt.length==1)) {
+      JConsoleApp.theWd.error("get col must specify column: " + opt.join(" "));
       return"";
     }
-    c=Util.c_strtoi(Util.q2s(opt.at(0)));
+    c=Util.c_strtoi(opt[0]);
     if (!((c>=0)&&(c<cls))) {
-      JConsoleApp.theWd.error("col index out of bounds: " + Util.q2s(opt.join(" ")));
+      JConsoleApp.theWd.error("col index out of bounds: " + opt.join(" "));
       return"";
     }
     rc=-1;
@@ -169,7 +168,7 @@ String Table::get(String p,String v)
   } else if (p.equals("table")) {
     return(readtable(v));
   } else
-    return Child::get(p,v);
+    return super.get(p,v);
 }
 
 // ---------------------------------------------------------------------
@@ -188,10 +187,10 @@ Qt::Alignment Table::getalign(int i)
 // ---------------------------------------------------------------------
 QVector<int> Table::getcellvec(QVector<int> v)
 {
-  if (len==v.size())
+  if (len==v.length())
     return v;
-  if (1==v.size())
-    return QVector<int>(len,v.at(0));
+  if (1==v.length())
+    return QVector<int>(len,v[0]);
   QVector<int> r(len);
   for(int i=0; i<rws; i++)
     for(int j=0; j<cls; j++)
@@ -205,24 +204,24 @@ QVector<int> Table::getcellvec(QVector<int> v)
 boolean Table::getrange(String v,int &r1, int &r2, int &c1, int &c2)
 {
   String[] arg=Cmd.qsplit(v);
-  int n=arg.size();
+  int n=arg.length;
   if (0==n) {
     r1= c1= 0;
     r2= c2= -1;
   } else if (2==n) {
-    r1= r2= Util.c_strtoi(Util.q2s(arg.at(0)));
-    c1= c2= Util.c_strtoi(Util.q2s(arg.at(1)));
+    r1= r2= Util.c_strtoi(arg[0]);
+    c1= c2= Util.c_strtoi(arg[1]);
   } else if (4==n) {
-    r1= Util.c_strtoi(Util.q2s(arg.at(0)));
-    r2= Util.c_strtoi(Util.q2s(arg.at(1)));
-    c1= Util.c_strtoi(Util.q2s(arg.at(2)));
-    c2= Util.c_strtoi(Util.q2s(arg.at(3)));
+    r1= Util.c_strtoi(arg[0]);
+    r2= Util.c_strtoi(arg[1]);
+    c1= Util.c_strtoi(arg[2]);
+    c2= Util.c_strtoi(arg[3]);
   } else {
-    JConsoleApp.theWd.error("set range incorrect length: " + Util.q2s(arg.join(" ")));
+    JConsoleApp.theWd.error("set range incorrect length: " + arg.join(" "));
     return false;
   }
   if (!(r1>=0 && r1<rws && c1>=0 && c1<cls && r2>=-1 && r2<rws && c2>=-1 && c2<cls && (-1==r2 || r1<=r2) && (-1==c2 || c1<=c2))) {
-    JConsoleApp.theWd.error("set range row1 row2 col1 col2 out of bound: " + Util.q2s(String::number(r1)) + " " + Util.q2s(String::number(r2)) + " " + Util.q2s(String::number(c1)) + " " + Util.q2s(String::number(c2)));
+    JConsoleApp.theWd.error("set range row1 row2 col1 col2 out of bound: " + String::number(r1) + " " + String::number(r2) + " " + String::number(c1) + " " + String::number(c2));
     return false;
   }
   return true;
@@ -231,7 +230,7 @@ boolean Table::getrange(String v,int &r1, int &r2, int &c1, int &c2)
 // ---------------------------------------------------------------------
 void Table::initglobals()
 {
-  if (CellAligns.size()) return;
+  if (CellAligns.length()) return;
   CellAligns << 0 << 1 << 2;
   CellTypes << 0 << 10 << 100 << 200 << 300 << 400;
 }
@@ -258,9 +257,9 @@ String Table::readcell(int row,int col)
   int p=col+row*cls;
   View g=cellwidget[p];
   if (0==celltype[p])
-    return (!m)?"":Util.q2s(m.text());
+    return (!m)?"":m.text();
   else if (10==celltype[p])
-    return (!g)?"":Util.q2s(((PlainTextEdit *)g).toPlainText());
+    return (!g)?"":((PlainTextEdit *)g).toPlainText();
   else if (100==celltype[p])
     return (!g)?"":((QCheckBox *)g).isChecked()?"1":"0";
   else if ((200==celltype[p]) || (300==celltype[p]))
@@ -277,13 +276,13 @@ String Table::readcellvalue(int row,int col)
   int p=col+row*cls;
   View g=cellwidget[p];
   if (0==celltype[p])
-    return (!m)?"":Util.q2s(m.text());
+    return (!m)?"":m.text();
   else if (10==celltype[p])
-    return (!g)?"":Util.q2s(((PlainTextEdit *)g).toPlainText());
+    return (!g)?"":((PlainTextEdit *)g).toPlainText();
   else if (100==celltype[p])
     return (!g)?"":((QCheckBox *)g).isChecked()?"1":"0";
   else if ((200==celltype[p]) || (300==celltype[p]))
-    return (!g)?"":Util.q2s(((PComboBox *)g).currentText());
+    return (!g)?"":((PComboBox *)g).currentText();
   else
     return "";
 }
@@ -318,26 +317,26 @@ String Table::readtable(String v)
 
   String[] opt;
   opt=Cmd.qsplit(v);
-  if (0==opt.size()) {
+  if (0==opt.length) {
     r1= 0;
     r2= rws-1;
     c1= 0;
     c2= cls-1;
-  } else if (2==opt.size()) {
-    r1= r2= Util.c_strtoi(Util.q2s(opt.at(0)));
-    c1= c2= Util.c_strtoi(Util.q2s(opt.at(1)));
-  } else if (4==opt.size()) {
-    r1= Util.c_strtoi(Util.q2s(opt.at(0)));
-    r2= Util.c_strtoi(Util.q2s(opt.at(1)));
-    c1= Util.c_strtoi(Util.q2s(opt.at(2)));
-    c2= Util.c_strtoi(Util.q2s(opt.at(3)));
+  } else if (2==opt.length) {
+    r1= r2= Util.c_strtoi(opt[0]);
+    c1= c2= Util.c_strtoi(opt[1]);
+  } else if (4==opt.length) {
+    r1= Util.c_strtoi(opt[0]);
+    r2= Util.c_strtoi(opt[1]);
+    c1= Util.c_strtoi(opt[2]);
+    c2= Util.c_strtoi(opt[3]);
   } else {
-    JConsoleApp.theWd.error("get table incorrect number of arguments: " + Util.q2s(opt.join(" ")));
+    JConsoleApp.theWd.error("get table incorrect number of arguments: " + opt.join(" "));
     return "";
   }
 
   if (!(r1>=0 && r1<rws && c1>=0 && c1<cls && r2>=-1 && r2<rws && c2>=-1 && c2<cls && (-1==r2 || r1<=r2) && (-1==c2 || c1<=c2))) {
-    JConsoleApp.theWd.error("get table row1 row2 col1 col2 out of bound: " + Util.q2s(String::number(r1)) + " " + Util.q2s(String::number(r2)) + " " + Util.q2s(String::number(c1)) + " " + Util.q2s(String::number(c2)));
+    JConsoleApp.theWd.error("get table row1 row2 col1 col2 out of bound: " + String::number(r1) + " " + String::number(r2) + " " + String::number(c1) + " " + String::number(c2));
     return "";
   }
   if (r2==-1) r2=rws-1;
@@ -358,14 +357,14 @@ void Table::resetlen(QVector<int> *v, QVector<int> def)
   v.resize(len);
   if (len==0) return;
 
-  if (def.size()==1)
-    v.fill(def.at(0));
-  else if (def.size()==cls) {
+  if (def.length()==1)
+    v.fill(def[0]);
+  else if (def.length()==cls) {
     int i,j;
     for (i=0; i<rws; i++)
       for (j=0; j<cls; j++)
         v.replace(j+i*cls,def[j]);
-  } else if (def.size()==len) {
+  } else if (def.length()==len) {
     for (int i=0; i<len; i++) v.replace(i,def[i]);
   } else
     v.fill(0);
@@ -416,14 +415,14 @@ void Table::set(String p,String v)
     setcell(v);
   else if (p.equals("sort"))
     setsort(v);
-  else Child::set(p,v);
+  else super.set(p,v);
 }
 
 // ---------------------------------------------------------------------
 void Table::setalign(String v)
 {
-  QVector<int> a=qs2intvector(Util.s2q(v));
-  int n=a.size();
+  QVector<int> a=qs2intvector(v);
+  int n=a.length();
 
   int len1,r1,r2,c1,c2;
   r1=row1;
@@ -431,7 +430,7 @@ void Table::setalign(String v)
   c1=col1;
   c2=col2;
   if (!((r1>=0 && r1<rws && c1>=0 && c1<cls && r2>=-1 && r2<rws && c2>=-1 && c2<cls && (-1==r2 || r1<=r2) && (-1==c2 || c1<=c2)) || (0==rws && ((((c2==-1)?(cls-1):c2)-c1+1)==n || 1==n || 0==n)))) {
-    JConsoleApp.theWd.error("set align row1 row2 col1 col2 out of bound: " + Util.q2s(String::number(r1)) + " " + Util.q2s(String::number(r2)) + " " + Util.q2s(String::number(c1)) + " " + Util.q2s(String::number(c2)));
+    JConsoleApp.theWd.error("set align row1 row2 col1 col2 out of bound: " + String::number(r1) + " " + String::number(r2) + " " + String::number(c1) + " " + String::number(c2));
     return;
   }
   if (r2==-1) r2=rws-1;
@@ -443,7 +442,7 @@ void Table::setalign(String v)
     String m="incorrect align length - ";
     m+= "given " + String::number(n);
     m+=" cells, require " + String::number(len1) + " cells";
-    JConsoleApp.theWd.error(Util.q2s(m));
+    JConsoleApp.theWd.error(m);
     return;
   }
   if(!vecin(a,CellAligns,"align")) return;
@@ -459,8 +458,8 @@ void Table::setalign(String v)
     for (int c=c1; c<=c2; c++) {
       int p=c + r*cls;
       if (colmode && c==c1) q=0;
-      defcellalign[p]=a.at(q);
-      cellalign[p]=a.at(q);
+      defcellalign[p]=a[q];
+      cellalign[p]=a[q];
       if ((m=w.item(r,c))) m.setTextAlignment(getalign(cellalign[p]));
       if (n!=1) q++;
     }
@@ -474,7 +473,7 @@ void Table::setbackforeground(int colortype, String s)
 
   String[] opt=Cmd.qsplit(s);
   int len1,r1,r2,c1,c2;
-  int n=opt.size();
+  int n=opt.length;
 
   if (2==colortype) {
     if (!(0==n%2)) {
@@ -488,7 +487,7 @@ void Table::setbackforeground(int colortype, String s)
   c1=col1;
   c2=col2;
   if (!((r1>=0 && r1<rws && c1>=0 && c1<cls && r2>=-1 && r2<rws && c2>=-1 && c2<cls && (-1==r2 || r1<=r2) && (-1==c2 || c1<=c2)) || (0==rws && ((((c2==-1)?(cls-1):c2)-c1+1)==n || 1==n || 0==n)))) {
-    JConsoleApp.theWd.error("set back/foreground row1 row2 col1 col2 out of bound: " + Util.q2s(String::number(r1)) + " " + Util.q2s(String::number(r2)) + " " + Util.q2s(String::number(c1)) + " " + Util.q2s(String::number(c2)));
+    JConsoleApp.theWd.error("set back/foreground row1 row2 col1 col2 out of bound: " + String::number(r1) + " " + String::number(r2) + " " + String::number(c1) + " " + String::number(c2));
     return;
   }
   if (r2==-1) r2=rws-1;
@@ -500,7 +499,7 @@ void Table::setbackforeground(int colortype, String s)
     String m="incorrect back/foreground length - ";
     m+= "given " + String::number(n);
     m+=" cells, require " + String::number(len1) + " cells";
-    JConsoleApp.theWd.error(Util.q2s(m));
+    JConsoleApp.theWd.error(m);
     return;
   }
 
@@ -517,20 +516,20 @@ void Table::setbackforeground(int colortype, String s)
           m= newitem(r,c,"");
           w.setItem(r,c,m);
         }
-        brush = QBrush(QColor(opt.at(q)));
+        brush = QBrush(QColor(opt[q]));
         if (0==colortype) m.setBackground(brush);
         else if (1==colortype) m.setForeground(brush);
         else if (2==colortype) {
           m.setBackground(brush);
-          brush2 = QBrush(QColor(opt.at(q+1)));
+          brush2 = QBrush(QColor(opt[q+1]));
           m.setForeground(brush2);
         }
       } else if ((g=w.cellWidget(r,c))) {
-        if ((0==colortype) && (200>celltype[p])) g.setStyleSheet("background-color: " + opt.at(q));
-        else if (1==colortype) g.setStyleSheet("color: " + opt.at(q));
+        if ((0==colortype) && (200>celltype[p])) g.setStyleSheet("background-color: " + opt[q]);
+        else if (1==colortype) g.setStyleSheet("color: " + opt[q]);
         else if (2==colortype) {
-          if (200>celltype[p]) g.setStyleSheet("background-color: " + opt.at(q) + "; color: " + opt.at(q+1));
-          else  g.setStyleSheet("color: " + opt.at(q+1));
+          if (200>celltype[p]) g.setStyleSheet("background-color: " + opt[q] + "; color: " + opt[q+1]);
+          else  g.setStyleSheet("color: " + opt[q+1]);
         }
       }
       if (n!=1) {
@@ -578,7 +577,6 @@ void Table::set_cell(int r,int c,String v)
     if (!(g && String("PlainTextEdit")==g.metaObject().className())) {
       if (w.cellWidget(r,c)) w.removeCellWidget(r,c);
       PlainTextEdit *ed=new PlainTextEdit();
-      ed.setObjectName(String::number(p));
       g=cellwidget[p]=(View*) ed;
       View m=new View();
       QHBoxLayout y=new QHBoxLayout();
@@ -600,7 +598,6 @@ void Table::set_cell(int r,int c,String v)
 #ifdef QT_OS_ANDROID
       cb.setStyleSheet(checkboxstyle(20*DM_density));
 #endif
-      cb.setObjectName(String::number(p));
       g=cellwidget[p]=(View*) cb;
       View m=new View();
       QHBoxLayout y=new QHBoxLayout();
@@ -614,7 +611,7 @@ void Table::set_cell(int r,int c,String v)
       connect(cb,SIGNAL(stateChanged(int)),
               this,SLOT(on_stateChanged(int)));
     }
-    if (Util.q2s(v).equals("1"))
+    if (v.equals("1"))
       ((QCheckBox *)cellwidget[p]).setChecked(true);
     else
       ((QCheckBox *)cellwidget[p]).setChecked(false);
@@ -624,7 +621,6 @@ void Table::set_cell(int r,int c,String v)
     if (!(g && String("PComboBox")==g.metaObject().className())) {
       if (w.cellWidget(r,c)) w.removeCellWidget(r,c);
       PComboBox *cm=new PComboBox();
-      cm.setObjectName(String::number(p));
       if (300==celltype[p])
         cm.setEditable(true);
       g=cellwidget[p]=(View*) cm;
@@ -639,14 +635,14 @@ void Table::set_cell(int r,int c,String v)
               this,SLOT(on_stateChanged(int)));
     }
     int cmind=0;
-    dat= Cmd.qsplit(Util.q2s(v));
-    if (1==dat.size() && isint(Util.q2s(dat.at(0)))) {
-      cmind=Util.c_strtoi(Util.q2s(dat.at(0)));
+    dat= Cmd.qsplit(v);
+    if (1==dat.length() && isint(dat[0])) {
+      cmind=Util.c_strtoi(dat[0]);
       ((PComboBox *)cellwidget[p]).setCurrentIndex(cmind);
       return;
     }
-    if (1<dat.size() && isint(Util.q2s(dat.at(0)))) {
-      cmind=Util.c_strtoi(Util.q2s(dat.at(0)));
+    if (1<dat.length() && isint(dat[0])) {
+      cmind=Util.c_strtoi(dat[0]);
       dat.removeFirst();
     }
     ((PComboBox *)cellwidget[p]).clear();
@@ -658,7 +654,6 @@ void Table::set_cell(int r,int c,String v)
     if (!(g && String("QPushButton")==g.metaObject().className())) {
       if (w.cellWidget(r,c)) w.removeCellWidget(r,c);
       QPushButton *pb=new QPushButton(v);
-      pb.setObjectName(String::number(p));
       g=cellwidget[p]=(View*) pb;
       w.setCellWidget(r,c,pb);
       connect(pb,SIGNAL(clicked()),this,SLOT(on_cellClicked()));
@@ -673,17 +668,17 @@ void Table::setcell(String v)
   String[] opt;
 
   opt=Cmd.qsplit(v);
-  if (!(opt.size()==3)) {
-    JConsoleApp.theWd.error("set cell must specify row, column, and data: " + Util.q2s(opt.join(" ")));
+  if (!(opt.length==3)) {
+    JConsoleApp.theWd.error("set cell must specify row, column, and data: " + opt.join(" "));
     return;
   }
-  int r=Util.c_strtoi(Util.q2s(opt.at(0)));
-  int c=Util.c_strtoi(Util.q2s(opt.at(1)));
+  int r=Util.c_strtoi(opt[0]);
+  int c=Util.c_strtoi(opt[1]);
   if (!(((r>=0) && (r<rws)) && ((c>=0) && (c<cls)))) {
-    JConsoleApp.theWd.error("cell index out of bounds: " + Util.q2s(opt.join(" ")));
+    JConsoleApp.theWd.error("cell index out of bounds: " + opt.join(" "));
     return;
   }
-  set_cell(r,c,opt.at(2));
+  set_cell(r,c,opt[2]);
 }
 
 // ---------------------------------------------------------------------
@@ -696,21 +691,21 @@ void Table::setcolwidth(String s)
   c1=col1;
   c2=col2;
   if (!((c1>=0 && c1<cls && c2>=-1 && c2<cls && (-1==c2 || c1<=c2)) || (0==cls))) {
-    JConsoleApp.theWd.error("set colwidth col1 col2 out of bound: " + Util.q2s(String::number(c1)) + " " + Util.q2s(String::number(c2)));
+    JConsoleApp.theWd.error("set colwidth col1 col2 out of bound: " + String::number(c1) + " " + String::number(c2));
     return;
   }
   if (c2==-1) c2=cls-1;
   if (0==cls) return;
   cs=1+(c2-c1);
   opt=Cmd.qsplit(s);
-  if (!((opt.size()==1) || opt.size()==cs)) {
-    JConsoleApp.theWd.error("set colwidth must specify a single width or one for each column in block: " + Util.q2s(opt.join(" ")));
+  if (!((opt.length==1) || opt.length==cs)) {
+    JConsoleApp.theWd.error("set colwidth must specify a single width or one for each column in block: " + opt.join(" "));
     return;
   }
-  boolean eqwid= (1==opt.size());
+  boolean eqwid= (1==opt.length);
   i=0;
   for (c=c1; c<=c2; c++) {
-    width= Util.c_strtoi(Util.q2s(opt.at(i)));
+    width= Util.c_strtoi(opt[i]);
     w.setColumnWidth(c,width);
     if (!eqwid) i++;
   }
@@ -723,7 +718,7 @@ void Table::setdata(String s)
   QTableWidget *w=(QTableWidget*) widget;
 
   dat=Cmd.qsplit(s);
-  int n=dat.size();
+  int n=dat.length();
 
   int len1,r1,r2,c1,c2;
   r1=row1;
@@ -731,8 +726,8 @@ void Table::setdata(String s)
   c1=col1;
   c2=col2;
   if (!((r1>=0 && r1<rws && c1>=0 && c1<cls && r2>=-1 && r2<rws && c2>=-1 && c2<cls && (-1==r2 || r1<=r2) && (-1==c2 || c1<=c2)) || (0==rws && ((((c2==-1)?(cls-1):c2)-c1+1)==n || 1==n || 0==n)))) {
-    JConsoleApp.theWd.error("set data row1 row2 col1 col2 out of bound: " + Util.q2s(String::number(r1)) + " " + Util.q2s(String::number(r2)) + Util.q2s(String::number(c1)) + " " + Util.q2s(String::number(c2)));
-    return;
+    JConsoleApp.theWd.error("set data row1 row2 col1 col2 out of bound: " + String::number(r1) + " " + String::number(r2) + String::number(c1) + " " + String::number(c2);
+                            return;
   }
   if (r2==-1) r2=rws-1;
   if (c2==-1) c2=cls-1;
@@ -743,7 +738,7 @@ void Table::setdata(String s)
     String m="incorrect data length - ";
     m+= "given " + String::number(n);
     m+=" cells, require " + String::number(len1) + " cells";
-    JConsoleApp.theWd.error(Util.q2s(m));
+    JConsoleApp.theWd.error(m);
     return;
   }
 
@@ -775,7 +770,7 @@ void Table::setfontstr(String s)
   c1=col1;
   c2=col2;
   if (!((r1>=0 && r1<rws && c1>=0 && c1<cls && r2>=-1 && r2<rws && c2>=-1 && c2<cls && (-1==r2 || r1<=r2) && (-1==c2 || c1<=c2)) || (0==rws))) {
-    JConsoleApp.theWd.error("set font row1 row2 col1 col2 out of bound: " + Util.q2s(String::number(r1)) + " " + Util.q2s(String::number(r2)) + Util.q2s(String::number(c1)) + " " + Util.q2s(String::number(c2)));
+    JConsoleApp.theWd.error("set font row1 row2 col1 col2 out of bound: " + String::number(r1) + " " + String::number(r2) + String::number(c1) + " " + String::number(c2));
     return;
   }
   if (r2==-1) r2=rws-1;
@@ -807,11 +802,11 @@ void Table::sethdr(String v)
 {
   QTableWidget *w=(QTableWidget*) widget;
   String[] s=Cmd.qsplit(v);
-  if (s.size()!=cls) {
-    String m=String::number(s.size());
+  if (s.length()!=cls) {
+    String m=String::number(s.length());
     m+= " column headers do not match column count of ";
     m+= String::number(cls);
-    JConsoleApp.theWd.error(Util.q2s(m));
+    JConsoleApp.theWd.error(m);
     return;
   }
   w.setHorizontalHeaderLabels(s);
@@ -823,12 +818,12 @@ void Table::sethdr(String v)
 // ---------------------------------------------------------------------
 void Table::sethdralign(String v)
 {
-  QVector<int> a=qs2intvector(Util.s2q(v));
-  if (!(a.size()==1 || a.size()==cls)) {
-    String m=String::number(a.size());
+  QVector<int> a=qs2intvector(v);
+  if (!(a.length()==1 || a.length()==cls)) {
+    String m=String::number(a.length());
     m+= " column header alignments do not match column count of ";
     m+= String::number(cls);
-    JConsoleApp.theWd.error(Util.q2s(m));
+    JConsoleApp.theWd.error(m);
     return;
   }
   hdralign=a;
@@ -840,11 +835,11 @@ void Table::setlab(String v)
 {
   QTableWidget *w=(QTableWidget*) widget;
   String[] s=Cmd.qsplit(v);
-  if (s.size()!=rws) {
-    String m=String::number(s.size());
+  if (s.length()!=rws) {
+    String m=String::number(s.length());
     m+= " row labels do not match row count of ";
     m+= String::number(rws);
-    JConsoleApp.theWd.error(Util.q2s(m));
+    JConsoleApp.theWd.error(m);
     return;
   }
   w.setVerticalHeaderLabels(s);
@@ -854,8 +849,8 @@ void Table::setlab(String v)
 // ---------------------------------------------------------------------
 void Table::setprotect(String v)
 {
-  QVector<int> a=qs2intvector(Util.s2q(v));
-  int n=a.size();
+  QVector<int> a=qs2intvector(v);
+  int n=a.length();
 
   int len1,r1,r2,c1,c2;
   r1=row1;
@@ -863,7 +858,7 @@ void Table::setprotect(String v)
   c1=col1;
   c2=col2;
   if (!((r1>=0 && r1<rws && c1>=0 && c1<cls && r2>=-1 && r2<rws && c2>=-1 && c2<cls && (-1==r2 || r1<=r2) && (-1==c2 || c1<=c2)) || (0==rws && ((((c2==-1)?(cls-1):c2)-c1+1)==n || 1==n || 0==n)))) {
-    JConsoleApp.theWd.error("set protect row1 row2 col1 col2 out of bound: " + Util.q2s(String::number(r1)) + " " + Util.q2s(String::number(r2)) + " " + Util.q2s(String::number(c1)) + " " + Util.q2s(String::number(c2)));
+    JConsoleApp.theWd.error("set protect row1 row2 col1 col2 out of bound: " + String::number(r1) + " " + String::number(r2) + " " + String::number(c1) + " " + String::number(c2));
     return;
   }
   if (r2==-1) r2=rws-1;
@@ -875,11 +870,11 @@ void Table::setprotect(String v)
     String m="incorrect protect length - ";
     m+= "given " + String::number(n);
     m+=" cells, require " + String::number(len1) + " cells";
-    JConsoleApp.theWd.error(Util.q2s(m));
+    JConsoleApp.theWd.error(m);
     return;
   }
   if(!vecisbool(a,"protect")) return;
-  if (0==defcellprotect.size()) {
+  if (0==defcellprotect.length()) {
     defcellprotect=QVector<int>(len,0);
     cellprotect=QVector<int>(len,0);
   }
@@ -891,8 +886,8 @@ void Table::setprotect(String v)
     for (int c=c1; c<=c2; c++) {
       int p=c + r*cls;
       if (colmode && c==c1) q=0;
-      defcellprotect[p]=a.at(q);
-      cellprotect[p]=a.at(q);
+      defcellprotect[p]=a[q];
+      cellprotect[p]=a[q];
       if ((m=w.item(r,c))) {
         Qt::ItemFlags fdef=m.flags();
         Qt::ItemFlags fnoedit;
@@ -931,21 +926,21 @@ void Table::setrowheight(String s)
   r1=row1;
   r2=row2;
   if (!((r1>=0 && r1<rws && r2>=-1 && r2<rws && (-1==r2 || r1<=r2)) || (0==rws))) {
-    JConsoleApp.theWd.error("set rowheight row1 row2 out of bound: " + Util.q2s(String::number(r1)) + " " + Util.q2s(String::number(r2)));
+    JConsoleApp.theWd.error("set rowheight row1 row2 out of bound: " + String::number(r1) + " " + String::number(r2));
     return;
   }
   if (r2==-1) r2=rws-1;
   if (0==rws) return;
   rs=1+(r2-r1);
   opt=Cmd.qsplit(s);
-  if (!((opt.size()==1) || opt.size()==rs)) {
-    JConsoleApp.theWd.error("set rowheight must specify a single height or one for each row in block: " + Util.q2s(opt.join(" ")));
+  if (!((opt.length==1) || opt.length==rs)) {
+    JConsoleApp.theWd.error("set rowheight must specify a single height or one for each row in block: " + opt.join(" "));
     return;
   }
-  boolean eqht= (1==opt.size());
+  boolean eqht= (1==opt.length);
   i=0;
   for (r=r1; r<=r2; r++) {
-    height= Util.c_strtoi(Util.q2s(opt.at(i)));
+    height= Util.c_strtoi(opt[i]);
     w.setRowHeight(r,height);
     if (!eqht) i++;
   }
@@ -959,14 +954,14 @@ void Table::setscroll(String v)
   QTableWidget *w=(QTableWidget*) widget;
 
   opt=Cmd.qsplit(v);
-  if (!(opt.size()==2)) {
-    JConsoleApp.theWd.error("scroll must specify row and column: " + Util.q2s(opt.join(" ")));
+  if (!(opt.length==2)) {
+    JConsoleApp.theWd.error("scroll must specify row and column: " + opt.join(" "));
     return;
   }
-  int r=Util.c_strtoi(Util.q2s(opt.at(0)));
-  int c=Util.c_strtoi(Util.q2s(opt.at(1)));
+  int r=Util.c_strtoi(opt[0]);
+  int c=Util.c_strtoi(opt[1]);
   if (!(((r>=0) && (r<rws)) && ((c>=0) && (c<cls)))) {
-    JConsoleApp.theWd.error("scroll index out of bounds: " + Util.q2s(opt.join(" ")));
+    JConsoleApp.theWd.error("scroll index out of bounds: " + opt.join(" "));
     return;
   }
 
@@ -998,13 +993,13 @@ void Table::setselect(String v)
 // ---------------------------------------------------------------------
 void Table::setshape(String[] opt)
 {
-  if (opt.size()<2) {
-    JConsoleApp.theWd.error("table shape must have rows and columns: " + Util.q2s(opt.join(" ")));
+  if (opt.length<2) {
+    JConsoleApp.theWd.error("table shape must have rows and columns: " + opt.join(" "));
     return;
   }
   int rws0=rws, cls0=cls;
-  rws=Util.c_strtoi(Util.q2s(opt.at(0)));
-  cls=Util.c_strtoi(Util.q2s(opt.at(1)));
+  rws=Util.c_strtoi(opt[0]);
+  cls=Util.c_strtoi(opt[1]);
   len=rws*cls;
   if (rws==rws0 && cls==cls0) return;
 
@@ -1039,11 +1034,11 @@ void Table::setsort(String v)
   String[] opt;
 
   opt=Cmd.qsplit(v);
-  if (!(opt.size()>0)) {
-    JConsoleApp.theWd.error("set sort must specify column: " + Util.q2s(opt.join(" ")));
+  if (!(opt.length>0)) {
+    JConsoleApp.theWd.error("set sort must specify column: " + opt.join(" "));
     return;
   }
-  c=Util.c_strtoi(Util.q2s(opt.at(0)));
+  c=Util.c_strtoi(opt[0]);
   if (opt.contains("descending"))
     w.sortItems(c,Qt::DescendingOrder);
   else
@@ -1053,8 +1048,8 @@ void Table::setsort(String v)
 // ---------------------------------------------------------------------
 void Table::settype(String v)
 {
-  QVector<int> a=qs2intvector(Util.s2q(v));
-  int n=a.size();
+  QVector<int> a=qs2intvector(v);
+  int n=a.length();
 
   int len1,r1,r2,c1,c2;
   r1=row1;
@@ -1063,7 +1058,7 @@ void Table::settype(String v)
   c2=col2;
   row=col=-1;
   if (!((r1>=0 && r1<rws && c1>=0 && c1<cls && r2>=-1 && r2<rws && c2>=-1 && c2<cls && (-1==r2 || r1<=r2) && (-1==c2 || c1<=c2)) || (0==rws && ((((c2==-1)?(cls-1):c2)-c1+1)==n || 1==n || 0==n)))) {
-    JConsoleApp.theWd.error("set type row1 row2 col1 col2 out of bound: " + Util.q2s(String::number(r1)) + " " + Util.q2s(String::number(r2)) + " " + Util.q2s(String::number(c1)) + " " + Util.q2s(String::number(c2)));
+    JConsoleApp.theWd.error("set type row1 row2 col1 col2 out of bound: " + String::number(r1) + " " + String::number(r2) + " " + String::number(c1) + " " + String::number(c2));
     return;
   }
   if (r2==-1) r2=rws-1;
@@ -1075,11 +1070,11 @@ void Table::settype(String v)
     String m="incorrect type length - ";
     m+= "given " + String::number(n);
     m+=" cells, require " + String::number(len1) + " cells";
-    JConsoleApp.theWd.error(Util.q2s(m));
+    JConsoleApp.theWd.error(m);
     return;
   }
   if(!vecin(a,CellTypes,"type")) return;
-  if (0==defcelltype.size()) {
+  if (0==defcelltype.length()) {
     defcelltype=QVector<int>(len,0);
     celltype=QVector<int>(len,0);
   }
@@ -1088,8 +1083,8 @@ void Table::settype(String v)
     for (int c=c1; c<=c2; c++) {
       int p=c + r*cls;
       if (colmode && c==c1) q=0;
-      defcelltype[p]=a.at(q);
-      celltype[p]=a.at(q);
+      defcelltype[p]=a[q];
+      celltype[p]=a[q];
       if (n!=1) q++;
     }
   }
@@ -1132,9 +1127,9 @@ String Table::state()
 // ---------------------------------------------------------------------
 boolean Table::vecin(QVector<int>vec,QVector<int>values,String id)
 {
-  for(int i=0; i<vec.size(); i++)
+  for(int i=0; i<vec.length(); i++)
     if (!values.contains(vec[i])) {
-      JConsoleApp.theWd.error(Util.q2s(id) + " invalid value: " + Util.q2s(String::number(vec[i])));
+      JConsoleApp.theWd.error(id + " invalid value: " + String::number(vec[i]));
       return false;
     }
   return true;
@@ -1143,9 +1138,9 @@ boolean Table::vecin(QVector<int>vec,QVector<int>values,String id)
 // ---------------------------------------------------------------------
 boolean Table::vecisbool(QVector<int>vec,String id)
 {
-  for(int i=0; i<vec.size(); i++)
+  for(int i=0; i<vec.length(); i++)
     if (!(vec[i]==0 || vec[i]==1)) {
-      JConsoleApp.theWd.error(Util.q2s(id) + " invalid value: " + Util.q2s(String::number(vec[i])));
+      JConsoleApp.theWd.error(id + " invalid value: " + String::number(vec[i]));
       return false;
     }
   return true;

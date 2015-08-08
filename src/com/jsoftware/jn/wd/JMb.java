@@ -1,21 +1,17 @@
 package com.jsoftware.jn.wd;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.util.Log;
 import android.widget.Toast;
 import com.jsoftware.j.android.JConsoleApp;
 import com.jsoftware.jn.base.Util;
 import com.jsoftware.jn.base.Utils;
-import com.jsoftware.jn.wd.Cmd;
-import com.jsoftware.jn.wd.Form;
-import com.jsoftware.jn.wd.Wd;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-// import com.jsoftware.jn.base.dialog;
-// import com.jsoftware.jn.base.state;
 
 // the syntax for messages is:
 //   wd 'mb type title message buttons '
@@ -34,20 +30,25 @@ import java.util.Map;
 // At most three buttons: positive, negative, neutral
 //
 // if type is toast, format is
-// mb toast message [duration]
-//   duration is "long" or "short"
+// mb toast message [0|1]
+//   duration 1 (or elided) is short
 
-public class JMb
+class JMb
 {
 
   String type;
   String[] arg;
   Form form;
+  Activity activity;
+  String childid;
 
 // ---------------------------------------------------------------------
-  public JMb(Form form)
+  JMb(Form form)
   {
-    this.form=form;
+    if (null!=form) {
+      this.form=form;
+      activity=form.activity;
+    }
   }
 
 // ---------------------------------------------------------------------
@@ -61,8 +62,9 @@ public class JMb
     }
 
     arg=Cmd.qsplit(p,true);
-
-    if (type.equals("about"))
+    if (type.equals("info")||type.equals("about"))
+      return mbmsg();
+    if (type.equals("query"))
       return mbmsg();
     if (type.equals("toast"))
       return mbtoast();
@@ -76,56 +78,67 @@ public class JMb
 //     return mbopen1();
 //   if (type.equals("save"))
 //     return mbsave();
-    if (type.equals("info")||type.equals("query"))
-      return mbmsg();
     JConsoleApp.theWd.error("invalid mb type: " + type);
     return "";
   }
 
 // ---------------------------------------------------------------------
-  String mbtoast()
+  private String mbtoast()
   {
     String m;
-    boolean longduration=false;
+    int duration=Toast.LENGTH_SHORT;
 
     if (arg.length==1) {
       m=arg[0];
     } else if (arg.length>1) {
       m=arg[0];
-      longduration=arg[1].equals("1");
+      duration=(arg[1].equals("0"))?Toast.LENGTH_LONG:Toast.LENGTH_SHORT;
     } else {
-      JConsoleApp.theWd.error("Need message: "+Util.q2s(Util.sajoinstr(arg," ")));
+      JConsoleApp.theWd.error("Need message: "+Util.sajoinstr(arg," "));
       return "";
     }
-    Toast.makeText(form.activity, m, (longduration)?Toast.LENGTH_LONG:Toast.LENGTH_SHORT).show();
+    if (null!=form)
+      Toast.makeText(activity, m, duration).show();
+    else
+      Toast.makeText(JConsoleApp.theApp.getApplicationContext(), m, duration).show();
 
     return "";
   }
 
 
 // ---------------------------------------------------------------------
-  String mbmsg()
+  private String mbmsg()
   {
-    String t,m;
+    String t="",m="";
+    int ptr=0,offset=0;
+    childid="";
+    String button1="";
+    String button2="";
+    String button3="";
 
-    int ptr;
-
-    if (arg.length==1) {
-      t="";
-      m=arg[0];
-      ptr=1;
-    } else if (arg.length>1) {
-      t=arg[0];
-      m=arg[1];
-      ptr=2;
-    } else {
-      JConsoleApp.theWd.error("Need title and message: "+Util.q2s(Util.sajoinstr(arg," ")));
+    if (0==arg.length) {
+      JConsoleApp.theWd.error("Need title and message: "+Util.sajoinstr(arg," "));
       return "";
     }
+    if (type.equals("query") && 1==arg.length) {
+      JConsoleApp.theWd.error("Need callback, title and message: "+Util.sajoinstr(arg," "));
+      return "";
+    }
+    if (type.equals("query")) {
+      childid=arg[ptr++];
+    }
 
-    String button1=getonebutton(ptr);
-    String button2=getonebutton(ptr+1);
-    String button3=getonebutton(ptr+2);
+    if (arg.length>ptr+1) {
+      t=arg[ptr++];
+      m=arg[ptr++];
+    } else if (arg.length>ptr)
+      m=arg[ptr++];
+    if (arg.length>ptr)
+      button1=arg[ptr++];
+    if (arg.length>ptr)
+      button2=arg[ptr++];
+    if (arg.length>ptr)
+      button3=arg[ptr++];
 
     if (type.equals("query")) {
       if (button1.isEmpty()) {
@@ -142,25 +155,25 @@ public class JMb
   }
 
 // // ---------------------------------------------------------------------
-// String mbcolor()
+// private String mbcolor()
 // {
 //   QColor c;
 //   int r,g,b;
 //
 //   if (arg.length==3) {
-//     r=Util.c_strtoi(Util.q2s(arg.at(0)));
-//     g=Util.c_strtoi(Util.q2s(arg.at(1)));
-//     b=Util.c_strtoi(Util.q2s(arg.at(2)));
+//     r=Util.c_strtoi(arg[0]);
+//     g=Util.c_strtoi(arg[1]);
+//     b=Util.c_strtoi(arg[2]);
 //     c=QColor(r,g,b);
 //   } else
 //     c=Qt::white;
 //   c=QColorDialog::getColor(c);
 //   if (!c.isValid()) return "";
-//   return Util.s2q(Util.i2s(c.red()) + " " + Util.i2s(c.green()) + " " + Util.i2s(c.blue()));
+//   return Util.i2s(c.red() + " " + Util.i2s(c.green()) + " " + Util.i2s(c.blue()));
 // }
 //
 // // ---------------------------------------------------------------------
-// String mbdir()
+// private String mbdir()
 // {
 //   String title,dir,fl;
 //   if (arg.length!=2) {
@@ -175,7 +188,7 @@ public class JMb
 // }
 //
 // // ---------------------------------------------------------------------
-// String mbopen()
+// private String mbopen()
 // {
 //   String title,dir,filter;
 //   String[] fl;
@@ -195,7 +208,7 @@ public class JMb
 // }
 //
 // // ---------------------------------------------------------------------
-// String mbopen1()
+// private String mbopen1()
 // {
 //   String title,dir,filter,fl;
 //   if (arg.legnth<2) {
@@ -212,7 +225,7 @@ public class JMb
 // }
 //
 // // ---------------------------------------------------------------------
-// String mbsave()
+// private String mbsave()
 // {
 //   String title,dir,filter,fl;
 //   if (arg.length<2) {
@@ -229,42 +242,45 @@ public class JMb
 // }
 //
 // ---------------------------------------------------------------------
-  String fixsep(String s)
+  private String fixsep(String s)
   {
     return s.replaceAll("|",";;");
   }
 
 // ---------------------------------------------------------------------
-  String getonebutton(int ptr)
+  private void messageBox(String title,String text,String pos,String neg,String neu)
   {
-    if (ptr>arg.length-1) return "";
-    return arg[ptr];
-  }
-
-// ---------------------------------------------------------------------
-  void messageBox(String title,String text,String pos,String neg,String neu)
-  {
-    AlertDialog.Builder builder = new AlertDialog.Builder(form.activity);
+    if (null==form) {
+      Toast.makeText(JConsoleApp.theApp.getApplicationContext(), text, Toast.LENGTH_SHORT).show();
+      return;
+    }
+    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
     builder.setTitle(title);
     builder.setMessage(text);
 
     if (!pos.isEmpty())builder.setPositiveButton(pos, new DialogInterface.OnClickListener() {
       public void onClick(DialogInterface dialog, int id) {
+        dialog.dismiss();
         // User clicked positive
+        form.dialogchild=JMb.this.childid;
         form.event="dialogpositive";
         form.signalevent(null,null);
       }
     });
     if (!neg.isEmpty()) builder.setNegativeButton(neg, new DialogInterface.OnClickListener() {
       public void onClick(DialogInterface dialog, int id) {
+        dialog.dismiss();
         // User clicked negative
+        form.dialogchild=JMb.this.childid;
         form.event="dialognegative";
         form.signalevent(null,null);
       }
     });
     if (!neu.isEmpty()) builder.setNeutralButton(neu, new DialogInterface.OnClickListener() {
       public void onClick(DialogInterface dialog, int id) {
+        dialog.dismiss();
         // User clicked neutral
+        form.dialogchild=JMb.this.childid;
         form.event="dialogneutral";
         form.signalevent(null,null);
       }

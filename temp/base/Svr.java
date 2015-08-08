@@ -43,19 +43,19 @@ static int cnt=0;
 // ---------------------------------------------------------------------
 void Jcon::cmd(String s)
 {
-  jedo((char *)Util.q2s(s).Util.c_str());
+  jedo((char *)s.Util.c_str());
 }
 
 // ---------------------------------------------------------------------
 String Jcon::cmdr(String s)
 {
-  return Util.s2q(dors(Util.q2s(s)));
+  return dors(s);
 }
 
 // ---------------------------------------------------------------------
 void Jcon::cmddo(String s)
 {
-  cmddo(Util.q2s(s));
+  cmddo(s);
 }
 
 // ---------------------------------------------------------------------
@@ -63,7 +63,7 @@ void Jcon::cmddo(String s)
 {
   ifcmddo=true;
   if (jecallback) {
-    Sentence.append(Util.s2q(s));
+    Sentence.append(s);
     jevloop.exit();
   } else
     jedo((char *)s.Util.c_str());
@@ -85,10 +85,10 @@ int Jcon::exec()
     evloop.exec(QEventLoop::AllEvents|QEventLoop::WaitForMoreEvents);
     if (quitx) break;
     while(!Sentence.isEmpty()) {
-      s=Sentence.at(0);
+      s=Sentence[0];
       Sentence.removeFirst();
-      if ((int)sizeof(inputline)<s.size()) exit(100);
-      strcpy(inputline,Util.q2s(s).Util.c_str());
+      if ((int)sizeof(inputline)<s.length()) exit(100);
+      strcpy(inputline,s.Util.c_str());
       jedo(inputline);
     }
   }
@@ -171,7 +171,7 @@ void Jcon::quit()
 // ---------------------------------------------------------------------
 void Jcon::set(String s, String t)
 {
-  sets(s,Util.q2s(t));
+  sets(s,t);
 }
 
 // ---------------------------------------------------------------------
@@ -188,10 +188,10 @@ char* _stdcall Jinput(J jt, char* p)
   jecallback=true;
   jevloop.exec(QEventLoop::AllEvents|QEventLoop::WaitForMoreEvents);
   jecallback=false;
-  String s=jcon.Sentence.at(0);
+  String s=jcon.Sentence[0];
   jcon.Sentence.removeFirst();
-  if ((int)sizeof(inputline)<s.size()) exit(100);
-  strcpy(inputline,Util.q2s(s).Util.c_str());
+  if ((int)sizeof(inputline)<s.length()) exit(100);
+  strcpy(inputline,s.Util.c_str());
   return inputline;
 }
 

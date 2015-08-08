@@ -23,7 +23,7 @@ String dialogdirectory(QWidget *w,String t,String p)
   d.setFileMode(QFileDialog::Directory);
   d.setOption(QFileDialog::ShowDirsOnly);
   if (d.exec())
-    return d.selectedFiles().at(0);
+    return d.selectedFiles()[0];
   else
     return "";
 }
@@ -150,7 +150,7 @@ String getprojectpath()
   else if (config.UserFolderKeys.contains("User"))
     r=cpath ("~User");
   else if (!config.UserFolderKeys.isEmpty())
-    r= config.UserFolderValues.at(0);
+    r= config.UserFolderValues[0];
   else
     r=config.UserPath.absolutePath();
   return r+"/";

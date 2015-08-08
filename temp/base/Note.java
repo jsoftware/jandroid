@@ -264,7 +264,7 @@ void Note::prettyprint()
   var_set("arg_jpp_",editText());
   r=var_cmdr("pplintqt_jpp_ arg_jpp_");
   if (r.isEmpty()) return;
-  if (r.at(0)=='0') {
+  if (r[0]=='0') {
     pos=e.readcurpos();
     top=e.readtop();
     r.remove(0,1);
@@ -282,7 +282,7 @@ void Note::prettyprint()
 // ---------------------------------------------------------------------
 void Note::projectenable()
 {
-  boolean b=project.Id.size()>0;
+  boolean b=project.Id.length()>0;
   foreach(QAction *s, menuBar.ProjectEnable)
     s.setEnabled(b);
   if (config.ifGit) {
@@ -304,7 +304,7 @@ void Note::projectopen(boolean b)
 void Note::projectsave()
 {
   setid();
-  if (Id.size())
+  if (Id.length())
     project.save(tabs.gettablist());
 }
 
@@ -388,8 +388,8 @@ String[] Note::select_line1(String[] mid,String s,int *pos, int *len)
 
   if (s.equals("wrap")) {
 #ifdef JQT
-    sets("inputx_jrx_",Util.q2s(mid.join("\n")));
-    return Util.s2q(dors("70 foldtext inputx_jrx_")).split("\n");
+    sets("inputx_jrx_",mid.join("\n"));
+    return dors("70 foldtext inputx_jrx_").split("\n");
 #else
     return mid;
 #endif
@@ -400,29 +400,29 @@ String[] Note::select_line1(String[] mid,String s,int *pos, int *len)
   com=comment+" ";
 
   if (s.equals("minus")) {
-    for(i=0; i<mid.size(); i++) {
-      p=mid.at(i);
+    for(i=0; i<mid.length(); i++) {
+      p=mid[i];
       if (matchhead(comment,p) && (!matchhead(com+"----",p))
           && (!matchhead(com+"====",p)))
-        p=p.mid(comment.size());
-      if (p.size() && (p.at(0)==' '))
+        p=p.mid(comment.length());
+      if (p.length() && (p[0]==' '))
         p=p.mid(1);
       mid.replace(i,p);
     }
-    *len=mid.join("a").size();
+    *len=mid.join("a").length();
     return mid;
   }
 
   if (s.equals("plus")) {
-    for(i=0; i<mid.size(); i++) {
-      p=mid.at(i);
-      if (p.size())
+    for(i=0; i<mid.length(); i++) {
+      p=mid[i];
+      if (p.length())
         p=com+p;
       else
         p=comment;
       mid.replace(i,p);
     }
-    *len=mid.join("a").size();
+    *len=mid.join("a").length();
     return mid;
   }
 
@@ -433,7 +433,7 @@ String[] Note::select_line1(String[] mid,String s,int *pos, int *len)
 
   t=com + t;
   mid.prepend(t);
-  *pos=*pos+1+t.size();
+  *pos=*pos+1+t.length();
   *len=0;
   return mid;
 }
@@ -463,7 +463,7 @@ void Note::select_text(String s)
     String old=mid;
     String lc=mid.toLower();
     mid=mid.toUpper();
-    for (i=0; i<mid.size(); i++)
+    for (i=0; i<mid.length(); i++)
       if(mid[i]==old[i]) mid[i]=lc[i];
   }
   replacetext(e,hdr+mid+ftr);
@@ -482,7 +482,7 @@ void Note::setfont(QFont font)
 // ensure current project matches Note
 void Note::setid()
 {
-  if (Id.size() && Id != project.Id)
+  if (Id.length() && Id != project.Id)
     project.open(Id);
 }
 
@@ -528,7 +528,7 @@ void Note::setpos()
     QRect s=d.screenGeometry();
     wid=s.width();
     QPoint p=note.pos();
-    QSize z=note.size();
+    QSize z=note.length();
     x=p.x();
     y=p.y();
     w=z.width();
@@ -552,14 +552,14 @@ void Note::settitle(String file, boolean mod)
 
   if (file.isEmpty()) {
     s=EditText;
-    if (project.Id.size())
+    if (project.Id.length())
       s="[" + project.Id + "] - " + s;
     setWindowTitle(s);
     return;
   }
 
   s=cfsname(file);
-  if (project.Id.size()) n="[" + project.Id + "] - ";
+  if (project.Id.length()) n="[" + project.Id + "] - ";
 
   if (file == cpath("~" + project.Id + "/" + s))
     f = s;
@@ -580,7 +580,7 @@ void Note::settitle2(boolean edit2)
   } else {
     EditText="Edit";
     if (t.right(1).equals("2"))
-      setWindowTitle(t.remove(t.size()-1,1));
+      setWindowTitle(t.remove(t.length()-1,1));
   }
 }
 

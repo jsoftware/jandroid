@@ -174,13 +174,13 @@ String Dirm::dmgetname1()
   String[] n=dmgetnames();
   if (n.isEmpty()) return r;
 
-  r=n.at(1);
+  r=n[1];
   if (r.isEmpty()) return r;
 
-  if (r==n.at(0))
+  if (r==n[0])
     return Target+"/"+r;
 
-  if (r==n.at(2))
+  if (r==n[2])
     return Source+"/"+r;
 
   if (NotInSource.contains(r))
@@ -197,9 +197,9 @@ String Dirm::dmgetname2()
   String r;
   String[] n=dmgetnames();
   if (n.isEmpty()) return r;
-  r=n.at(1);
+  r=n[1];
   if (r.isEmpty()) return r;
-  if (r==n.at(0)||r==n.at(2)) return r;
+  if (r==n[0]||r==n[2]) return r;
   r.clear();
   return r;
 }
@@ -253,7 +253,7 @@ void Dirm::dmread()
       Target=SnapDir + "/" + s;
       Targetx="~snapshot/" + s + "/";
     }
-    TypeInx=config.DMTypes.size()-1;
+    TypeInx=config.DMTypes.length()-1;
     Subdir=true;
   }
 
@@ -271,7 +271,7 @@ void Dirm::dmsetdirs(String s,String t,boolean refresh)
   Dirs.prepend(s);
   Dirs.removeAll("");
   Dirs.removeDuplicates();
-  if(Max<Dirs.size())
+  if(Max<Dirs.length())
     Dirs=Dirs.mid(0,Max);
   if(refresh) {
     source.clear();
@@ -288,7 +288,7 @@ void Dirm::dmsetdirs(String s,String t,boolean refresh)
 void Dirm::dmshowfind()
 {
   found.clear();
-  if(Found.size()) {
+  if(Found.length()) {
     enablefound(true);
     found.addItems(Found);
   } else {
@@ -343,7 +343,7 @@ void Dirm::init_snp1(String pid)
   snaps=ss_list(SnapDir);
   target.clear();
   type.clear();
-  if (snaps.size()==0) {
+  if (snaps.length()==0) {
     dminfo("No snapshots for: " + project.Id);
     return;
   }
@@ -359,7 +359,7 @@ void Dirm::init_std()
 {
   Dirs=config.DMFavorites;
   TypeInx=config.DMTypeIndex;
-  Max=qMax(24,2*1+Dirs.size()/2);
+  Max=qMax(24,2*1+Dirs.length()/2);
   lsource.setText("Source:");
   ltarget.setText("Target:");
   ltype.setText("Type:");
@@ -376,8 +376,7 @@ void Dirm::init_std()
 QAction *Dirm::makeact(String id, String text, String shortcut)
 {
   QAction *r = new QAction(text,this);
-  r.setObjectName(id);
-  if (shortcut.size())
+  if (shortcut.length())
     r.setShortcut(shortcut);
   return r;
 }
@@ -386,7 +385,6 @@ QAction *Dirm::makeact(String id, String text, String shortcut)
 QPushButton *Dirm::makebutton(String id, String text)
 {
   QPushButton *r = new QPushButton(text);
-  r.setObjectName(id);
   return r;
 }
 
@@ -525,7 +523,7 @@ void Dirm::on_toswapAct_triggered()
 {
   noevents(1);
   dmread();
-  String s=Dirs.at(0);
+  String s=Dirs[0];
   dmsetdirs(Target,Source,true);
   match_refresh(true);
   noevents(0);
@@ -587,7 +585,7 @@ Favs::Favs(Dirm *d)
   dirm=d;
   wfav=w;
 
-  rws=config.DMFavorites.size()/2;
+  rws=config.DMFavorites.length()/2;
   if (rws==0) {
     s="No favorites defined.\n\n";
     info("Favorites",s+"See menu Edit|Configure|Directory Match.");
@@ -608,10 +606,10 @@ Favs::Favs(Dirm *d)
 
   for(i=0; i<rws; i++) {
     c=new QTableWidgetItem();
-    c.setText(config.DMFavorites.at(2*i));
+    c.setText(config.DMFavorites[2*i]);
     w.setItem(i,0,c);
     c=new QTableWidgetItem();
-    c.setText(config.DMFavorites.at(1+2*i));
+    c.setText(config.DMFavorites[1+2*i]);
     w.setItem(i,1,c);
   }
 
@@ -622,7 +620,6 @@ Favs::Favs(Dirm *d)
 #ifndef SMALL_SCREEN
   resize(600,300);
 #endif
-  setObjectName("fav");
   setWindowTitle("Directory Match Favorites");
 
   w.resizeColumnsToContents();

@@ -12,7 +12,7 @@ List<int> DefPos;
 // ---------------------------------------------------------------------
 void Config::dirmatch_init()
 {
-  if (DMTypes.size()) return;
+  if (DMTypes.length()) return;
 
   int i,n;
   String t,v,w;
@@ -22,8 +22,8 @@ void Config::dirmatch_init()
   DMTypes=DefTypes;
   s=cfreadx(ConfigPath.filePath("dirmatch.cfg"));
 
-  while (s.size()) {
-    v=s.at(0);
+  while (s.length()) {
+    v=s[0];
     v.remove(' ');
     s.removeFirst();
     if (v.isEmpty())
@@ -36,9 +36,9 @@ void Config::dirmatch_init()
 
     if (matchhead("DMTypes=",v)) {
       DMTypes.clear();
-      while(s.size()) {
-        if(s.at(0).at(0)!=' ') break;
-        DMTypes.append(s.at(0).trimmed());
+      while(s.length()) {
+        if(s[0][0]!=' ') break;
+        DMTypes.append(s[0].trimmed());
         s.removeFirst();
       }
       continue;
@@ -46,21 +46,21 @@ void Config::dirmatch_init()
 
     if (matchhead("DMFavorites=",v)) {
       DMFavorites.clear();
-      while(s.size()) {
-        if(s.at(0).at(0)!=' ') break;
-        DMFavorites.append(s.at(0).trimmed());
+      while(s.length()) {
+        if(s[0][0]!=' ') break;
+        DMFavorites.append(s[0].trimmed());
         s.removeFirst();
       }
       DMFavorites.removeDuplicates();
       DMFavorites.removeAll("");
-      n=DMFavorites.size();
+      n=DMFavorites.length();
       if (n > 2 * n / 2)
         DMFavorites.removeLast();
     }
   }
 
-  for(i=0; i<DMTypes.size(); i++) {
-    v=DMTypes.at(i);
+  for(i=0; i<DMTypes.length(); i++) {
+    v=DMTypes[i];
     n=v.indexOf(' ');
     s.clear();
     t.clear();
@@ -72,7 +72,7 @@ void Config::dirmatch_init()
     }
     DMTypex.append(t);
     if (v==DMType) DMTypeIndex=i;
-    if(t.size())
+    if(t.length())
       v+=" (" + t + ")";
     DMTypes.replace(i,v);
   }
@@ -145,7 +145,7 @@ void Config::userkeys_init()
       UserKeys.removeOne(f);
     }
   }
-  if (err.size()>0)
+  if (err.length()>0)
     info("User Keys",err.join("\n"));
   term.menuBar.createuserkeyMenu();
 }
@@ -155,7 +155,7 @@ String[] Config::userkeys_split(String s)
 {
   QChar c;
   for (int i=0; i<s.length(); i++) {
-    c=s.at(i);
+    c=s[i];
     if (!(c.isLetter() || c.isDigit() || c=='+')) break;
   }
   return s.split(c);
@@ -180,10 +180,10 @@ void Config::winpos_init()
   List<int> v;
   foreach (const String &k, keys) {
     d = s.value(k,"").toString().split(' ');
-    if (d.size()==4) {
+    if (d.length()==4) {
       v.clear();
       for(int i=0; i<4; i++)
-        v.append(d.at(i).toInt());
+        v.append(d[i].toInt());
       WinPos[k]=v;
     }
   }

@@ -88,8 +88,15 @@ public abstract class AbstractActivity extends Activity
     case R.id.learning:
       showHelp(R.string.learning);
       break;
+    case R.id.demos:
+      theApp.callJ("(i.0 0)\"_ "+getResources().getString(R.string.demos));
+      break;
+    case R.id.showcase:
+      theApp.callJ("(i.0 0)\"_ "+getResources().getString(R.string.showcase));
+      break;
     case R.id.aboutj:
-      showTextFile(R.string.aboutj);
+//      showTextFile(R.string.aboutj);
+      Toast.makeText(AbstractActivity.this, com.jsoftware.j.android.JConsoleApp.theApp.jInterface.dors("JVERSION"), Toast.LENGTH_LONG).show();
       break;
     case R.id.upgrade:
       updateJ();

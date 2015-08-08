@@ -103,7 +103,7 @@ void Bedit::home()
   txt = txt.left(pos);
   int mov=0;
   for (int i=0; i<pos; i++)
-    if (!ws.contains(txt.at(i))) {
+    if (!ws.contains(txt[i])) {
       mov=i;
       break;
     }
@@ -185,7 +185,7 @@ String Bedit::readselect_line(int *pos, int *len)
     bgn=1+txt.lastIndexOf('\n',bgn-1);
   end=txt.indexOf('\n',end);
 
-  if (end==-1) end=txt.size();
+  if (end==-1) end=txt.length();
   *pos=bgn;
   *len=end-bgn;
   return txt;

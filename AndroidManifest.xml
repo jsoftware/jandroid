@@ -46,13 +46,19 @@
                 <action android:name="com.jsoftware.j.android.HELP" />
             </intent-filter>
         </activity>
-            
+
         <activity
-            android:label="@string/activity_name"
-            android:name="com.jsoftware.jn.wd.JwdActivity" >
+            android:label="@string/wdactivity_name"
+            android:name="com.jsoftware.jn.wd.JWdActivity" >
             android:configChanges="orientation|uiMode|screenLayout|fontScale|keyboard|keyboardHidden|navigation" >
         </activity>
-            
+
+        <activity
+            android:label="@string/textviewactivity_name"
+            android:name="com.jsoftware.jn.wd.JTextViewActivity" >
+            android:configChanges="orientation|uiMode|screenLayout|fontScale|keyboard|keyboardHidden|navigation" >
+        </activity>
+
         <service android:name=".SoftKeyboard"
             android:permission="android.permission.BIND_INPUT_METHOD" 
             android:exported="true" 
