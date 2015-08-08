@@ -507,7 +507,7 @@ public class JConsoleApp extends Application
     .append("/bin").append("'")
     .append(" [ INSTALLROOT_z_=:'").append(installRoot.getAbsolutePath()).append("'")
     .append(" [ AndroidPackage_z_=:'").append(activity.getApplicationContext().getPackageName()).append("'")
-    .append(" [ IFJCA_z_=: 1")
+    .append(" [ IFJA_z_=: 1")
     .append(" [ UNAME_z_=: 'Android'");
     Log.d(JConsoleApp.LogTag, "initialize engine: " + sb.toString());
 
@@ -546,7 +546,7 @@ public class JConsoleApp extends Application
   protected boolean checkInstall(File base)
   {
     try {
-      File f = new File(base,"android-version.txt");
+      File f = new File(base,"assets_version.txt");
       InputStream in = new FileInputStream(f);
       BufferedReader reader = new BufferedReader(new InputStreamReader(in));
       String line = reader.readLine();
@@ -648,7 +648,7 @@ public class JConsoleApp extends Application
       publishProgress("installing addons");
       installDirectory(base, "addons");
 
-      installFile(base, "android-version.txt");
+      installFile(base, "assets_version.txt");
       publishProgress("installation complete");
 
       return true;

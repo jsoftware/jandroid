@@ -30,10 +30,21 @@ $STOREPASS and $KEYPASS
 run ./genkey.sh to generate signing key.
 
 edit copyassets.sh to change to your own J install folders
-and addons packages to be bundled.
+and addons packages to be bundled. The following 3 addons
+must be included.
+
+api/expat
+api/jni
+ide/ja
 
 run ./copyassets.sh to copy J system and addons scripts 
 to the assets folder.
+
+future re-install (without un-install) should delete the file
+assets_version.txt under the following android device folder
+if assets files have been updated.
+
+SDCARD/Android/data/com.jsofware.j.android/files/
 
 edit local.properties and change the last line to point to
 your own android sdk folder

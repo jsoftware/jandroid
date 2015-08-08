@@ -25,7 +25,7 @@ mkdir -p $S/$A/addons/$1
 cp -r $P/$1/$2 $S/$A/addons/$1
 }
 
-# copyaddon api expat
+copyaddon api expat
 # copyaddon api gles
 copyaddon api jni
 # copyaddon api sl4a
@@ -51,9 +51,7 @@ copyaddon graphics plot
 copyaddon graphics png
 # copyaddon graphics print
 copyaddon graphics viewmat
-# copyaddon gui android
-# copyaddon gui droidwd
-copyaddon ide jca
+copyaddon ide ja
 copyaddon ide jhs
 # copyaddon ide qt
 # copyaddon labs labs
@@ -63,4 +61,4 @@ copyaddon math misc
 
 find $A/addons \( -name '*.jproj' -o -name '*.dll' -o -name '*.exe' -o -name '*.so' -o -name '*.dylib' -o -name 'd3.v3.min.js' -o -name 'baselibtags' -o -name '.*' \) -delete
 
-cp $S/android-version.txt $S/$A/.
+cp $S/assets_version.txt $S/$A/.
