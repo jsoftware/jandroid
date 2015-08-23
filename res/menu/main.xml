@@ -1,4 +1,5 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/labsadvance" android:title="Labs Advance" android:orderInCategory="1"/>
     <item android:id="@+id/file" android:title="File"  android:menuCategory="container" android:orderInCategory="1">
         <menu>
             <item android:id="@+id/newf" android:title="New" android:orderInCategory="1"/>
@@ -20,12 +21,15 @@
     </item>
     <item android:id="@+id/window" android:title="Window"  android:menuCategory="container" android:orderInCategory="3">
     </item>
+    <item android:id="@+id/pacman" android:title="Package Manager"  android:menuCategory="container" android:orderInCategory="4">
+    </item>
     <item android:id="@+id/log" android:title="Input Log"  android:menuCategory="container" android:orderInCategory="4">
     </item>
     <item android:id="@+id/help" android:title="Help"  android:menuCategory="container" android:orderInCategory="5">
         <menu>
             <item android:id="@+id/vocab" android:title="Help"  android:orderInCategory="1"/>
             <item android:id="@+id/learning" android:title="Learning J"  android:orderInCategory="2"/>
+            <item android:id="@+id/labs" android:title="Labs..."  android:orderInCategory="2"/>
             <item android:id="@+id/demos" android:title="Demos..."  android:orderInCategory="2"/>
             <item android:id="@+id/showcase" android:title="Showcase..."  android:orderInCategory="2"/>
             <item android:id="@+id/aboutj" android:title="About J"  android:orderInCategory="4"/>

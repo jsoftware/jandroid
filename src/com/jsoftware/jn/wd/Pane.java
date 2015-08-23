@@ -1,6 +1,7 @@
 package com.jsoftware.jn.wd;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -90,11 +91,14 @@ class Pane extends LinearLayout
       child=(Child ) new JSpinner(n,p,pform,this,"spinbox");
     else if (c.equals("static"))
       child=(Child ) new JTextView(n,p,pform,this);
-    else if (c.equals("switch"))
-      child=(Child ) new JSwitch(n,p,pform,this);
-//   else if (c.equals("table"))
+    else if (c.equals("switch")) {
+      if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+        child=(Child ) new JSwitch(n,p,pform,this);
+      else
+        child=(Child ) new JCheckBox(n,p,pform,this);
+//   } else if (c.equals("table")) }
 //     child=(Child ) new Table(n,p,pform,this);
-    else if (c.equals("timepicker"))
+    } else if (c.equals("timepicker"))
       child=(Child ) new JTimePicker(n,p,pform,this);
     else if (c.equals("togglebutton"))
       child=(Child ) new JToggleButton(n,p,pform,this);

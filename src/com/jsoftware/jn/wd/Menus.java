@@ -1,5 +1,6 @@
 package com.jsoftware.jn.wd;
 
+import android.os.Build;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,6 +23,7 @@ class Menus extends Child
   private ArrayList<String >cmdsid;
   private ArrayList<String >cmdsp;
 
+  private int ignored=0;
 // ---------------------------------------------------------------------
   Menus(String n, String s, Form f, Pane p)
   {
@@ -86,7 +88,14 @@ class Menus extends Child
       return 0;
     }
     menus.add(curMenu);
-    curMenu=curMenu.addSubMenu(Menu.NONE,0,0,s.replaceAll("&", ""));
+    if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
+      curMenu=curMenu.addSubMenu(Menu.NONE,0,0,s.replaceAll("&", ""));
+    else {
+      if (0==menus.size())
+        curMenu=curMenu.addSubMenu(Menu.NONE,0,0,s.replaceAll("&", ""));
+      else
+        ignored++;
+    }
     return 0;
   }
 
@@ -100,8 +109,16 @@ class Menus extends Child
       return 0;
     }
     if (menus.isEmpty()) return 0;
-    curMenu=menus.get(menus.size()-1);
-    menus.remove(menus.size()-1);
+    if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+      curMenu=menus.get(menus.size()-1);
+      menus.remove(menus.size()-1);
+    } else {
+      if (0!=ignored) {
+        curMenu=menus.get(menus.size()-1);
+        menus.remove(menus.size()-1);
+      } else
+        ignored--;
+    }
     return 0;
   }
 

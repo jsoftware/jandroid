@@ -20,7 +20,6 @@ import android.util.Log;
 public class AndroidJInterface extends JInterface
 {
 
-  JConsoleApp theApp;
   public static final String INTERFACE_VERSION="1.0";
   JRunner runner = null;
   Thread thread = null;
@@ -28,7 +27,7 @@ public class AndroidJInterface extends JInterface
 
   public AndroidJInterface(JConsoleApp theApp)
   {
-    this.theApp = theApp;
+    super.theApp = theApp;
     runner = new JRunner();
   }
 
@@ -106,24 +105,7 @@ public class AndroidJInterface extends JInterface
 
   protected void callBreak()
   {
-    callSuperJ(new String[] {"break_z_ ''"});
-  }
-  public int callSuperJ(String []sentence)
-  {
-    return super.callJ(sentence);
-  }
-  @Override
-  public int callJ(String []sentence)
-  {
-    for(String s : sentence) {
-      addLine(s);
-    }
-    return 0;
-  }
-  public Object call1J(String s)
-  {
-    addLine(s);
-    return null;
+    callJ("break_z_ ''");
   }
 
   class JRunner extends AsyncTask<String, Object, Integer>
@@ -160,7 +142,7 @@ public class AndroidJInterface extends JInterface
           // publishProgress(false);
           StringBuilder sb = new StringBuilder();
           AndroidJInterface.this.addExecutionListener(this);
-          callSuperJ(new String[] {cmd});
+          callJ(cmd);
           AndroidJInterface.this.removeExecutionListener(this);
           synchronized (commandBuffer) {
             if(commandBuffer.size() == 0) {
@@ -175,7 +157,7 @@ public class AndroidJInterface extends JInterface
 
     public void onCommandComplete(int resultCode)
     {
-      EngineOutput eo = new EngineOutput(AndroidJInterface.MTYOFM, "  ");
+      EngineOutput eo = new EngineOutput(AndroidJInterface.MTYOFM, "   ");
       publishProgress(eo);
     }
 

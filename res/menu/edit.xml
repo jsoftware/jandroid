@@ -21,6 +21,8 @@
     </item>
     <item android:id="@+id/window" android:title="Window"  android:menuCategory="container" android:orderInCategory="3">
     </item>
+    <item android:id="@+id/pacman" android:title="Package Manager"  android:menuCategory="container" android:orderInCategory="4">
+    </item>
     <item android:id="@+id/log" android:title="Input Log"  android:menuCategory="container" android:orderInCategory="4">
     </item>
     <item android:id="@+id/help" android:title="Help"  android:menuCategory="container" android:orderInCategory="5">

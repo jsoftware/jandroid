@@ -73,6 +73,9 @@ public abstract class AbstractActivity extends Activity
     case R.id.window:
       requestWindowSelect();
       break;
+    case R.id.pacman:
+      theApp.callJ("(i.0 0)\"_ "+getResources().getString(R.string.runpacman));
+      break;
     case R.id.log:
       showHistoryDialog();
       break;
@@ -88,11 +91,17 @@ public abstract class AbstractActivity extends Activity
     case R.id.learning:
       showHelp(R.string.learning);
       break;
+    case R.id.labs:
+      theApp.callJ("(i.0 0)\"_ "+getResources().getString(R.string.runlabs));
+      break;
+    case R.id.labsadvance:
+      theApp.callJ("(i.0 0)\"_ "+getResources().getString(R.string.runlabsadvance));
+      break;
     case R.id.demos:
-      theApp.callJ("(i.0 0)\"_ "+getResources().getString(R.string.demos));
+      theApp.callJ("(i.0 0)\"_ "+getResources().getString(R.string.rundemos));
       break;
     case R.id.showcase:
-      theApp.callJ("(i.0 0)\"_ "+getResources().getString(R.string.showcase));
+      theApp.callJ("(i.0 0)\"_ "+getResources().getString(R.string.runshowcase));
       break;
     case R.id.aboutj:
 //      showTextFile(R.string.aboutj);
@@ -113,6 +122,8 @@ public abstract class AbstractActivity extends Activity
     final FileEdit editor = getEditor();
 
     int n = editor.getSelectionStart();
+    if (n > 0)
+      --n;
     String line = editor.getLineForPosition(n);
     theApp.consoleOutput(JInterface.MTYOFM, line + "\n");
     theApp.callJ(line);
@@ -121,11 +132,7 @@ public abstract class AbstractActivity extends Activity
   protected void updateJ()
   {
     theApp.consoleOutput(JInterface.MTYOFM, "Updating J...\n");
-    theApp.callJ(new String[] {
-                   "require 'pacman'",
-                   "'update'jpkg''",
-                   "'upgrade'jpkg'all'",
-                 });
+    theApp.callJ("'upgrade'jpkg'all' [ 'upgrade'jpkg'all' [ require 'pacman'");
   }
 
   public void requestWindowSelect()

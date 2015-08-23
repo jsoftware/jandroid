@@ -496,7 +496,10 @@ class Form extends LinearLayout
       if (null==timerHandler) timerHandler = new Handler();
       timerHandler.postDelayed(timerRunnable, timerInterval);
     } else {
-      timerHandler.removeCallbacks(timerRunnable);
+      if (null!=timerHandler) {
+        timerHandler.removeCallbacks(timerRunnable);
+        timerHandler = null;
+      }
     }
   }
 //

@@ -27,16 +27,20 @@ public class FileEdit extends EditText
   public FileEdit(Context context, AttributeSet attrs, int defStyle)
   {
     super(context,attrs,defStyle);
+// In theory, android:scrollHorizontally should do the same in XML
+    setHorizontallyScrolling(true);
   }
 
   public FileEdit(Context context, AttributeSet attrs)
   {
     super(context,attrs);
+    setHorizontallyScrolling(true);
   }
 
   public FileEdit(Context jActivity)
   {
     super(jActivity);
+    setHorizontallyScrolling(true);
   }
 
   public void setName(String s)

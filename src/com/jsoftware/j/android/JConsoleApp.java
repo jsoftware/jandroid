@@ -165,7 +165,7 @@ public class JConsoleApp extends Application
       currentExternDir = userDir;
       userDir.mkdir();
       sb.append("(i.0 0)\"_ [ 1!:44 ::0: '").append(home).append("'");
-      jInterface.callJ(new String[] {sb.toString()}); // need this side effect to initialize J
+      jInterface.callJ(sb.toString(),false); // need this side effect to initialize J
       jInterface.start();
       installSystemFiles(activity, console, installRoot, false);
       sb.setLength(0);
@@ -351,8 +351,7 @@ public class JConsoleApp extends Application
   public void callWithHistory(String line)
   {
     addHistory(line);
-    //jInterface.callSuperJ(new String[] {line});
-    callJ(new String[] {line});
+    callJ(line);
   }
 
   public void addHistory(String line)
@@ -472,18 +471,15 @@ public class JConsoleApp extends Application
     return intentMap.keySet().contains(name);
   }
 
-  public void callJ(String... sentences)
+  public void callJ(String sentence)
   {
-    callJ(sentences, true);
+    callJ(sentence, jInterface.asyncj );
   }
 
-  public void callJ(String[] sentences, boolean async)
+  public void callJ(String sentence, boolean asyncj)
   {
-    if (async && jInterface.asyncj) {
-      jInterface.callJ(sentences);
-    } else {
-      jInterface.callSuperJ(sentences);
-    }
+    if (null!=jInterface)
+      jInterface.callJ(sentence,asyncj);
   }
 
   protected void bootstrap()
@@ -516,11 +512,13 @@ public class JConsoleApp extends Application
         ss[i] = args[i];
         Log.d(JConsoleApp.LogTag, ss[i]);
       }
-      callJ(ss);
+      for (String s: ss)
+        callJ(s,true);
     } else {
       // Log.d(JConsoleApp.LogTag,sb.toString());
-      callJ(new String[] { sb.toString() });
+      callJ(sb.toString(),true);
     }
+    console.prompt();
     console.setEnabled(true);
   }
 
@@ -619,8 +617,7 @@ public class JConsoleApp extends Application
 //              String cmd = "i.0 0)\"_ [ 2!:0 'cp -r " + lo.getAbsolutePath()
 //                           + " " + SDCARD + "'";
 //              publishProgress("migrating user files to sdcard");
-//              //jInterface.callSuperJ(new String[] {cmd});
-//              jInterface.callJ(new String[] {cmd});
+//              jInterface.callJ(cmd,true);
 //            }
 //          }
 //        }

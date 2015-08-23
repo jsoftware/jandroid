@@ -8,6 +8,8 @@ import android.text.Editable;
 import android.text.Spannable;
 import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
 import android.view.KeyEvent;
 
 import android.view.View;
@@ -57,46 +59,10 @@ public class Console extends FileEdit
     this.setBackgroundColor(backgroundColor);
     this.setTextColor(inputColor);
 
-    /*
-    this.setOnClickListener(new OnClickListener() {
-    	String last = null;
-    	public void onClick(View v) {
-    		if (!isCursorOnBottomLine()) {
-    			int n = getSelectionStart();
-    			String line = getLineForPosition(n);
-    			if(line != null && line.equals(last)) {
-    //						appendSeq("\n");
-    				handleEnter(line, false);
-    				placeCursor();
-    				last = null;
-    			} else last = line;
-    		}
-    	}
-    });
-    */
-    /*
-    this.setOnKeyListener(new OnKeyListener() {
-
-      public boolean onKey(View v, int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
-          int n = getSelectionStart();
-          if (n > 0)
-            --n;
-          String line = getLineForPosition(n);
-          boolean onLast = isCursorOnBottomLine();
-    //		  appendSeq("\n");
-          handleEnter(line, onLast);
-
-          return true;
-        }
-        return false;
-      }
-    });
-    */
     this.setOnEditorActionListener(new TextView.OnEditorActionListener() {
       @Override
       public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
-        if (actionId == R.id.wsk || actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_DOWN) {
+        if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_NULL && null!=event && (event.getAction() == KeyEvent.ACTION_DOWN || event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
           int n = getSelectionStart();
           if (n > 0)
             --n;
@@ -110,6 +76,26 @@ public class Console extends FileEdit
       }
     });
 
+  }
+
+// for Jelly Bean (API 16) and later, to revert the IME_FLAG_NO_ENTER_ACTION
+// automatically added to multiline EditText
+
+  @Override
+  public InputConnection onCreateInputConnection(EditorInfo outAttrs)
+  {
+    InputConnection connection = super.onCreateInputConnection(outAttrs);
+    int imeActions = outAttrs.imeOptions & EditorInfo.IME_MASK_ACTION;
+    if ((imeActions & EditorInfo.IME_ACTION_DONE) != 0) {
+      // clear the existing action
+      outAttrs.imeOptions ^= imeActions;
+      // set the DONE action
+      outAttrs.imeOptions |= EditorInfo.IME_ACTION_DONE;
+    }
+    if ((outAttrs.imeOptions & EditorInfo.IME_FLAG_NO_ENTER_ACTION) != 0) {
+      outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NO_ENTER_ACTION;
+    }
+    return connection;
   }
 
   private boolean isCursorOnBottomLine()
@@ -139,6 +125,8 @@ public class Console extends FileEdit
       appendSeq("\n");
       if (line != null && line.trim().length() > 0) {
         theApp.callWithHistory(line);
+        if (!theApp.jInterface.asyncj)
+          prompt();
       } else {
         prompt();
       }
@@ -169,7 +157,7 @@ public class Console extends FileEdit
 
   protected void prompt()
   {
-    appendSeq("  ");
+    appendSeq("   ");
   }
 
   public void appendSeq(CharSequence seq)

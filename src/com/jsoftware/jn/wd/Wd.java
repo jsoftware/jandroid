@@ -1113,7 +1113,10 @@ public class Wd
       if (null==systimerHandler) systimerHandler = new Handler();
       systimerHandler.postDelayed(systimerRunnable, systimerInterval);
     } else {
-      systimerHandler.removeCallbacks(systimerRunnable);
+      if (null!=systimerHandler) {
+        systimerHandler.removeCallbacks(systimerRunnable);
+        systimerHandler = null;
+      }
     }
   }
 

@@ -101,19 +101,11 @@ class JListView extends Child
         r.write(Util.s2ba(getallitems()));
       else if (p.equals("items"))
         r.write(Util.s2ba(getselection()));
-      else if (p.equals("text")||p.equals("select")) {
-        if (-1==w.getCheckedItemPosition()) {
-          if (p.equals("text"))
-            r.write(new byte[0]);
-          else
-            r.write(Util.s2ba(Util.i2s(-1)));
-        } else {
-          if (p.equals("text"))
-            r.write(Util.s2ba(getselection()));
-          else
-            r.write(Util.s2ba(getselectionindex()));
-        }
-      } else
+      else if (p.equals("text"))
+        r.write(Util.s2ba(getselection()));
+      else if (p.equals("select"))
+        r.write(Util.s2ba(getselectionindex()));
+      else
         r.write(super.get(p,v));
     } catch (IOException exc) {
       Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
@@ -140,32 +132,50 @@ class JListView extends Child
   private String getselection()
   {
     ListView w=(ListView) widget;
-    StringBuilder s=new StringBuilder();
-
-    SparseBooleanArray sp = w.getCheckedItemPositions();
-    for (int i = 0; i < sp.size(); i++) {
-      if(sp.valueAt(i)) {
-        s.append((String)(w.getItemAtPosition(sp.keyAt(i))));
-        s.append("\012");
+    if (multiselect==ListView.CHOICE_MODE_NONE) {
+      if (-1==position) {
+        return "";
+      } else {
+        return w.getAdapter().getItem(position).toString();
       }
+    } else {
+      StringBuilder s=new StringBuilder();
+      SparseBooleanArray sp = w.getCheckedItemPositions();
+      for (int i = 0; i < sp.size(); i++) {
+        if(sp.valueAt(i)) {
+          s.append((String)(w.getItemAtPosition(sp.keyAt(i))));
+          s.append("\012");
+        }
+      }
+      return s.toString();
     }
-    return s.toString();
   }
 
 // ---------------------------------------------------------------------
   private String getselectionindex()
   {
     ListView w=(ListView) widget;
-    StringBuilder s=new StringBuilder();
-
-    SparseBooleanArray sp = w.getCheckedItemPositions();
-    for (int i = 0; i < sp.size(); i++) {
-      if(sp.valueAt(i)) {
-        s.append(Util.i2s(sp.keyAt(i)));
-        s.append(" ");
+    if (multiselect==ListView.CHOICE_MODE_NONE) {
+      if (-1==position) {
+        return Util.i2s(-1);
+      } else {
+        return Util.i2s(position);
+      }
+    } else {
+      StringBuilder s=new StringBuilder();
+      SparseBooleanArray sp = w.getCheckedItemPositions();
+      if (0==sp.size()) {
+        return Util.i2s(-1);
+      } else {
+        for (int i = 0; i < sp.size(); i++) {
+          if(sp.valueAt(i)) {
+            s.append(Util.i2s(sp.keyAt(i)));
+            s.append(" ");
+          }
+        }
+        return s.toString();
       }
     }
-    return s.toString();
   }
 
 // ---------------------------------------------------------------------
@@ -176,9 +186,19 @@ class JListView extends Child
     if (p.equals("items")) {
       addItems(Cmd.qsplit(v));
     } else if (p.equals("select")) {
-      // which one is is better?
-      // w.setItemChecked(Util.c_strtoi(v),true);
-      w.setSelection(Util.c_strtoi(v));
+      String[] qs=Cmd.qsplit(v);
+      if (0==qs.length || (multiselect!=ListView.CHOICE_MODE_MULTIPLE && 1<qs.length)) {
+        JConsoleApp.theWd.error("set select requires 1 number: " + id + " " + v);
+        return;
+      }
+      if (multiselect==ListView.CHOICE_MODE_NONE)
+        w.setSelection(Util.c_strtoi(qs[0]));
+      else if (multiselect==ListView.CHOICE_MODE_SINGLE)
+        w.setItemChecked(Util.c_strtoi(qs[0]), true);
+      else {
+        for (String s : qs)
+          w.setItemChecked(Util.c_strtoi(s), true);
+      }
     } else
       super.set(p,v);
   }
@@ -200,23 +220,9 @@ class JListView extends Child
     ListView w=(ListView) widget;
     ByteArrayOutputStream r=new ByteArrayOutputStream();
     try {
-      if (multiselect!=ListView.CHOICE_MODE_MULTIPLE) {
-        if (-1==position) {
-          r.write(Util.spair(id,(String)""));
-          r.write(Util.spair(id+"_select",(String)"_1"));
-        } else {
-          r.write(Util.spair(id,(String)w.getAdapter().getItem(position).toString()));
-          r.write(Util.spair(id+"_select",Util.i2s(position)));
-        }
-      } else {
-        if (-1==w.getCheckedItemPosition()) {
-          r.write(Util.spair(id,(String)""));
-          r.write(Util.spair(id+"_select",(String)"_1"));
-        } else {
-          r.write(Util.spair(id,getselection()));
-          r.write(Util.spair(id+"_select",getselectionindex()));
-        }
-      }
+      r.write(Util.spair(id,getselection()));
+      r.write(Util.spair(id+"_select",getselectionindex()));
+      r.write(Util.spair(id+"_click",Util.i2s(position)));
     } catch (IOException exc) {
       Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
     } catch (Exception exc) {

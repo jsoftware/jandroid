@@ -2,19 +2,23 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical"
     >
-    <TextView
-        android:id="@+id/textview"
-        android:layout_width="fill_parent" 
+    <HorizontalScrollView
+        android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:typeface="monospace"
-        android:gravity="top"
-        android:scrollHorizontally="true"
-        android:scrollbars="horizontal|vertical"
-        android:cursorVisible="true"
-       >
-        <requestFocus />
-	</TextView>
-
+        >
+        <TextView
+            android:id="@+id/textview"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:fontFamily="monospace"
+            android:typeface="monospace"
+            android:gravity="top"
+            android:scrollHorizontally="true"
+            android:scrollbars="horizontal|vertical"
+            android:cursorVisible="true"
+            >
+            <requestFocus />
+	      </TextView>
+    </HorizontalScrollView>
 </ScrollView>

@@ -1,5 +1,6 @@
 package com.jsoftware.j;
 
+import android.util.Log;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,8 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-
-import android.util.Log;
+import com.jsoftware.j.android.JConsoleApp;
 
 public class JInterface
 {
@@ -30,25 +30,14 @@ public class JInterface
   private List<ExecutionListener> execlist = new ArrayList<ExecutionListener>();
   private List<OutputListener> outputs = new ArrayList<OutputListener>();
 
-  public int callJ(String []s)
-  {
-    int result = -1;
-    try {
-      for(String sentence : s) {
-        result = callJ(sentence);
-      }
-    } catch(Throwable e) {
-      Log.e(LOGTAG, "error executing sentence: " + s, e);
-    } finally {
-      for(ExecutionListener l : execlist) {
-        l.onCommandComplete(result);
-      }
-    }
-    return result;
-  }
-
+  protected JConsoleApp theApp;
 
   public int callJ(String sentence)
+  {
+    return callJ(sentence, asyncj);
+  }
+
+  public int callJ(String sentence, boolean asyncj)
   {
     int result = -1;
     try {
@@ -64,6 +53,12 @@ public class JInterface
       result = callJNative(nativeInstance,sentence);
     } catch(Throwable e) {
       Log.e(LOGTAG, "error executing sentence: " + sentence, e);
+    } finally {
+      if (asyncj) {
+        for(ExecutionListener l : execlist) {
+          l.onCommandComplete(result);
+        }
+      }
     }
     return result;
   }
@@ -166,8 +161,12 @@ public class JInterface
 // to be called back from library
   public void output(int type,String s)
   {
-    for(OutputListener oo : outputs) {
-      oo.onOutput(type,s);
+    if (!asyncj)
+      theApp.consoleOutput(type,s);
+    else {
+      for(OutputListener oo : outputs) {
+        oo.onOutput(type,s);
+      }
     }
   }
 

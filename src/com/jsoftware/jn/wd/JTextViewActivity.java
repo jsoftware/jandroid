@@ -25,6 +25,6 @@ public class JTextViewActivity extends android.app.Activity
     setTitle(title);
     setContentView(com.jsoftware.j.android.R.layout.textview);
     TextView textview = (TextView) findViewById(com.jsoftware.j.android.R.id.textview);
-    textview .setText(text);
+    textview.setText(text);
   }
 }

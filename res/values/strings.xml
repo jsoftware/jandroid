@@ -13,11 +13,14 @@
     <string name="wdactivity_name">Wd</string>
     <string name="textviewactivity_name">TextView</string>
     
+    <string name="runpacman">runpacman_jpacman_ 0 [ require \'pacman ~addons/ide/ja/pacman.ijs\'</string>
     <string name="help_start">http://www.jsoftware.com/help/dictionary/vocabul.htm</string>
     <string name="learning">http://www.jsoftware.com/help/learning/contents.htm</string>
-    <string name="demos">demoja_ja_$0</string>
-    <string name="showcase">demowd_ja_$0</string>
+    <string name="runlabs">labs_run_ja_$0</string>
+    <string name="runlabsadvance">labs_run_ja_ 0</string>
+    <string name="rundemos">demoja_ja_$0</string>
+    <string name="runshowcase">demowd_ja_$0</string>
 
-    <string name="version">1.0.3</string>
+    <string name="version">1.0.4</string>
         
 </resources>

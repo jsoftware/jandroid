@@ -16,6 +16,7 @@
         android:freezesText="true"
         android:inputType="textMultiLine|textNoSuggestions" 
         android:bufferType="editable"
+        android:fontFamily="monospace"
         android:typeface="monospace"
         android:gravity="top"
         android:scrollHorizontally="true"

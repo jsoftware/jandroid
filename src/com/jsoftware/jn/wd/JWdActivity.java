@@ -27,25 +27,26 @@ public class JWdActivity extends android.app.Activity
     JConsoleApp.theWd.activity=this;
   }
   @Override
-  protected void onCreate(android.os.Bundle arg1)
+  protected void onCreate(android.os.Bundle bundle)
   {
     Log.d(JConsoleApp.LogTag,"onCreate");
-    super.onCreate( arg1);
+    super.onCreate(bundle);
     jlocale = getIntent().getStringExtra("jlocale");
     jInterface = com.jsoftware.j.android.JConsoleApp.theApp.jInterface;
-    jInterface.Jnido( this, "onCreate_" + jlocale + "_", new java.lang.Object[] { arg1 } , 0);
+    if (null==bundle)
+      jInterface.callJ( "(i.0 0)\"_ onCreate_" + jlocale + "_$0");
   }
   @Override
   protected void onResume()
   {
     Log.d(JConsoleApp.LogTag,"onResume");
     super.onResume();
-    jInterface.Jnido( this, "onResume_" + jlocale + "_", null , 0);
+    jInterface.callJ( "(i.0 0)\"_ onResume_" + jlocale + "_^:(3=(4!:0 ::_2:)<'onResume_" + jlocale + "_')$0");
   }
   @Override protected void onDestroy()
   {
     Log.d(JConsoleApp.LogTag,"onDestroy");
-    jInterface.Jnido( this, "onDestroy_" + jlocale + "_", null , 0);
+    jInterface.callJ( "(i.0 0)\"_ onDestroy_" + jlocale + "_^:(3=(4!:0 ::_2:)<'onDestroy_" + jlocale + "_')$0");
     if (null!=form) form.dispose();
     super.onDestroy();
   }
@@ -81,7 +82,7 @@ public class JWdActivity extends android.app.Activity
     if (null==form || null==form.menubar) return super.onCreateOptionsMenu(menu);
     form.menubar.curMenu=menu;
     form.menubar.initmenu();
-    jInterface.Jnido( this, "onCreateOptionsMenu_" + jlocale + "_", null , 0);
+    jInterface.callJ( "(i.0 0)\"_ onCreateOptionsMenu_" + jlocale + "_^:(3=(4!:0 ::_2:)<'onCreateOptionsMenu_" + jlocale + "_')$0");
     return true;
   }
   @Override
