@@ -1,11 +1,18 @@
 package com.jsoftware.jn.wd;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import com.jsoftware.j.android.AndroidJInterface;
 import com.jsoftware.j.android.JConsoleApp;
 import com.jsoftware.jn.base.Util;
@@ -13,13 +20,15 @@ import com.jsoftware.jn.base.Utils;
 import java.lang.Math;
 import java.util.ArrayList;
 
-public class JWdActivity extends android.app.Activity
+public class JWdActivity extends Activity
 {
   protected com.jsoftware.j.JInterface jInterface = null;
-  public java.lang.String jlocale = null;
+  public java.lang.String jlocale = "";
   protected java.lang.String japparg = null;
 
   Form form;
+  String backbuttonAct="default";
+  String fullscreen="no";
 
   public JWdActivity()
   {
@@ -27,28 +36,88 @@ public class JWdActivity extends android.app.Activity
     JConsoleApp.theWd.activity=this;
   }
   @Override
-  protected void onCreate(android.os.Bundle bundle)
+  protected void onCreate(Bundle bundle)
   {
-    Log.d(JConsoleApp.LogTag,"onCreate");
     super.onCreate(bundle);
+    jInterface = JConsoleApp.theApp.jInterface;
     jlocale = getIntent().getStringExtra("jlocale");
-    jInterface = com.jsoftware.j.android.JConsoleApp.theApp.jInterface;
-    if (null==bundle)
-      jInterface.callJ( "(i.0 0)\"_ onCreate_" + jlocale + "_$0");
+    Log.d(JConsoleApp.LogTag,"onCreate "+jlocale);
+    backbuttonAct = getIntent().getStringExtra("backbuttonAct");
+    fullscreen = getIntent().getStringExtra("fullscreen");
+    // remove title
+    if (fullscreen.equals("yes")) {
+      if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)
+        getActionBar().hide();
+      else
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+      getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                           WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    }
+  }
+  @Override
+  protected void onStart()
+  {
+    Log.d(JConsoleApp.LogTag,"onStart "+jlocale);
+    super.onStart();
+    if (null!=form)
+      form.onStart();
+    else
+      jInterface.callJ( "(i.0 0)\"_ onStart_" + jlocale + "_$0");
+    if (null!=form) {
+      JConsoleApp.theApp.addIntent("wd:"+jlocale, getIntent());
+    } else
+      finish();
+  }
+  @Override
+  protected void onPause()
+  {
+    Log.d(JConsoleApp.LogTag,"onPause "+jlocale);
+    super.onPause();
+    if (null!=form) {
+      form.onPause();
+      jInterface.callJ( "(i.0 0)\"_ onPause_" + jlocale + "_^:(3=(4!:0 ::_2:)<'onPause_" + jlocale + "_')$0");
+    }
   }
   @Override
   protected void onResume()
   {
-    Log.d(JConsoleApp.LogTag,"onResume");
+    Log.d(JConsoleApp.LogTag,"onResume "+jlocale);
     super.onResume();
-    jInterface.callJ( "(i.0 0)\"_ onResume_" + jlocale + "_^:(3=(4!:0 ::_2:)<'onResume_" + jlocale + "_')$0");
+    if (null!=form) {
+      form.onResume();
+      jInterface.callJ( "(i.0 0)\"_ onResume_" + jlocale + "_^:(3=(4!:0 ::_2:)<'onResume_" + jlocale + "_')$0");
+    }
+  }
+  @Override
+  protected void onRestart()
+  {
+    Log.d(JConsoleApp.LogTag,"onRestart "+jlocale);
+    super.onRestart();
+    if (null!=form) {
+      form.onRestart();
+      jInterface.callJ( "(i.0 0)\"_ onRestart_" + jlocale + "_^:(3=(4!:0 ::_2:)<'onRestart_" + jlocale + "_')$0");
+    }
+  }
+  @Override
+  protected void onStop()
+  {
+    Log.d(JConsoleApp.LogTag,"onStop "+jlocale);
+    super.onStop();
+    if (null!=form) {
+      form.onStop();
+      jInterface.callJ( "(i.0 0)\"_ onStop_" + jlocale + "_^:(3=(4!:0 ::_2:)<'onStop_" + jlocale + "_')$0");
+    }
   }
   @Override protected void onDestroy()
   {
-    Log.d(JConsoleApp.LogTag,"onDestroy");
-    jInterface.callJ( "(i.0 0)\"_ onDestroy_" + jlocale + "_^:(3=(4!:0 ::_2:)<'onDestroy_" + jlocale + "_')$0");
-    if (null!=form) form.dispose();
+    Log.d(JConsoleApp.LogTag,"onDestroy "+jlocale);
     super.onDestroy();
+    if(isFinishing()) {
+      if (null!=form) {
+        form.onDestroy();
+        JConsoleApp.theApp.removeFile("wd:"+jlocale);
+      }
+    }
   }
   @Override
   public boolean onKeyDown(int arg1,android.view.KeyEvent arg2)
@@ -73,8 +142,34 @@ public class JWdActivity extends android.app.Activity
   @Override
   public void onBackPressed()
   {
-    super.onBackPressed();
-    return;
+    if (null==form) {
+      JWdActivity.super.onBackPressed();
+      return;
+    }
+    if (backbuttonAct.equals("never"))
+      moveTaskToBack(true);
+    else if (backbuttonAct.equals("ask")) {
+      new AlertDialog.Builder(this)
+      .setTitle("")
+      .setMessage("Close this window?")
+      .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface arg0, int arg1) {
+          JWdActivity.super.onBackPressed();
+        }
+      })
+      .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface arg0, int arg1) {
+          // no action
+        }
+      })
+      .setNeutralButton("Hide", new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface arg0, int arg1) {
+          moveTaskToBack(true);
+        }
+      }).create().show();
+    } else {
+      JWdActivity.super.onBackPressed();
+    }
   }
   @Override
   public boolean onCreateOptionsMenu( Menu menu)
@@ -97,4 +192,5 @@ public class JWdActivity extends android.app.Activity
   {
     return super.onTouchEvent( arg1);
   }
+
 }

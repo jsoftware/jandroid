@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
 import com.jsoftware.j.android.JConsoleApp;
@@ -33,19 +32,19 @@ class Layout
     rmax=cmax=1;
     rs=cs=1;
     this.stretch=stretch;
-    LinearLayout.LayoutParams lp;
-    LinearLayout.LayoutParams lp0;
+    ViewGroup.LayoutParams lp;
+    ViewGroup.LayoutParams lp0;
     if ('h'==type) {
       LinearLayout l=new LinearLayout(ppane.pform.activity);
       l.setOrientation (LinearLayout.HORIZONTAL);
       l.setPadding(0,0,0,0);
       if (null==p.layout)
-        lp=new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT);
+        lp=new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);
       else if ('v'==p.layout.type||'u'==p.layout.type)
-        lp=new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
+        lp=new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
       else
-        lp=new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.MATCH_PARENT);
-      lp.setMargins(0,0,0,0);
+        lp=new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.MATCH_PARENT);
+//     lp.setMargins(0,0,0,0);
       l.setLayoutParams(lp);
       bin= l;
     } else if ('v'==type) {
@@ -53,32 +52,32 @@ class Layout
       l.setOrientation (LinearLayout.VERTICAL);
       l.setPadding(0,0,0,0);
       if (null==p.layout)
-        lp=new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT);
+        lp=new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);
       else if ('v'==p.layout.type||'u'==p.layout.type)
-        lp=new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT);
+        lp=new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
       else
-        lp=new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
-      lp.setMargins(0,0,0,0);
+        lp=new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+//     lp.setMargins(0,0,0,0);
       l.setLayoutParams(lp);
       bin= l;
     } else if ('u'==type) {
       ScrollView l=new ScrollView(ppane.pform.activity);
       l.setPadding(0,0,0,0);
       if (null==p.layout)
-        lp=new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT);
+        lp=new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);
       else if ('v'==p.layout.type||'u'==p.layout.type)
-        lp=new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT);
+        lp=new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
       else
-        lp=new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
-      lp.setMargins(0,0,0,0);
+        lp=new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+//      lp.setMargins(0,0,0,0);
       l.setLayoutParams(lp);
 
 // vertical layout frame
       LinearLayout l0=new LinearLayout(ppane.pform.activity);
       l0.setOrientation (LinearLayout.VERTICAL);
       l0.setPadding(0,0,0,0);
-      lp0=new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT);
-      lp0.setMargins(0,0,0,0);
+      lp0=new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+//      lp0.setMargins(0,0,0,0);
       l0.setLayoutParams(lp0);
       l.addView(l0);
 
@@ -87,20 +86,20 @@ class Layout
       HorizontalScrollView l=new HorizontalScrollView(ppane.pform.activity);
       l.setPadding(0,0,0,0);
       if (null==p.layout)
-        lp=new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT);
+        lp=new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);
       else if ('v'==p.layout.type||'u'==p.layout.type)
-        lp=new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
+        lp=new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
       else
-        lp=new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.MATCH_PARENT);
-      lp.setMargins(0,0,0,0);
+        lp=new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.MATCH_PARENT);
+//      lp.setMargins(0,0,0,0);
       l.setLayoutParams(lp);
 
 // horiztonal layout frame
       LinearLayout l0=new LinearLayout(ppane.pform.activity);
       l0.setOrientation (LinearLayout.HORIZONTAL);
       l0.setPadding(0,0,0,0);
-      lp0=new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.MATCH_PARENT);
-      lp0.setMargins(0,0,0,0);
+      lp0=new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.MATCH_PARENT);
+//      lp0.setMargins(0,0,0,0);
       l0.setLayoutParams(lp0);
       l.addView(l0);
 

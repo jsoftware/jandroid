@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -45,6 +46,7 @@ public class Wd
   private Font fontdef;
   private Font FontExtent;
   JIsigraph isigraph;
+  JOpengl opengl;
 
   private Handler systimerHandler;
   private Runnable systimerRunnable;
@@ -91,20 +93,27 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  public int gl2(int[] buf, Object[] res)
+  public int gl2(String type, int[] buf, Object[] res)
   {
     int cnt=buf.length;
     if (cnt<2) return 1;
-    if (2035==buf[1]) {
+    if (!(type.equals("isigraph")||type.equals("isidraw")||type.equals("opengl"))) return 1;
+    if (2345==buf[1]) {
+// glwaitgl
+      return glwaitgl(type);
+    } else if (2346==buf[1]) {
+// glwaitnative
+      return glwaitnative(type);
+    } else if (2035==buf[1]) {
 // glsel
       if (cnt<3) return 1;
-      return glsel(Util.i2s(buf[2]));
+      return glsel(type, Util.i2s(buf[2]));
     } else if (2344==buf[1]) {
 // glsel2
       byte[] textbuf = new byte[cnt-2];
       for (int i=0; i<cnt-2; i++) textbuf[i] = (byte)buf[2+i];
       String g = (new String(textbuf, Charset.forName("UTF-8"))).trim();
-      return glsel(g);
+      return glsel(type, g);
     } else if (2094==buf[1]) {
 // glfontextent
       String textstring = Util.int2String(buf, 2, cnt-2);
@@ -139,26 +148,58 @@ public class Wd
       res[0]=glresult;
       return -1;
     }
-    if (null==JConsoleApp.theWd.isigraph) return 1;
-    return JConsoleApp.theWd.isigraph.glcmds.glcmds(buf, res);
+    if (type.equals("opengl")) {
+      if (null==JConsoleApp.theWd.opengl) return 1;
+      return JConsoleApp.theWd.opengl.glcmds.glcmds(buf, res);
+    } else {
+      if (null==JConsoleApp.theWd.isigraph) return 1;
+      return JConsoleApp.theWd.isigraph.glcmds.glcmds(buf, res);
+    }
   }
 
 // ---------------------------------------------------------------------
-  int glsel(String p)
+  int glwaitgl(String type)
+  {
+    if (null==opengl || !type.equals("opengl")) return 0;
+    opengl.glwaitgl();
+    return 0;
+  }
+
+// ---------------------------------------------------------------------
+  int glwaitnative(String type)
+  {
+    if (null==opengl || !type.equals("opengl")) return 0;
+    opengl.glwaitnative();
+    return 0;
+  }
+
+// ---------------------------------------------------------------------
+  int glsel(String type, String p)
   {
     if (p.isEmpty()) return 1;
     if (0==Forms.size()) return 1;
+    if (!(type.equals("isigraph")||type.equals("isidraw")||type.equals("opengl"))) return 1;
     if (Util.isInteger(p)) {
       long n= Util.c_strtol(p);
       for (Form f : Forms) {
         if (!f.closed) {
           for (Child c : f.children) {
-            if ((c.type.equals("isigraph")||c.type.equals("isidraw")) && n==c.widget.getId()) {
-              this.isigraph=(JIsigraph)c;
-              form=f;
-              form.child=c;
-              Log.d(JConsoleApp.LogTag,"glsel "+form.id+" "+c.id+" "+c.widget.getId());
-              return 0;
+            if (type.equals("opengl")) {
+              if (c.type.equals("opengl") && n==c.widget.getId()) {
+                this.opengl=(JOpengl)c;
+                form=f;
+                form.child=c;
+                Log.d(JConsoleApp.LogTag,"glsel "+form.id+" "+c.id+" "+c.widget.getId());
+                return 0;
+              }
+            } else {
+              if ((c.type.equals("isigraph")||c.type.equals("isidraw")) && n==c.widget.getId()) {
+                this.isigraph=(JIsigraph)c;
+                form=f;
+                form.child=c;
+                Log.d(JConsoleApp.LogTag,"glsel "+form.id+" "+c.id+" "+c.widget.getId());
+                return 0;
+              }
             }
           }
         }
@@ -166,11 +207,20 @@ public class Wd
     } else {
       if ((null!=form) && (!form.closed)) {
         for (Child c : form.children) {
-          if ((c.type.equals("isigraph")||c.type.equals("isidraw")) && c.id.equals(p)) {
-            this.isigraph=(JIsigraph)c;
-            form.child=c;
-            Log.d(JConsoleApp.LogTag,"glsel "+form.id+" "+c.id+" "+c.widget.getId());
-            return 0;
+          if (type.equals("opengl")) {
+            if (c.type.equals("opengl") && c.id.equals(p)) {
+              this.opengl=(JOpengl)c;
+              form.child=c;
+              Log.d(JConsoleApp.LogTag,"glsel "+form.id+" "+c.id+" "+c.widget.getId());
+              return 0;
+            }
+          } else {
+            if ((c.type.equals("isigraph")||c.type.equals("isidraw")) && c.id.equals(p)) {
+              this.isigraph=(JIsigraph)c;
+              form.child=c;
+              Log.d(JConsoleApp.LogTag,"glsel "+form.id+" "+c.id+" "+c.widget.getId());
+              return 0;
+            }
           }
         }
       }
@@ -256,6 +306,8 @@ public class Wd
         wdide();
       else if (c.equals("immexj"))
         wdimmexj();
+      else if (c.startsWith("line"))
+        wdline(c);
       else if (c.startsWith("mb"))
         wdmb();
       else if (c.startsWith("menu"))
@@ -308,11 +360,25 @@ public class Wd
 // ---------------------------------------------------------------------
   private void wdactivity()
   {
+    String bb="default";
+    String fullscreen="no";
     String p=cmd.getparms();
+    String[] opt=Cmd.qsplit(p);
+    String[] n=Util.qsless(p.split(" "),new String[] {""});   //,String::SkipEmptyParts);
+    if (0==n.length) {
+      error("activity requires a locale.");
+      return;
+    } else if (1<n.length) {
+      if (Util.sacontains(opt,"fs")) fullscreen="yes";
+      if (Util.sacontains(opt,"ask")) bb="ask";
+      if (Util.sacontains(opt,"never")) bb="never";
+    }
     Log.d(JConsoleApp.LogTag,"activity "+p);
     Intent intent = new Intent();
     intent.setClass(context, JWdActivity.class);
-    intent.putExtra("jlocale", p);
+    intent.putExtra("jlocale", n[0]);
+    intent.putExtra("fullscreen", fullscreen);
+    intent.putExtra("backbuttonAct", bb);
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
     Log.d(JConsoleApp.LogTag,"startActivity");
     context.startActivity(intent);
@@ -520,6 +586,15 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
+  void wdline(String c)
+  {
+    String p=cmd.getparms();
+    if (noform()) return;
+    if (!form.pane.line(c,p))
+      error("unrecognized command: " + c + " " + p);
+  }
+
+// ---------------------------------------------------------------------
   private void wdmb()
   {
     String c=cmd.getid();
@@ -588,8 +663,14 @@ public class Wd
 // ---------------------------------------------------------------------
   private void wdopenj()
   {
-    String p=cmd.getparms();
-//  openj(Util.c_str(p));
+    File f = new File(Util.remquotes(cmd.getparms()));
+    Intent intent = new Intent();
+    intent.setClass(context, com.jsoftware.j.android.EditActivity.class);
+    intent.setData(Uri.parse("file://" + f.getAbsolutePath()));
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+//      theApp.setCurrentDirectory(f.getParentFile());
+
+    context.startActivity(intent);
   }
 
 // ---------------------------------------------------------------------
@@ -989,6 +1070,7 @@ public class Wd
     if (null!=FontExtent) FontExtent=null;
     FontExtent=null;
     isigraph=null;
+    opengl=null;
     lasterror="";
     result=null;
     verbose=0;

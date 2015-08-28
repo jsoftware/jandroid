@@ -5,15 +5,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 
 import com.jsoftware.j.JInterface;
 
@@ -180,10 +183,10 @@ public class JConsoleApp extends Application
     context.startActivity(intent);
   }
 
-  protected void addIntent(String path, Intent intent)
+  public void addIntent(String path, Intent intent)
   {
     if (!JActivity.JANDROID.equals(path)) {
-      path = new File(path).getName();
+//      path = new File(path).getName();
     } else {
 
       intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY|Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
@@ -195,8 +198,9 @@ public class JConsoleApp extends Application
     intentMap.put(path, intent);
   }
 
-  protected void removeFile(String path)
+  public void removeFile(String path)
   {
+    Log.d("jandroid", "removeFile "+path);
     intentMap.remove(path);
   }
 
@@ -345,7 +349,9 @@ public class JConsoleApp extends Application
   protected String[] getWindowsAsArray()
   {
     Set<String> k = intentMap.keySet();
-    return k.toArray(new String[k.size()]);
+    String[] ss = k.toArray(new String[k.size()]);
+    Arrays.sort(ss);
+    return ss;
   }
 
   public void callWithHistory(String line)
@@ -389,7 +395,7 @@ public class JConsoleApp extends Application
     intent.setClass(getApplicationContext(), EditActivity.class);
     intent.setData(Uri.fromFile(newf));
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-    intentMap.put(newf.getName(), intent);
+    intentMap.put(newf.getAbsolutePath(), intent);
     context.startActivity(intent);
   }
 
@@ -766,9 +772,9 @@ public class JConsoleApp extends Application
     return f;
   }
 
-  public int gl2(int[] buf, Object[] r)
+  public int gl2(String type, int[] buf, Object[] r)
   {
-    return theWd.gl2(buf, r);
+    return theWd.gl2(type, buf, r);
   }
 
   public int wd(String s, Object[] r)

@@ -14,6 +14,7 @@ import android.graphics.Region;
 import android.graphics.Typeface;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.View;
 import com.jsoftware.j.android.JConsoleApp;
 import com.jsoftware.jn.base.Util;
 import com.jsoftware.jn.base.Utils;
@@ -26,7 +27,8 @@ import java.nio.charset.Charset;
 public class Glcmds
 {
 
-  JView view;
+  View view;
+  String type;
 
   static Context context;
   static Font FontExtent;
@@ -34,6 +36,7 @@ public class Glcmds
 
   Font font;
   Canvas canvas;
+  Bitmap bitmap;
   Paint paint;
   Path path;
   final int RGBSEQ=1;
@@ -55,9 +58,11 @@ public class Glcmds
   float[] tarc = new float [8];
 
 
-  public Glcmds(JView view)
+  public Glcmds(View view, String type)
   {
     this.view=view;
+    this.type=type;
+    this.bitmap=bitmap;
     path=new Path();
     paint=new Paint();
     paint.setAntiAlias(true);
@@ -239,7 +244,7 @@ public class Glcmds
       case 2007 : // glclear
 
         FontExtent=null;
-        errcnt=glclear2(true);
+        errcnt=glclear2(false);
         break;
 
       case 2078 : // glclip
@@ -363,20 +368,20 @@ public class Glcmds
         break;
 
       case 2020 :    // glpaint
-        if (view.child.type.equals("isigraph")) {
+        if (type.equals("isigraph")||type.equals("opengl")) {
           if (null==canvas)
-            view.child.widget.invalidate();
-        } else if (view.child.type.equals("isidraw")) {
-          view.child.widget.invalidate();
+            view.invalidate();
+        } else if (type.equals("isidraw")) {
+          view.invalidate();
         }
         break;
 
       case 2021 :    // glpaintx
-        if (view.child.type.equals("isigraph")) {
+        if (type.equals("isigraph")||type.equals("opengl")) {
           if (null==canvas)
-            view.child.widget.invalidate();
-        } else if (view.child.type.equals("isidraw")) {
-          view.child.widget.draw(canvas);
+            view.invalidate();
+        } else if (type.equals("isidraw")) {
+          view.draw(canvas);
         }
         break;
 
@@ -510,8 +515,8 @@ public class Glcmds
         h=buf[p+5];
         result=new int[w*h];
 // only works for isidraw; return all zero for isigraph
-        if (view.child.type.equals("isidraw")) {
-          view.child.bitmap.getPixels(result, 0, w, a, b, w, h);
+        if (type.equals("isidraw")) {
+          bitmap.getPixels(result, 0, w, a, b, w, h);
         }
         if (0==RGBSEQ) fliprgb (result, w*h);
         errcnt=-1;
@@ -540,7 +545,7 @@ public class Glcmds
         break;
 
       case 2095 :    // glqtype
-        result=new int[] {view.child.type.equals("isidraw")?1:0};
+        result=new int[] {(type.equals("opengl"))?2:(type.equals("isidraw"))?1:0};
         errcnt=-1;
         break;
 

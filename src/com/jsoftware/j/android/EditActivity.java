@@ -159,7 +159,9 @@ public class EditActivity extends AbstractActivity
   {
     capture();
     super.onDestroy();
+    Log.d("jandroid", "editactivity destroy");
     if(isFinishing()) {
+      Log.d("jandroid", "editactivity destroy isFinishing");
       theApp.removeFile(file.getAbsolutePath());
     }
   }
@@ -267,5 +269,10 @@ public class EditActivity extends AbstractActivity
     }
   }
 
+  @Override
+  public void onBackPressed()
+  {
+    moveTaskToBack(true);
+  }
 
 }

@@ -1,9 +1,12 @@
 package com.jsoftware.jn.wd;
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import com.jsoftware.j.android.JConsoleApp;
@@ -37,7 +40,7 @@ class Pane extends LinearLayout
   {
     super(f.activity);
     setOrientation(LinearLayout.VERTICAL);
-    LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT);
+    ViewGroup.LayoutParams lp=new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT);
     setLayoutParams(lp);
     pform=f;
     layouts=new ArrayList<Layout >();
@@ -79,8 +82,8 @@ class Pane extends LinearLayout
 //     child=(Child ) new IsiGrid(n,p,pform,this);
     else if (c.equals("listbox"))
       child=(Child ) new JListView(n,p,pform,this);
-//   else if (c.equals("opengl"))
-//     child=(Child ) new Opengl(n,p,pform,this);
+    else if (c.equals("opengl"))
+      child=(Child ) new JOpengl(n,p,pform,this);
     else if (c.equals("progressbar"))
       child=(Child ) new JProgressBar(n,p,pform,this);
     else if (c.equals("radiobutton"))
@@ -383,6 +386,34 @@ class Pane extends LinearLayout
 //   } else
 //     JConsoleApp.theWd.error("bad grid command: " + p + " " + v);
   }
+
+// ---------------------------------------------------------------------
+  @SuppressWarnings( "deprecation" )
+  boolean line(String p, String s)
+  {
+    String cmd=p;
+    if (!(cmd.equals("line") || cmd.equals("lineh") || cmd.equals("linev")))
+      return false;
+    View f = new View(pform.activity);
+    ViewGroup.LayoutParams lp;
+    boolean vertical = (cmd.equals("linev")) ? true : (cmd.equals("lineh")) ? false : (layout.type=='h');
+    int wh = (int)(0.5f+JConsoleApp.theWd.dmdensity*1);
+    if (vertical)
+      lp=new ViewGroup.LayoutParams(wh, LayoutParams.MATCH_PARENT);
+    else
+      lp=new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, wh);
+    f.setLayoutParams(lp);
+    TypedArray array = pform.activity.getTheme().obtainStyledAttributes(new int[] {android.R.attr.listDivider});
+    Drawable draw = array.getDrawable(0);
+    array.recycle();
+    if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.JELLY_BEAN)
+      f.setBackground(draw);
+    else
+      f.setBackgroundDrawable(draw);
+    layout.addWidget(f);
+    return true;
+  }
+
 
 // ---------------------------------------------------------------------
   void setstretch(Child cc, String factor)

@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 import android.content.Context;
 import android.text.Editable;
@@ -81,7 +82,7 @@ public class FileEdit extends EditText
         bb.write(buf, 0, n);
       }
       in.close();
-      setText(bb.toString());
+      setText(new String(bb.toByteArray(),Charset.forName("UTF-8")));
     }
     if(getText().length() > 0) {
       this.setSelection(1);
@@ -102,7 +103,7 @@ public class FileEdit extends EditText
   {
     if(textChanged) {
       OutputStream out = new FileOutputStream(file);
-      out.write(getText().toString().getBytes());
+      out.write(getText().toString().getBytes(Charset.forName("UTF-8")));
       out.close();
       textChanged = false;
       editActivity.setFile(file);

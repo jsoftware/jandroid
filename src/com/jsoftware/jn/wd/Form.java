@@ -9,11 +9,11 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import com.jsoftware.j.android.JConsoleApp;
 import com.jsoftware.jn.base.Util;
 import com.jsoftware.jn.base.Utils;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +23,7 @@ class Form extends LinearLayout
 {
   com.jsoftware.j.JInterface jInterface = null;
   JMb dialog;
+  boolean oldform=false;
   boolean closed;
   private boolean shown;
   int seq;
@@ -33,6 +34,7 @@ class Form extends LinearLayout
   private String sysdata="";
   private String sysmodifiers="";
   String dialogchild="dialog";
+  ArrayList<File >dialogfile;
 
   Child child;
   Child evtchild;
@@ -66,6 +68,7 @@ class Form extends LinearLayout
     seq=JConsoleApp.theWd.FormSeq++;
     panes=new ArrayList<Pane >();
     children=new ArrayList<Child>();
+    dialogfile=new ArrayList<File>();
     binx=new HashMap<String, Integer>();
     dialog=new JMb(this);
 
@@ -128,6 +131,47 @@ class Form extends LinearLayout
 //   state_quit();
 //    QApplication::quit();
     }
+  }
+
+// ---------------------------------------------------------------------
+  void onStart()
+  {
+  }
+
+// ---------------------------------------------------------------------
+  void onPause()
+  {
+    for (Child c : children) {
+      if (c.type.equals("opengl"))
+        ((JOpengl)c).onPause();
+    }
+  }
+
+// ---------------------------------------------------------------------
+  void onResume()
+  {
+    for (Child c : children) {
+      if (c.type.equals("isigraph")||c.type.equals("isidraw"))
+        ((JIsigraph)c).onResume();
+      else if (c.type.equals("opengl"))
+        ((JOpengl)c).onResume();
+    }
+  }
+
+// ---------------------------------------------------------------------
+  void onStop()
+  {
+  }
+
+// ---------------------------------------------------------------------
+  void onRestart()
+  {
+  }
+
+// ---------------------------------------------------------------------
+  void onDestroy()
+  {
+    dispose();
   }
 
 // ---------------------------------------------------------------------
@@ -569,6 +613,22 @@ class Form extends LinearLayout
       } else if (event.equals("dialogneutral")) {
         fakeid=dialogchild;
         event="neutral";
+      } else if (event.equals("dialogdir")) {
+        fakeid=dialogchild;
+        event="dir";
+        dialogsysdata(false);
+      } else if (event.equals("dialogopen")) {
+        fakeid=dialogchild;
+        event="open";
+        dialogsysdata(true);
+      } else if (event.equals("dialogopen1")) {
+        fakeid=dialogchild;
+        event="open1";
+        dialogsysdata(false);
+      } else if (event.equals("dialogsave")) {
+        fakeid=dialogchild;
+        event="save";
+        dialogsysdata(false);
       } else if (event.equals("fkey")) {
         int k=e.getKeyCode();
         int meta=e.getMetaState();
@@ -586,6 +646,7 @@ class Form extends LinearLayout
         }
       }
     }
+    dialogfile.clear();
     String fc=getfocus();
     if (!fc.isEmpty()) lastfocus=fc;
     boolean jecallback=false;
@@ -594,6 +655,23 @@ class Form extends LinearLayout
       jInterface.callJ("wdhandlerx_ja_ '" + loc + "'");
     } else
       jInterface.callJ("wdhandler_" + loc + "_$0");
+  }
+
+// ---------------------------------------------------------------------
+  private void dialogsysdata(boolean multiple)
+  {
+
+    if (!multiple) {
+      if (0<dialogfile.size())
+        sysdata=dialogfile.get(0).getAbsolutePath();
+      else
+        sysdata="";;
+    } else {
+      StringBuilder r1a=new StringBuilder();
+      for (File f : dialogfile)
+        r1a.append(f.getAbsolutePath()+"\012");
+      sysdata=r1a.toString();
+    }
   }
 
 // ---------------------------------------------------------------------
@@ -631,7 +709,6 @@ class Form extends LinearLayout
       r.write(Util.spair("sysfocus",getfocus()));
       r.write(Util.spair("sysmodifiers",sysmodifiers));
       r.write(Util.spair("sysdata",sysdata));
-
       for (int i=0; i<children.size(); i++)
         r.write(children.get(i).state());
     } catch (IOException exc) {

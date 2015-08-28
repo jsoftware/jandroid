@@ -93,10 +93,10 @@ class JRadioButton extends Child
       w.setText(Util.remquotes(v));
     else if (p.equals("icon")) {
       iconFile=Util.remquotes(v);
-//       if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.JELLY_BEAN)
-//         w.setBackground(Drawable.createFromPath(iconFile));
-//       else
-      w.setBackgroundDrawable(Drawable.createFromPath(iconFile));
+      if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.JELLY_BEAN)
+        w.setBackground(Drawable.createFromPath(iconFile));
+      else
+        w.setBackgroundDrawable(Drawable.createFromPath(iconFile));
     } else if (p.equals("value"))
       w.setChecked(v.equals("1"));
     else super.set(p,v);

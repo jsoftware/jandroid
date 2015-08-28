@@ -14,7 +14,7 @@ class JIsigraph extends Child
 
   Glcmds glcmds;
 
-  Bitmap bitmap;
+  Bitmap bitmap=null;
   private Canvas canvas;
 // sysdata
   private int cx,cy,andw,andh,button1,button2,control,shift,button3;
@@ -32,13 +32,14 @@ class JIsigraph extends Child
     childStyle(opt);
 
     w.setFocusable(true);
-    glcmds=new Glcmds(w);
+    glcmds=new Glcmds(widget, type);
 
     if (type.equals("isidraw")) {
       bitmap=Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
       canvas=new Canvas(bitmap);
       canvas.drawARGB(255,255,255,255);
       glcmds.canvas=canvas;
+      glcmds.bitmap=bitmap;
     }
     glcmds.glclear2(false);
     JConsoleApp.theWd.isigraph = this;
@@ -58,6 +59,18 @@ class JIsigraph extends Child
   {
     if ((null!=bitmap) && !bitmap.isRecycled()) bitmap.recycle();
     if (this==JConsoleApp.theWd.isigraph) JConsoleApp.theWd.isigraph=null;
+  }
+
+// ---------------------------------------------------------------------
+  void onPause ()
+  {
+    ((JView) widget).onPause();
+  }
+
+// ---------------------------------------------------------------------
+  void onResume ()
+  {
+    ((JView) widget).onResume();
   }
 
 // ---------------------------------------------------------------------
@@ -92,6 +105,7 @@ class JIsigraph extends Child
       }
     }
     glcmds.canvas=canvas;
+    glcmds.bitmap=bitmap;
     event="resize";
     pform.signalevent(this);
   }

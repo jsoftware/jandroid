@@ -4,7 +4,6 @@ import android.os.Build;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import com.jsoftware.j.android.JConsoleApp;
 import com.jsoftware.jn.base.Util;
@@ -48,6 +47,16 @@ class Child
 
 // ---------------------------------------------------------------------
   void dispose()
+  {
+  }
+
+// ---------------------------------------------------------------------
+  void onPause()
+  {
+  }
+
+// ---------------------------------------------------------------------
+  void onResume()
   {
   }
 

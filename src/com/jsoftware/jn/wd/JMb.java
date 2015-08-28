@@ -9,6 +9,7 @@ import android.widget.Toast;
 import com.jsoftware.j.android.JConsoleApp;
 import com.jsoftware.jn.base.Util;
 import com.jsoftware.jn.base.Utils;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -70,14 +71,14 @@ class JMb
       return mbtoast();
 //   if (type.equals("color"))
 //     return mbcolor();
-//   if (type.equals("dir"))
-//     return mbdir();
-//   if (type.equals("open"))
-//     return mbopen();
-//   if (type.equals("open1"))
-//     return mbopen1();
-//   if (type.equals("save"))
-//     return mbsave();
+    if (type.equals("dir"))
+      return filechooser("dir");
+//    if (type.equals("open"))
+//      return filechooser("open");
+    if (type.equals("open1"))
+      return filechooser("open1");
+//    if (type.equals("save"))
+//      return filechooser("save");
     JConsoleApp.theWd.error("invalid mb type: " + type);
     return "";
   }
@@ -171,80 +172,47 @@ class JMb
 //   if (!c.isValid()) return "";
 //   return Util.i2s(c.red() + " " + Util.i2s(c.green()) + " " + Util.i2s(c.blue()));
 // }
-//
-// // ---------------------------------------------------------------------
-// private String mbdir()
-// {
-//   String title,dir,fl;
-//   if (arg.length!=2) {
-//     JConsoleApp.theWd.error("dir needs title and directory");
-//     return "";
-//   }
-//   title=arg.at(0);
-//   dir=arg.at(1);
-//   fl=QFileDialog::getExistingDirectory(
-//        title,dir);
-//   return fl;
-// }
-//
-// // ---------------------------------------------------------------------
-// private String mbopen()
-// {
-//   String title,dir,filter;
-//   String[] fl;
-//   if (arg.length<2) {
-//     JConsoleApp.theWd.error("open needs title, directory, [filters]");
-//     return "";
-//   }
-//   title=arg.at(0);
-//   dir=arg.at(1);
-//   if (arg.length==3)
-//     filter=fixsep(arg.at(2));
-//   fl=QFileDialog::getOpenFileNames(
-//        title,dir,filter);
-//   if (fl.isEmpty())
-//     return "";
-//   else return fl.join("\012") + "\012";
-// }
-//
-// // ---------------------------------------------------------------------
-// private String mbopen1()
-// {
-//   String title,dir,filter,fl;
-//   if (arg.legnth<2) {
-//     JConsoleApp.theWd.error("open1 needs title, directory, [filters]");
-//     return "";
-//   }
-//   title=arg.at(0);
-//   dir=arg.at(1);
-//   if (arg.length==3)
-//     filter=fixsep(arg.at(2));
-//   fl=QFileDialog::getOpenFileName(
-//        title,dir,filter);
-//   return fl;
-// }
-//
-// // ---------------------------------------------------------------------
-// private String mbsave()
-// {
-//   String title,dir,filter,fl;
-//   if (arg.length<2) {
-//     JConsoleApp.theWd.error("save needs title, directory, [filters]");
-//     return "";
-//   }
-//   title=arg.at(0);
-//   dir=arg.at(1);
-//   if (arg.length==3)
-//     filter=fixsep(arg.at(2));
-//   fl=QFileDialog::getSaveFileName(
-//        title,dir,filter);
-//   return fl;
-// }
-//
+
+// ---------------------------------------------------------------------
+  private String filechooser(final String type)
+  {
+    String title=null,dir=null,filter=null;
+    childid="";
+    if (type.equals("dir")) {
+      if (arg.length<3) {
+        JConsoleApp.theWd.error(type+" needs callback, title, directory");
+        return "";
+      }
+    } else {
+      if (arg.length<3) {
+        JConsoleApp.theWd.error(type+" needs callback, title, directory, [filters]");
+        return "";
+      }
+    }
+    childid=arg[0];
+    title=arg[1];
+    dir=arg[2];
+    if ((!type.equals("dir")) && arg.length==4)
+      filter=fixsep(arg[3]);
+    form.dialogfile.clear();
+    FileChooser fl = new FileChooser(activity, type, title, dir, filter);
+    fl.setFileListener(new FileChooser.FileSelectedListener() {
+      @Override public void fileSelected(final File file) {
+        // callback
+        form.dialogchild=JMb.this.childid;
+        form.dialogfile.add(file);
+        form.event="dialog"+type;
+        form.signalevent(null,null);
+      }
+    });
+    fl.showDialog();
+    return "";
+  }
+
 // ---------------------------------------------------------------------
   private String fixsep(String s)
   {
-    return s.replaceAll("|",";;");
+    return s;
   }
 
 // ---------------------------------------------------------------------

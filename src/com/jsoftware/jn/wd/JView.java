@@ -22,6 +22,18 @@ class JView extends View
       setLayerType(View.LAYER_TYPE_SOFTWARE,null);
   }
 // ---------------------------------------------------------------------
+  public void onPause()
+  {
+  }
+
+// ---------------------------------------------------------------------
+  public void onResume()
+  {
+    invalidate();
+  }
+
+
+// ---------------------------------------------------------------------
   @Override
   protected void onDraw (Canvas canvas)
   {
