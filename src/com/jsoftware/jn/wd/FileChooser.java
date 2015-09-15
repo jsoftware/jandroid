@@ -103,7 +103,7 @@ public class FileChooser
         // Show new folder name input dialog
         new AlertDialog.Builder(FileChooser.this.activity).
         setTitle("New folder name").
-        setView(input).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        setView(input).setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
           public void onClick(DialogInterface dialog, int whichButton) {
             Editable newDir = input.getText();
             String newDirName = newDir.toString();
@@ -117,7 +117,7 @@ public class FileChooser
                 "' folder", Toast.LENGTH_SHORT).show();
             }
           }
-        }).setNegativeButton("Cancel", null).show();
+        }).setNegativeButton(android.R.string.no, null).show();
       }
     });
 

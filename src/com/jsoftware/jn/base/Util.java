@@ -59,7 +59,7 @@ public class Util
     AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
     builder.setTitle(t);
     builder.setMessage(s);
-    builder.setPositiveButton("OK", null);
+    builder.setPositiveButton(android.R.string.yes, null);
     AlertDialog dialog = builder.show();
   }
 

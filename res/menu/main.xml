@@ -6,7 +6,7 @@
             <item android:id="@+id/open" android:title="Open..." android:orderInCategory="2"/>
             <item android:id="@+id/save" android:title="Save" android:orderInCategory="3"/>
             <item android:id="@+id/saveas" android:title="Save As..." android:orderInCategory="4"/>
-       		<item android:id="@+id/clear" android:title="Clear" android:orderInCategory="6"/>
+       		  <item android:id="@+id/clear" android:title="Clear" android:orderInCategory="6"/>
             <item android:id="@+id/exit" android:title="Exit" android:orderInCategory="8"/>
         </menu>
     </item>
@@ -21,11 +21,15 @@
     </item>
     <item android:id="@+id/window" android:title="Window"  android:menuCategory="container" android:orderInCategory="3">
     </item>
-    <item android:id="@+id/pacman" android:title="Package Manager"  android:menuCategory="container" android:orderInCategory="4">
+    <item android:id="@+id/tools" android:title="Tools" android:menuCategory="container" android:orderInCategory="4">
+        <menu>
+            <item android:id="@+id/pacman" android:title="Package Manager"  android:orderInCategory="1"/>
+            <item android:id="@+id/checknewver" android:title="Check New Version"  android:orderInCategory="2"/>
+       </menu>
     </item>
-    <item android:id="@+id/log" android:title="Input Log"  android:menuCategory="container" android:orderInCategory="4">
+    <item android:id="@+id/log" android:title="Input Log"  android:menuCategory="container" android:orderInCategory="5">
     </item>
-    <item android:id="@+id/help" android:title="Help"  android:menuCategory="container" android:orderInCategory="5">
+    <item android:id="@+id/help" android:title="Help"  android:menuCategory="container" android:orderInCategory="6">
         <menu>
             <item android:id="@+id/vocab" android:title="Help"  android:orderInCategory="1"/>
             <item android:id="@+id/learning" android:title="Learning J"  android:orderInCategory="2"/>

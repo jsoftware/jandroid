@@ -12,6 +12,7 @@ class JView extends View
 {
   JIsigraph child;
   private int count;
+  private boolean mPause=false;
 
 // ---------------------------------------------------------------------
   JView(JIsigraph child, Activity activity)
@@ -24,12 +25,13 @@ class JView extends View
 // ---------------------------------------------------------------------
   public void onPause()
   {
+    mPause=true;
   }
 
 // ---------------------------------------------------------------------
   public void onResume()
   {
-    invalidate();
+    mPause=false;
   }
 
 
@@ -38,6 +40,7 @@ class JView extends View
   protected void onDraw (Canvas canvas)
   {
     Log.d(JConsoleApp.LogTag,"JView onDraw "+child.id+" "+ count++);
+    if (mPause) return;
     child.onDraw (canvas);
   }
 

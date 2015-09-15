@@ -2,6 +2,9 @@ package com.jsoftware.jn.wd;
 
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebStorage;
 import android.webkit.WebView;
 import com.jsoftware.j.android.JConsoleApp;
 import com.jsoftware.jn.base.Util;
@@ -24,6 +27,20 @@ class JWebView extends Child
     widget=(View ) w;
     String qn=n;
     baseUrl = "dummy.html";
+    w.setWebChromeClient(new WebChromeClient() {
+      @Override
+      public void onExceededDatabaseQuota(String url, String
+                                          databaseIdentifier, long currentQuota, long estimatedSize,
+                                          long totalUsedQuota, WebStorage.QuotaUpdater quotaUpdater) {
+        quotaUpdater.updateQuota(estimatedSize * 2); // try to keep quota size as big as possible else database will not get created in HTML 5 app
+      }
+    });
+
+    WebSettings settings = w.getSettings();
+    settings.setJavaScriptEnabled(true);
+    settings.setJavaScriptCanOpenWindowsAutomatically(true);
+    settings.setDatabaseEnabled(true);
+
   }
 
 // ---------------------------------------------------------------------

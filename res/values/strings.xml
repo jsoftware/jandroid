@@ -20,7 +20,5 @@
     <string name="runlabsadvance">labs_run_ja_ 0</string>
     <string name="rundemos">demoja_ja_$0</string>
     <string name="runshowcase">demowd_ja_$0</string>
-
-    <string name="version">1.0.4</string>
         
 </resources>

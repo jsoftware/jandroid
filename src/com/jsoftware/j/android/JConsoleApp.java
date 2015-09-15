@@ -27,6 +27,8 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -54,6 +56,8 @@ public class JConsoleApp extends Application
   public static Tedit tedit = null;
   public static JConsoleApp theApp = null;
   public static Wd theWd = null;
+  public String mVersionName;
+  public int mVersionCode;
 
   protected Map<String, Intent> intentMap = new HashMap<String, Intent>();
   protected Map<String, EditorData> editorMap = new HashMap<String, EditorData>();
@@ -105,6 +109,15 @@ public class JConsoleApp extends Application
     super.onCreate();
     JConsoleApp.theApp = (JConsoleApp) this;
     JConsoleApp.theWd = new Wd();
+    try {
+      PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+      mVersionName = pInfo.versionName;
+      mVersionCode = pInfo.versionCode;
+    } catch (NameNotFoundException e) {
+      Log.d(LogTag, "Error: NameNotFoundException ");
+      mVersionName = "";
+      mVersionCode = -1;
+    }
   }
 
   public void setup(JActivity activity, Console console)
@@ -413,7 +426,7 @@ public class JConsoleApp extends Application
     if (f.exists()) {
       AlertDialog.Builder builder = new AlertDialog.Builder(activity);
       builder.setMessage("Do you want to overwrite " + f.getName() + "?");
-      builder.setPositiveButton("OK",
+      builder.setPositiveButton(android.R.string.yes,
       new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
           try {
@@ -431,7 +444,7 @@ public class JConsoleApp extends Application
           }
         }
       });
-      builder.setNegativeButton("Cancel",
+      builder.setNegativeButton(android.R.string.no,
       new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
           dialog.cancel();
@@ -447,7 +460,7 @@ public class JConsoleApp extends Application
   {
     AlertDialog.Builder builder = new AlertDialog.Builder(activity);
     builder.setMessage("Save " + fe.getName() + "?")
-    .setPositiveButton("Yes",
+    .setPositiveButton(android.R.string.yes,
     new DialogInterface.OnClickListener() {
       public void onClick(DialogInterface dialog, int id) {
         try {
@@ -552,7 +565,7 @@ public class JConsoleApp extends Application
       BufferedReader reader = new BufferedReader(new InputStreamReader(in));
       String line = reader.readLine();
       reader.close();
-      String version = getResources().getString(R.string.version);
+      String version = mVersionName;
       if(line!=null && line.equals(version)) {
         return true;
       }

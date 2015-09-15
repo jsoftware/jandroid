@@ -80,13 +80,13 @@ public class JActivity extends AbstractActivity implements ExecutionListener
     AlertDialog.Builder builder = new AlertDialog.Builder(this);
     builder.setMessage("Are you sure you want to exit J?")
     .setCancelable(false)
-    .setPositiveButton("Yes",
+    .setPositiveButton(android.R.string.yes,
     new DialogInterface.OnClickListener() {
       public void onClick(DialogInterface dialog, int id) {
         quit();
       }
     })
-    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
       public void onClick(DialogInterface dialog, int id) {
         dialog.cancel();
       }

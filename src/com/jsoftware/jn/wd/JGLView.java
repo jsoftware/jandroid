@@ -35,6 +35,7 @@ class JGLView extends SurfaceView implements SurfaceHolder.Callback
   private EglHelper mEglHelper;
 
   private SurfaceHolder mHolder;
+  private boolean mPause=false;
 
 // ---------------------------------------------------------------------
   JGLView (JOpengl pchild, Context context, int[] version)
@@ -90,6 +91,7 @@ class JGLView extends SurfaceView implements SurfaceHolder.Callback
   protected void onDraw(Canvas canvas)
   {
     Log.d(JConsoleApp.LogTag,"JGLView onDraw "+pchild.id);
+    if (mPause) return;
     mEglHelper.makecurrent();
     pchild.onDraw(canvas);
     swap();
@@ -128,8 +130,7 @@ class JGLView extends SurfaceView implements SurfaceHolder.Callback
    */
   public void onPause()
   {
-    if (null!=mEglHelper)
-      mEglHelper.finish();
+    mPause=true;
   }
 
 // ---------------------------------------------------------------------
@@ -138,8 +139,7 @@ class JGLView extends SurfaceView implements SurfaceHolder.Callback
    */
   public void onResume()
   {
-    if (null!=mEglHelper)
-      mEglHelper.start();
+    mPause=false;
   }
 
 

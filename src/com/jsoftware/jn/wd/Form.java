@@ -144,6 +144,8 @@ class Form extends LinearLayout
     for (Child c : children) {
       if (c.type.equals("opengl"))
         ((JOpengl)c).onPause();
+      else if (c.type.equals("isidraw")||c.type.equals("isigraph"))
+        ((JIsigraph)c).onPause();
     }
   }
 

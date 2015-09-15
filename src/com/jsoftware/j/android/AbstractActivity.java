@@ -1,19 +1,11 @@
 package com.jsoftware.j.android;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import com.jsoftware.j.JInterface;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.Editable;
@@ -31,6 +23,24 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.jsoftware.j.JInterface;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.lang.NumberFormatException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 
 public abstract class AbstractActivity extends Activity
 {
@@ -50,7 +60,7 @@ public abstract class AbstractActivity extends Activity
   {
     AlertDialog.Builder builder = new AlertDialog.Builder(this);
     builder.setMessage(message);
-    builder.setPositiveButton("OK", new AlertDialog.OnClickListener() {
+    builder.setPositiveButton(android.R.string.yes, new AlertDialog.OnClickListener() {
       public void onClick(DialogInterface dialog, int which) {
         dialog.dismiss();
       }
@@ -109,6 +119,9 @@ public abstract class AbstractActivity extends Activity
       break;
     case R.id.upgrade:
       updateJ();
+      break;
+    case R.id.checknewver:
+      new GetHttpTask().execute("http://www.jsoftware.com/download/j804/install/AndroidManifest.xml");
       break;
     default:
       result = false;
@@ -576,4 +589,89 @@ public abstract class AbstractActivity extends Activity
     String[] fl = filterFilelist(dir, files,nfiles);
     return new ArrayAdapter<String>(this,R.layout.list_item, fl);
   }
+
+  class GetHttpTask extends AsyncTask<String, String, String>
+  {
+
+    @Override
+    protected String doInBackground(String... url)
+    {
+      // constants
+      int timeoutSocket = 5000;
+      int timeoutConnection = 5000;
+
+      HttpParams httpParameters = new BasicHttpParams();
+      HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
+      HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
+      HttpClient client = new DefaultHttpClient(httpParameters);
+
+      HttpGet httpget = new HttpGet(url[0]);
+
+      try {
+        HttpResponse getResponse = client.execute(httpget);
+        final int statusCode = getResponse.getStatusLine().getStatusCode();
+
+        if(statusCode != 200) {
+          Log.d(JConsoleApp.LogTag, "Download Error: " + statusCode + "| for URL: " + url);
+          return null;
+        }
+
+        String line = "";
+        StringBuilder total = new StringBuilder();
+        HttpEntity getResponseEntity = getResponse.getEntity();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(getResponseEntity.getContent()));
+        while((line = reader.readLine()) != null) {
+          total.append(line);
+        }
+
+        line = total.toString();
+        return line;
+      } catch (Exception e) {
+        Log.d(JConsoleApp.LogTag, "Download Exception : " + e.toString());
+      }
+      return null;
+    }
+
+    @Override
+    protected void onPostExecute(String result)
+    {
+      if (null==result) return;
+      Log.d(JConsoleApp.LogTag, result);
+      int p1,p2,p3;
+      if (-1!=(p1=result.indexOf("android:versionCode"))) {
+        if (-1!=(p2=result.indexOf("\"",p1+19+1))) {
+          if (-1!=(p3=result.indexOf("\"",p2+1))) {
+            int ver=-1;
+            try {
+              ver=Integer.valueOf(result.substring(p2+1,p3));
+            } catch (NumberFormatException e) {
+            }
+            Log.d(JConsoleApp.LogTag,"new version: "+ver);
+            if (ver>theApp.mVersionCode) {
+              AlertDialog.Builder builder = new AlertDialog.Builder(AbstractActivity.this);
+              builder.setMessage("There is newer version of this application available.\n\nDo you want to upgrade now?");
+              builder.setPositiveButton(android.R.string.yes, new AlertDialog.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                  dialog.dismiss();
+                  Intent myIntent = new Intent(Intent.ACTION_VIEW,
+                                               Uri.parse("http://www.jsoftware.com/download/j804/install/jandroid.apk"));
+                  startActivity(myIntent);
+                }
+              });
+              builder.setNegativeButton(android.R.string.no, new AlertDialog.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                  dialog.dismiss();
+                }
+              });
+              builder.show();
+            } else
+              Toast.makeText(AbstractActivity.this, "Aready up to date", Toast.LENGTH_SHORT).show();
+          }
+        }
+      }
+    }
+  }
 }
+
+
+
