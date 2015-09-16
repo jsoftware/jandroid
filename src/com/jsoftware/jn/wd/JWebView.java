@@ -1,11 +1,11 @@
 package com.jsoftware.jn.wd;
 
+import android.net.Uri;
 import android.util.Log;
 import android.view.View;
-import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
-import android.webkit.WebStorage;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import com.jsoftware.j.android.JConsoleApp;
 import com.jsoftware.jn.base.Util;
 import com.jsoftware.jn.base.Utils;
@@ -27,19 +27,11 @@ class JWebView extends Child
     widget=(View ) w;
     String qn=n;
     baseUrl = "dummy.html";
-    w.setWebChromeClient(new WebChromeClient() {
-      @Override
-      public void onExceededDatabaseQuota(String url, String
-                                          databaseIdentifier, long currentQuota, long estimatedSize,
-                                          long totalUsedQuota, WebStorage.QuotaUpdater quotaUpdater) {
-        quotaUpdater.updateQuota(estimatedSize * 2); // try to keep quota size as big as possible else database will not get created in HTML 5 app
-      }
-    });
+    w.setWebViewClient(new JWebViewClient());
 
     WebSettings settings = w.getSettings();
     settings.setJavaScriptEnabled(true);
     settings.setJavaScriptCanOpenWindowsAutomatically(true);
-    settings.setDatabaseEnabled(true);
 
   }
 
@@ -78,5 +70,18 @@ class JWebView extends Child
       Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
     }
     return r.toByteArray();
+  }
+
+  private class JWebViewClient extends WebViewClient
+  {
+    @Override
+    public boolean shouldOverrideUrlLoading(WebView view, String url)
+    {
+      if (url.startsWith("file//:")) {
+        // load local pages
+        return false;
+      }
+       return super.shouldOverrideUrlLoading(view,url);
+    }
   }
 }
