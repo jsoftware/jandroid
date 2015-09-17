@@ -78,20 +78,8 @@ class Form extends LinearLayout
     closeok=Util.sacontains(m,"closeok");
     setpn(s);
 
-//   Qt::WindowFlags flags=0;
-//   if (m.contains("dialog")) flags=Qt::Dialog|Qt::WindowTitleHint|Qt::WindowStaysOnTopHint|Qt::CustomizeWindowHint;
-//   if (m.contains("popup")) flags=Qt::Popup;
-//   if (m.contains("minbutton")) flags|=Qt::WindowMinimizeButtonHint;
-//   if (m.contains("maxbutton")) flags|=Qt::WindowMaximizeButtonHint;
-//   if (m.contains("closebutton")) flags|=Qt::WindowCloseButtonHint;
-//   if (m.contains("ptop")) flags|=Qt::WindowStaysOnTopHint;
-//   if (m.contains("owner")) {
-//     flags|=Qt::Window;
-//     setWindowModality(Qt::WindowModal);
-//   }
 //  if (JConsoleApp.theWd.fontdef) setfont(JConsoleApp.theWd.fontdef.font);
 //  if (JConsoleApp.theWd.!fontdef) setFont(QApplication::font());
-//  setWindowFlags(flags);
 
     setpadding(0,0,0,0);
     setId(JConsoleApp.theWd.nextId++);
@@ -322,10 +310,10 @@ class Form extends LinearLayout
     } else if (p.equals("locale")) {
       r=locale;
     } else if (p.equals("minwh")) {
-//       if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.JELLY_BEAN)
-//         r=Util.i2s(getMinimumWidth())+" "+Util.i2s(getMinimumHeight());
-//       else
-      r=Util.i2s(0)+" "+Util.i2s(0);
+      if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.JELLY_BEAN)
+        r=Util.i2s(getMinimumWidth())+" "+Util.i2s(getMinimumHeight());
+      else
+        r=Util.i2s(0)+" "+Util.i2s(0);
     } else if (p.equals("state")) {
       r=Util.ba2s(this.state(0));
     } else if (p.equals("sysdata")) {
@@ -561,26 +549,8 @@ class Form extends LinearLayout
 
       addView(pane);
 
-//     Button w=new Button(activity);
-//     w.setText("button");
-//     LayoutParams lp=new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT);
-//     w.setLayoutParams(lp);
-//     addView(w);
-
       activity.setContentView(this);
-//      requestLayout();
       shown=true;
-
-//     if (p.equals("fullscreen"))
-//       showFullScreen();
-//     else if (p.equals("maximized"))
-//       showMaximized();
-//     else if (p.equals("minimized"))
-//       showMinimized();
-//     else if (p.equals("normal"))
-//       showNormal();    // restore from maximized or minimized
-//     else
-//       show();          // show or hide
     }
   }
 

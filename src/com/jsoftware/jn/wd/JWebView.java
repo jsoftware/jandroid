@@ -1,8 +1,10 @@
 package com.jsoftware.jn.wd;
 
 import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -28,8 +30,17 @@ class JWebView extends Child
     String qn=n;
     baseUrl = "dummy.html";
     w.setWebViewClient(new JWebViewClient());
+    w.setWebChromeClient(new WebChromeClient());
 
     WebSettings settings = w.getSettings();
+    settings.setAllowFileAccess(true);
+    if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.JELLY_BEAN) {
+      settings.setAllowFileAccessFromFileURLs(true);
+//    settings.setAllowUniversalAccessFromFileURLs(true);
+    }
+    if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)
+      settings.setAllowContentAccess(true);
+    settings.setDomStorageEnabled(true);
     settings.setJavaScriptEnabled(true);
     settings.setJavaScriptCanOpenWindowsAutomatically(true);
 
@@ -81,7 +92,7 @@ class JWebView extends Child
         // load local pages
         return false;
       }
-       return super.shouldOverrideUrlLoading(view,url);
+      return super.shouldOverrideUrlLoading(view,url);
     }
   }
 }

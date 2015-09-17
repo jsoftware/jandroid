@@ -112,10 +112,10 @@ class Child
       r=(!locale.isEmpty())?locale:pform.locale;
     } else if (p.equals("minwh")) {
       if (null!=widget) {
-//         if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.JELLY_BEAN)
-//           r=Util.i2s(widget.getMinimumWidth())+" "+Util.i2s(widget.getMinimumHeight());
-//         else
-        r=Util.i2s(0)+" "+Util.i2s(0);
+        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.JELLY_BEAN)
+          r=Util.i2s(widget.getMinimumWidth())+" "+Util.i2s(widget.getMinimumHeight());
+        else
+          r=Util.i2s(0)+" "+Util.i2s(0);
       }
     } else if (p.equals("parent")) {
       r=pform.id;
