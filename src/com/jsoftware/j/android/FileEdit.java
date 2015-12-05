@@ -103,7 +103,7 @@ public class FileEdit extends EditText
   {
     if(textChanged) {
       OutputStream out = new FileOutputStream(file);
-      out.write(getText().toString().getBytes(Charset.forName("UTF-8")));
+      out.write(getText().toString().replace("\u00a0"," ").getBytes(Charset.forName("UTF-8")));
       out.close();
       textChanged = false;
       editActivity.setFile(file);

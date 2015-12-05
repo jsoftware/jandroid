@@ -124,7 +124,7 @@ public class Console extends FileEdit
     if (last) {
       appendSeq("\n");
       if (line != null && line.trim().length() > 0) {
-        theApp.callWithHistory(line);
+        theApp.callWithHistory(line.replace("\u00a0"," "));
         if (!theApp.jInterface.asyncj)
           prompt();
       } else {

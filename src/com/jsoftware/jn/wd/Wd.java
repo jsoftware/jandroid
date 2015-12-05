@@ -450,7 +450,7 @@ public class Wd
     String m=Util.clipread(context);
     if (0!=m.length()) {
       rc=-1;
-      result= Util.s2ba(m);
+      result= Util.s2ba(m.replace("\u00a0"," "));
     } else if (p.equals("1"))
       error("clipboard is empty");
     else {
