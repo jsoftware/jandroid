@@ -2,20 +2,20 @@ android sdk and java should already installed.
 
 ant is required but not eclipse.
 
-download J binaries from 
+download J binaries from
 
 http://www.jsoftware/download/jandroid/libs
 
 and copy them to libs folder
 
-copy the 4 files 
+copy the 4 files
 
 template_copyassets.sh
 template_deploy.sh
 template_genkey.sh
 template_local.properties
 
-to 
+to
 
 copyassets.sh
 deploy.sh
@@ -24,7 +24,7 @@ local.properties
 
 and make shell scripts executable
 
-edit genkey.sh and deploy.sh to use your own 
+edit genkey.sh and deploy.sh to use your own
 $STOREPASS and $KEYPASS
 
 run ./genkey.sh to generate signing key.
@@ -37,7 +37,7 @@ api/expat
 api/jni
 ide/ja
 
-run ./copyassets.sh to copy J system and addons scripts 
+run ./copyassets.sh to copy J system and addons scripts
 to the assets folder.
 
 future re-install (without un-install) should delete the file
@@ -49,7 +49,7 @@ SDCARD/Android/data/com.jsofware.j.android/files/
 edit local.properties and change the last line to point to
 your own android sdk folder
 
-you should get the follong folders
+you should get the following folders
 
 assets   # from copyasset.sh
 bin      # created during ant release
@@ -66,4 +66,3 @@ to build and sign the app:
 mkdir -p dist
 
 ant release && ./deploy.sh
-
