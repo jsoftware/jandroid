@@ -156,8 +156,11 @@ public class JConsoleApp extends Application
 
       File binDir = new File(root, "bin");
       binDir.mkdir();
+      final Runtime runtime = Runtime.getRuntime();
+      setWorldReadable(runtime, binDir, true);
       File sysTmpDir = new File(root, "tmp");
       sysTmpDir.mkdir();
+      setWorldReadable(runtime, sysTmpDir, true);
       jInterface = new AndroidJInterface(this);
       jInterface.setEnvNative("TMPDIR", sysTmpDir.getAbsolutePath());
       String home;
@@ -660,6 +663,12 @@ public class JConsoleApp extends Application
 
       publishProgress("installing addons");
       installDirectory(base, "addons");
+
+      File root = getDir("jandroid", Context.MODE_WORLD_READABLE
+                    | Context.MODE_WORLD_WRITEABLE);
+      installDirectory(root , "libexec");
+      final Runtime runtime = Runtime.getRuntime();
+      setWorldReadable(runtime, new File(root, "libexec"), true);
 
       installFile(base, "assets_version.txt");
       publishProgress("installation complete");
