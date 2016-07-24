@@ -5,8 +5,8 @@ S=~/dev/apps/ide/jandroid
 A=assets
 
 # CHANGE THE FOLLOW TO YOUR OWN FOLDERS
-P=~/j804/addons
-J=~/j804
+P=~/j805/addons
+J=~/j805
 
 cd $S
 
@@ -17,7 +17,7 @@ cp -r $J/system $S/$A/.
 find $A \( -name -name '*.dll' -o -name '*.exe' -o -name '*.so' -o -name '*.dylib' -o -name '*.sh' -o -name '*.bat' '*.cmd' -o -name '.*' \) -delete
 
 mkdir -p $S/$A/bin
-echo "j804 install" > $S/$A/bin/installer.txt
+echo "j805 install" > $S/$A/bin/installer.txt
 
 function copyaddon() {
 rm -rf $S/$A/addons/$1/$2

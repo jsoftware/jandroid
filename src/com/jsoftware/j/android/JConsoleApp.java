@@ -168,7 +168,7 @@ public class JConsoleApp extends Application
       if(Environment.MEDIA_MOUNTED.equals(state)) {
         jInterface.setEnvNative("HOME", SDCARD);
         home = SDCARD;
-        userDir = new File(SDCARD, "j804-user");
+        userDir = new File(SDCARD, "j805-user");
         installRoot = getExternalFilesDir(null);
         installRoot.mkdirs();
         currentExternDir = userDir;
@@ -176,7 +176,7 @@ public class JConsoleApp extends Application
       } else {
         jInterface.setEnvNative("HOME", root.getAbsolutePath());
         home = root.getAbsolutePath();
-        userDir = new File(root, "j804-user");
+        userDir = new File(root, "j805-user");
         installRoot = root;
         currentLocalDir = userDir;
       }
@@ -632,7 +632,7 @@ public class JConsoleApp extends Application
     {
       try {
 //        if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-//          File lo = new File(params[0],"j804-user");
+//          File lo = new File(params[0],"j805-user");
 //          if(lo.exists()) {
 //            File ex = new File(Environment.getExternalStorageDirectory().getPath());
 //            if(ex.canWrite()) {

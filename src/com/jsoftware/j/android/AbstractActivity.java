@@ -121,7 +121,7 @@ public abstract class AbstractActivity extends Activity
       updateJ();
       break;
     case R.id.checknewver:
-      new GetHttpTask().execute("http://www.jsoftware.com/download/j804/install/AndroidManifest.xml");
+      new GetHttpTask().execute("http://www.jsoftware.com/download/j805/install/AndroidManifest.xml");
       break;
     default:
       result = false;
@@ -654,7 +654,7 @@ public abstract class AbstractActivity extends Activity
                 public void onClick(DialogInterface dialog, int which) {
                   dialog.dismiss();
                   Intent myIntent = new Intent(Intent.ACTION_VIEW,
-                                               Uri.parse("http://www.jsoftware.com/download/j804/install/jandroid.apk"));
+                                               Uri.parse("http://www.jsoftware.com/download/j805/install/jandroid.apk"));
                   startActivity(myIntent);
                 }
               });
