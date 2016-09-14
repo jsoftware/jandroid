@@ -218,6 +218,10 @@ public class Console extends FileEdit
   }
   public void consoleOutput(int type,String s)
   {
+    if(JInterface.MTYOEXIT==type)
+    {
+      quit();
+    }
     if(s!=null) appendSeq(s,getColorForType(type));
   }
 
