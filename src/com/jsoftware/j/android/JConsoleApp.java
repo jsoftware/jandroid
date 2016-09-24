@@ -58,6 +58,7 @@ public class JConsoleApp extends Application
   public static Wd theWd = null;
   public String mVersionName;
   public int mVersionCode;
+  public boolean IF64=false;
 
   protected Map<String, Intent> intentMap = new HashMap<String, Intent>();
   protected Map<String, EditorData> editorMap = new HashMap<String, EditorData>();
@@ -118,6 +119,11 @@ public class JConsoleApp extends Application
       mVersionName = "";
       mVersionCode = -1;
     }
+    if (Build.VERSION.SDK_INT < 21) {
+      IF64 = Build.CPU_ABI.contains("64");
+    } else {
+      IF64 = Build.SUPPORTED_ABIS[0].contains("64");
+    }
   }
 
   public void setup(JActivity activity, Console console)
@@ -168,7 +174,10 @@ public class JConsoleApp extends Application
       if(Environment.MEDIA_MOUNTED.equals(state)) {
         jInterface.setEnvNative("HOME", SDCARD);
         home = SDCARD;
-        userDir = new File(SDCARD, "j805-user");
+        if(IF64)
+          userDir = new File(SDCARD, "j64-805-user");
+        else
+          userDir = new File(SDCARD, "j805-user");
         installRoot = getExternalFilesDir(null);
         installRoot.mkdirs();
         currentExternDir = userDir;
@@ -176,7 +185,10 @@ public class JConsoleApp extends Application
       } else {
         jInterface.setEnvNative("HOME", root.getAbsolutePath());
         home = root.getAbsolutePath();
-        userDir = new File(root, "j805-user");
+        if(IF64)
+          userDir = new File(root, "j64-805-user");
+        else
+          userDir = new File(root, "j805-user");
         installRoot = root;
         currentLocalDir = userDir;
       }

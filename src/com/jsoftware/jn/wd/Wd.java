@@ -34,7 +34,6 @@ import java.util.List;
 public class Wd
 {
 
-  static final String APP_VERSION="1.0.0";
   static final String bintype="ghlmpsuvz";
   static public int nextId=1;
 
@@ -1225,7 +1224,7 @@ public class Wd
       error("extra parameters: " + p);
       return;
     }
-    result=Util.s2ba(APP_VERSION+"/"+Util.i2s(Build.VERSION.SDK_INT));
+    result=Util.s2ba(JConsoleApp.theApp.mVersionName+"/"+Util.i2s(Build.VERSION.SDK_INT));
     rc=-1;
   }
 
