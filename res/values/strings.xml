@@ -14,8 +14,8 @@
     <string name="textviewactivity_name">TextView</string>
     
     <string name="runpacman">runpacman_jpacman_ 0 [ require \'pacman ~addons/ide/ja/pacman.ijs\'</string>
-    <string name="help_start">http://www.jsoftware.com/help/dictionary/vocabul.htm</string>
-    <string name="learning">http://www.jsoftware.com/help/learning/contents.htm</string>
+    <string name="help_start">dictionary/vocabul.htm</string>
+    <string name="learning">learning/contents.htm</string>
     <string name="runlabs">labs_run_ja_$0</string>
     <string name="runlabsadvance">labs_run_ja_ 0</string>
     <string name="rundemos">demoja_ja_$0</string>

@@ -376,8 +376,13 @@ public abstract class AbstractActivity extends Activity
   }
   public void showHelp(int resId)
   {
-    Intent myIntent = new Intent(Intent.ACTION_VIEW,
-                                 Uri.parse(getResources().getString(resId)));
+    File file = new File(JConsoleApp.theApp.jInterface.dors("jpath'~addons/docs/help/"+getResources().getString(resId)+"'"));
+    Intent myIntent = new Intent(Intent.ACTION_VIEW);
+    myIntent.addCategory(Intent.CATEGORY_BROWSABLE);
+    if(file.exists())
+      myIntent.setDataAndType(Uri.fromFile(file), "text/html");
+    else
+      myIntent.setData(Uri.parse("http://www.jsoftware.com/help/"+getResources().getString(resId)));
     startActivity(myIntent);
   }
   public void showTextFile(int resId)
