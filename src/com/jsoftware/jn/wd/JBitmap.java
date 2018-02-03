@@ -15,7 +15,7 @@ public class JBitmap
 {
 
 // ---------------------------------------------------------------------
-  public static int wdreadimg(String s, Object[] res)
+  public static int glreadimg(int t, String s, Object[] res)
   {
     if (s.isEmpty()) return 1;
     Bitmap image=BitmapFactory.decodeFile(s);
@@ -25,14 +25,13 @@ public class JBitmap
       int[] pixels=new int[w*h];
       image.getPixels(pixels, 0, w, 0, 0, w, h);
       res[0]= pixels;
-      res[1]= w;
-      res[2]= h;
-      return 0;
+      res[1]= new int[] {4,h,w};
+      return -1;
     } else return 1;
   }
 
 // ---------------------------------------------------------------------
-  public static int wdgetimg(byte[] data, Object[] res)
+  public static int glgetimg(int t, byte[] data, Object[] res)
   {
     if (0==data.length) return 1;
     Bitmap image=BitmapFactory.decodeByteArray(data, 0, data.length);
@@ -42,24 +41,25 @@ public class JBitmap
       int[] pixels=new int[w*h];
       image.getPixels(pixels, 0, w, 0, 0, w, h);
       res[0]= pixels;
-      res[1]= w;
-      res[2]= h;
-      return 0;
+      res[1]= new int[] {4,h,w};
+      return -1;
     } else return 1;
   }
 
 // ---------------------------------------------------------------------
-  public static int wdwriteimg(int[] p, int w, int h, String f, String format, int quality)
+  public static int glwriteimg(int t, int[] p, int w, int h, String f, String format, int quality)
   {
     if (0==p.length) return 1;
     if (w*h!=p.length) return 1;
+    if (format=="") format= JBitmap.fextension(f);
     Bitmap.CompressFormat fmt;
-    if (format.equals("PNG"))
+    if (format.equalsIgnoreCase("PNG"))
       fmt=Bitmap.CompressFormat.PNG;
-    else if (format.equals("JPEG")||format.equals("JPG"))
+    else if (format.equalsIgnoreCase("JPEG")||format.equalsIgnoreCase("JPG"))
       fmt=Bitmap.CompressFormat.JPEG;
     else
       return 1;
+    if (quality<0) quality=75;
     Bitmap image=Bitmap.createBitmap(p, 0, w, w, h, Bitmap.Config.ARGB_8888);
     try {
       FileOutputStream stream = null;
@@ -70,33 +70,45 @@ public class JBitmap
         stream.close();
       }
     } catch (FileNotFoundException exc) {
-      Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
+      Log.e(JConsoleApp.LogTag,Log.getStackTraceString(exc));
       return 1;
     } catch (IOException exc) {
-      Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
+      Log.e(JConsoleApp.LogTag,Log.getStackTraceString(exc));
       return 1;
     }
     return 0;
   }
 
 // ---------------------------------------------------------------------
-  public static int wdputimg(int[] p, int w, int h, String format, int quality, Object[] res)
+  public static int glputimg(int t, int[] p, int w, int h, String format, int quality, Object[] res)
   {
     if (0==p.length) return 1;
     if (w*h!=p.length) return 1;
     Bitmap.CompressFormat fmt;
-    if (format.equals("PNG"))
+    if (format.equalsIgnoreCase("PNG"))
       fmt=Bitmap.CompressFormat.PNG;
-    else if (format.equals("JPEG")||format.equals("JPG"))
+    else if (format.equalsIgnoreCase("JPEG")||format.equalsIgnoreCase("JPG"))
       fmt=Bitmap.CompressFormat.JPEG;
     else
       return 1;
+    if (quality<0) quality=75;
     Bitmap image=Bitmap.createBitmap(p, 0, w, w, h, Bitmap.Config.ARGB_8888);
     ByteArrayOutputStream stream;
     stream = new ByteArrayOutputStream();
     image.compress(fmt, quality, stream);
     res[0]= stream.toByteArray();
-    return 0;
+    res[1]= new int[] {2,-1,-1};
+    return -1;
+  }
+
+// ---------------------------------------------------------------------
+  private static String fextension(String s)
+  {
+    String separator = System.getProperty("file.separator");
+    int indexOfLastSeparator = s.lastIndexOf(separator);
+    String filename = s.substring(indexOfLastSeparator + 1);
+    int extensionIndex = filename.lastIndexOf(".");
+    return filename.substring(extensionIndex + 1);
   }
 
 }

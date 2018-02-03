@@ -1,5 +1,6 @@
 package com.jsoftware.jn.wd;
 
+import android.os.Build;
 import android.util.Log;
 import android.view.View;
 import android.widget.TimePicker;
@@ -34,8 +35,13 @@ class JTimePicker extends Child
     if (i<opt.length) {
       v=Util.c_strtoi(opt[i]);
       int[] hms=totime(v);
-      w.setCurrentHour(hms[0]);
-      w.setCurrentMinute(hms[1]);
+      if (Build.VERSION.SDK_INT < 23) {
+        w.setCurrentHour(hms[0]);
+        w.setCurrentMinute(hms[1]);
+      } else {
+        w.setHour(hms[0]);
+        w.setMinute(hms[1]);
+      }
       i++;
     }
     w.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
@@ -64,13 +70,16 @@ class JTimePicker extends Child
         r.write(Util.s2ba("value"+"\012"));
         r.write(super.get(p,v));
       } else if (p.equals("value"))
-        r.write(Util.s2ba(Util.i2s((10000*w.getCurrentHour())+(100*w.getCurrentMinute())+0)));
+        if (Build.VERSION.SDK_INT < 23)
+          r.write(Util.s2ba(Util.i2s((10000*w.getCurrentHour())+(100*w.getCurrentMinute())+0)));
+        else
+          r.write(Util.s2ba(Util.i2s((10000*w.getHour())+(100*w.getMinute())+0)));
       else
         r.write(super.get(p,v));
     } catch (IOException exc) {
-      Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
+      Log.e(JConsoleApp.LogTag,Log.getStackTraceString(exc));
     } catch (Exception exc) {
-      Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
+      Log.e(JConsoleApp.LogTag,Log.getStackTraceString(exc));
     }
     return r.toByteArray();
   }
@@ -90,8 +99,13 @@ class JTimePicker extends Child
     if (p.equals("value")) {
       i=Util.c_strtoi(qs[0]);
       hms=totime(i);
-      w.setCurrentHour(hms[0]);
-      w.setCurrentMinute(hms[1]);
+      if (Build.VERSION.SDK_INT < 23) {
+        w.setCurrentHour(hms[0]);
+        w.setCurrentMinute(hms[1]);
+      } else {
+        w.setHour(hms[0]);
+        w.setMinute(hms[1]);
+      }
     } else super.set(p,v);
   }
 
@@ -102,11 +116,14 @@ class JTimePicker extends Child
     TimePicker w=(TimePicker) widget;
     ByteArrayOutputStream r=new ByteArrayOutputStream();
     try {
-      r.write(Util.spair(id,Util.i2s((10000*w.getCurrentHour())+(100*w.getCurrentMinute())+0)));
+      if (Build.VERSION.SDK_INT < 23)
+        r.write(Util.spair(id,Util.i2s((10000*w.getCurrentHour())+(100*w.getCurrentMinute())+0)));
+      else
+        r.write(Util.spair(id,Util.i2s((10000*w.getHour())+(100*w.getMinute())+0)));
     } catch (IOException exc) {
-      Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
+      Log.e(JConsoleApp.LogTag,Log.getStackTraceString(exc));
     } catch (Exception exc) {
-      Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
+      Log.e(JConsoleApp.LogTag,Log.getStackTraceString(exc));
     }
     return r.toByteArray();
   }

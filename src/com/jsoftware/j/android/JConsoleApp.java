@@ -1,6 +1,7 @@
 package com.jsoftware.j.android;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -9,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,6 +21,7 @@ import java.util.Set;
 
 
 import com.jsoftware.j.JInterface;
+import com.jsoftware.jn.base.Util;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -27,20 +30,31 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
+import com.jsoftware.j.JInterface;
+import com.jsoftware.j.android.JActivity;
 import com.jsoftware.jn.base.Tedit;
 import com.jsoftware.jn.wd.Wd;
 import com.jsoftware.jn.wd.Cmd;
@@ -59,6 +73,12 @@ public class JConsoleApp extends Application
   public String mVersionName;
   public int mVersionCode;
   public boolean IF64=false;
+  public boolean asyncj;          // run libj.so in its own thread
+  public boolean asyncj0;         // shared preferences
+  public int stacksize;
+  protected File cfgDir;
+  public String configpath = "";
+  String home="";
 
   protected Map<String, Intent> intentMap = new HashMap<String, Intent>();
   protected Map<String, EditorData> editorMap = new HashMap<String, EditorData>();
@@ -72,12 +92,14 @@ public class JConsoleApp extends Application
   protected File installRoot;
   protected File currentLocalDir = null;
   private Console console;
+  public String jversion = "807";
   boolean localFile = false;
 
   List<EngineOutput> outputs = new LinkedList<EngineOutput>();
+  public String smfont = "";
+  public boolean started = false;
 
   boolean consoleState = false;
-  boolean started = false;
 
   public Handler handler;
 
@@ -108,6 +130,9 @@ public class JConsoleApp extends Application
   {
 
     super.onCreate();
+    loadPref();
+    savePref();          // save defaults
+    asyncj = asyncj0;
     JConsoleApp.theApp = (JConsoleApp) this;
     JConsoleApp.theWd = new Wd();
     try {
@@ -124,12 +149,13 @@ public class JConsoleApp extends Application
     } else {
       IF64 = Build.SUPPORTED_ABIS[0].contains("64");
     }
+    jversion = getResources().getString(R.string.jversion);
   }
 
-  public void setup(JActivity activity, Console console)
+  public void setup(JActivity jActivity, Console console)
   {
     this.console = console;
-    final Activity myact = this.activity = activity;
+    final Activity myact = activity = jActivity;
     final Context mycontext = myact.getApplicationContext();
     handler = new Handler() {
       @Override
@@ -150,56 +176,59 @@ public class JConsoleApp extends Application
         }
       }
     };
-    this.console.setApplication(this);
+    console.setApplication(this);
     flushOutputs();
     if (!started) {
-      StringBuilder sb = new StringBuilder();
       started = true;
 
       console.setEnabled(false);
+      if (Build.VERSION.SDK_INT >= 23) {
+        boolean bl = ContextCompat.checkSelfPermission((Context)jActivity, "android.permission.WRITE_EXTERNAL_STORAGE") == 0;
+        if (!bl) {
+          ActivityCompat.requestPermissions(jActivity, new String[] {"android.permission.WRITE_EXTERNAL_STORAGE"}, 100);
+        }
+      }
       root = getDir("jandroid", Context.MODE_WORLD_READABLE
                     | Context.MODE_WORLD_WRITEABLE);
 
       File binDir = new File(root, "bin");
       binDir.mkdir();
-      final Runtime runtime = Runtime.getRuntime();
+      Runtime runtime = Runtime.getRuntime();
       setWorldReadable(runtime, binDir, true);
       File sysTmpDir = new File(root, "tmp");
       sysTmpDir.mkdir();
       setWorldReadable(runtime, sysTmpDir, true);
       jInterface = new AndroidJInterface(this);
-      jInterface.setEnvNative("TMPDIR", sysTmpDir.getAbsolutePath());
-      String home;
+      jInterface.start();
+      jInterface.JSetEnv("TMPDIR", sysTmpDir.getAbsolutePath());
       String state = Environment.getExternalStorageState();
       if(Environment.MEDIA_MOUNTED.equals(state)) {
-        jInterface.setEnvNative("HOME", SDCARD);
+        jInterface.JSetEnv("HOME", SDCARD);
         home = SDCARD;
-        if(IF64)
-          userDir = new File(SDCARD, "j64-805-user");
-        else
-          userDir = new File(SDCARD, "j805-user");
+        userDir = IF64 ? new File(SDCARD, "j64-" + jversion + "-user") : new File(SDCARD, "j" + jversion + "-user");
         installRoot = getExternalFilesDir(null);
         installRoot.mkdirs();
         currentExternDir = userDir;
         currentLocalDir = root;
       } else {
-        jInterface.setEnvNative("HOME", root.getAbsolutePath());
+        jInterface.JSetEnv("HOME", root.getAbsolutePath());
         home = root.getAbsolutePath();
-        if(IF64)
-          userDir = new File(root, "j64-805-user");
-        else
-          userDir = new File(root, "j805-user");
+        userDir = IF64 ? new File(root, "j64-" + jversion + "-user") : new File(root, "j" + jversion + "-user");
         installRoot = root;
         currentLocalDir = userDir;
       }
-      tmpDir = new File(userDir, "temp");
       currentExternDir = userDir;
-      userDir.mkdir();
-      sb.append("(i.0 0)\"_ [ 1!:44 ::0: '").append(home).append("'");
-      jInterface.callJ(sb.toString(),false); // need this side effect to initialize J
-      jInterface.start();
-      installSystemFiles(activity, console, installRoot, false);
-      sb.setLength(0);
+      userDir.mkdirs();
+      tmpDir = new File(userDir, "temp");
+      cfgDir = new File(userDir, "config");
+      tmpDir.mkdirs();
+      cfgDir.mkdirs();
+      installSystemFiles(jActivity, console, installRoot, false);
+      if (!asyncj) {
+        String string2 = jInterface.dors("jpath ::(''\"_) '~config'");
+        configpath = string2.isEmpty() ? cfgDir.getAbsolutePath() : string2;
+      }
+      console.setFont();
     }
   }
 
@@ -335,7 +364,7 @@ public class JConsoleApp extends Application
 
   public void setActivity(AbstractActivity a)
   {
-    this.activity = a;
+    activity = a;
   }
 
   public int launchActivity(String action, String data, String type,int flags)
@@ -385,7 +414,7 @@ public class JConsoleApp extends Application
   public void callWithHistory(String line)
   {
     addHistory(line);
-    callJ(line);
+    callJ(line, true);
   }
 
   public void addHistory(String line)
@@ -414,17 +443,25 @@ public class JConsoleApp extends Application
 
   public void newFile(Context context)
   {
-    int i = 1;
-    File newf = new File(tmpDir, Integer.toString(i) + ".ijs");
-    while (hasEditor(newf.getName()) || newf.exists()) {
-      newf = new File(tmpDir, Integer.toString(++i) + ".ijs");
-    }
+    File newf = newFileName();
     Intent intent = new Intent();
     intent.setClass(getApplicationContext(), EditActivity.class);
     intent.setData(Uri.fromFile(newf));
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
     intentMap.put(newf.getAbsolutePath(), intent);
     context.startActivity(intent);
+  }
+
+  public File newFileName()
+  {
+    int n = 1;
+    File file = new File(tmpDir, Integer.toString((int)n) + ".ijs");
+    while (hasEditor(file.getName()) || file.exists()) {
+      File file2 = tmpDir;
+      StringBuilder stringBuilder = new StringBuilder();
+      file = new File(file2, stringBuilder.append(Integer.toString((int)(++n))).append(".ijs").toString());
+    }
+    return file;
   }
 
   private void _saveas(Activity _activity, final FileEdit fe, final File f)
@@ -505,15 +542,18 @@ public class JConsoleApp extends Application
     return intentMap.keySet().contains(name);
   }
 
-  public void callJ(String sentence)
+  public void callJ(String sentence, boolean addprompt)
   {
-    callJ(sentence, jInterface.asyncj );
+    callJ(sentence, addprompt, asyncj);
   }
 
-  public void callJ(String sentence, boolean asyncj)
+  public void callJ(String sentence, boolean addprompt, boolean async)
   {
-    if (null!=jInterface)
-      jInterface.callJ(sentence,asyncj);
+    if (async) {
+      jInterface.callJ(sentence, addprompt);
+    } else {
+      jInterface.callSuperJ(sentence, addprompt);
+    }
   }
 
   protected void bootstrap()
@@ -534,9 +574,11 @@ public class JConsoleApp extends Application
     .append("/bin").append("'")
     .append(" [ INSTALLROOT_z_=:'").append(installRoot.getAbsolutePath()).append("'")
     .append(" [ AndroidPackage_z_=:'").append(activity.getApplicationContext().getPackageName()).append("'")
+    .append(" [ LIBFILE_z_=: '").append(JConsoleApp.theApp.getApplicationInfo().nativeLibraryDir).append("/libj.so'")
     .append(" [ IFJA_z_=: 1")
-    .append(" [ UNAME_z_=: 'Android'");
-    Log.d(JConsoleApp.LogTag, "initialize engine: " + sb.toString());
+    .append(" [ UNAME_z_=: 'Android'")
+    .append(" [ 1!:44 ::0: '").append(home).append("'");
+    Log.d(JConsoleApp.LogTag, "initialize engine");
 
     if (args.length > 1) {
       String[] ss = new String[args.length];
@@ -547,11 +589,12 @@ public class JConsoleApp extends Application
         Log.d(JConsoleApp.LogTag, ss[i]);
       }
       for (String s: ss)
-        callJ(s,true);
+        callJ(s, false);
     } else {
       // Log.d(JConsoleApp.LogTag,sb.toString());
-      callJ(sb.toString(),true);
+      callJ(sb.toString(), false);
     }
+//    if (!asyncj) console.prompt();
     console.prompt();
     console.setEnabled(true);
   }
@@ -574,16 +617,30 @@ public class JConsoleApp extends Application
 
   protected boolean checkInstall(File base)
   {
+    int ver = -1;
     try {
       File f = new File(base,"assets_version.txt");
       InputStream in = new FileInputStream(f);
       BufferedReader reader = new BufferedReader(new InputStreamReader(in));
       String line = reader.readLine();
       reader.close();
-      String version = mVersionName;
-      if(line!=null && line.equals(version)) {
+      try {
+        ver=Integer.valueOf(line);
+      } catch (NumberFormatException e) {
+        ver=mVersionCode-1;
+      }
+      if(ver==mVersionCode) {
         return true;
       }
+    } catch(IOException e) {
+      // so what? just install
+    }
+    try {
+      File f = new File(base,"assets_version.txt");
+      OutputStream out = new FileOutputStream(f);
+      BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
+      writer.write(Integer.toString(mVersionCode));
+      writer.close();
     } catch(IOException e) {
       // so what? just install
     }
@@ -644,14 +701,14 @@ public class JConsoleApp extends Application
     {
       try {
 //        if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-//          File lo = new File(params[0],"j805-user");
+//          File lo = new File(params[0],"j807-user");
 //          if(lo.exists()) {
 //            File ex = new File(Environment.getExternalStorageDirectory().getPath());
 //            if(ex.canWrite()) {
 //              String cmd = "i.0 0)\"_ [ 2!:0 'cp -r " + lo.getAbsolutePath()
 //                           + " " + SDCARD + "'";
 //              publishProgress("migrating user files to sdcard");
-//              jInterface.callJ(cmd,true);
+//              jInterface.callJ(cmd, false);
 //            }
 //          }
 //        }
@@ -669,6 +726,11 @@ public class JConsoleApp extends Application
       publishProgress("installing system files");
       installDirectory(base, "system");
       installDirectory(base, "bin");
+      try {
+        copyFiles(new File(base, "system/config"), JConsoleApp.this.cfgDir);
+      } catch (Exception exception) {
+        Log.e("jandroid", "failed to copy config");
+      }
 
 //       publishProgress("installing help files");
 //       installDirectory(base, "docs");
@@ -677,7 +739,7 @@ public class JConsoleApp extends Application
       installDirectory(base, "addons");
 
       File root = getDir("jandroid", Context.MODE_WORLD_READABLE
-                    | Context.MODE_WORLD_WRITEABLE);
+                         | Context.MODE_WORLD_WRITEABLE);
       installDirectory(root , "libexec");
       final Runtime runtime = Runtime.getRuntime();
       setWorldReadable(runtime, new File(root, "libexec"), true);
@@ -713,6 +775,28 @@ public class JConsoleApp extends Application
         Log.e(JConsoleApp.LogTag, "failed to install " + path);
       }
       return false;
+    }
+
+    protected void copyFiles(File file, File file2) throws IOException
+    {
+      if (file.isDirectory()) {
+        if (!file2.exists()) {
+          file2.mkdir();
+        }
+        for (File file3 : file.listFiles()) {
+          int n;
+          File file4 = new File((Object)file2 + "/" + file3.getName());
+          if (!file4.isFile() && file4.exists()) continue;
+          FileInputStream fileInputStream = new FileInputStream(file3);
+          FileOutputStream fileOutputStream = new FileOutputStream((Object)file2 + "/" + file3.getName());
+          byte[] arrby = new byte[1024];
+          while ((n = fileInputStream.read(arrby)) > 0) {
+            fileOutputStream.write(arrby, 0, n);
+          }
+          fileInputStream.close();
+          fileOutputStream.close();
+        }
+      }
     }
 
     protected File createDirectory(File base, String d)
@@ -806,48 +890,65 @@ public class JConsoleApp extends Application
     return f;
   }
 
-  public int gl2(String type, int[] buf, Object[] r)
+  public void loadPref()
   {
-    return theWd.gl2(type, buf, r);
+    SharedPreferences sp = getSharedPreferences("jpreferences", Context.MODE_PRIVATE);
+    asyncj0 = sp.getBoolean("asyncj", false);        // default value
+    stacksize = sp.getInt("stacksize", 5000000);
+    smfont = sp.getString("smfont", "");
+    configpath = sp.getString("configpath", "");
   }
 
-  public int wd(String s, Object[] r)
+  public void savePref()
   {
-    return theWd.wd(s, r);
-//    Log.d(LogTag,"wd: " + s);
-//     Cmd cmd=new Cmd();
-//     cmd.init(s);
-//     while (cmd.more()) {
-//     String c1=cmd.getid();
-//     String c2=cmd.getparms();
-//     Log.d(LogTag,"wd id: " + c1);
-//     Log.d(LogTag,"wd parms: " + c2);
-//     String[] list = Cmd.qsplit(c2,false);
-//     for(String t : list) {
-//       Log.d(LogTag,"wd split: " + t);
-//    }
-//   }
-//   return 0;
+    SharedPreferences.Editor editor = getSharedPreferences("jpreferences", Context.MODE_PRIVATE).edit();
+    editor.putBoolean("asyncj", asyncj0);
+    editor.putInt("stacksize", stacksize);
+    editor.putString("smfont", smfont);
+    editor.putString("configpath", configpath);
+    editor.commit();
   }
 
-  public int wdreadimg(String s, Object[] res)
+  public byte[] getpref(String p,String v)
   {
-    return com.jsoftware.jn.wd.JBitmap.wdreadimg(s, res);
+    String r="";
+    if ((!v.isEmpty()) && !p.equals("extent")) {
+      JConsoleApp.theWd.error("extra parameters: " + p + " " + v);
+      return new byte[] {};
+    }
+    if (p.equals("property")) {
+      StringBuilder r1a=new StringBuilder();
+      r1a.append("asyncj\nconfigpath\nsmfont\nstacksize\n");
+      r=r1a.toString();
+    } else if (p.equals("asyncj")) {
+      r=Util.i2s(asyncj?1:0);
+    } else if (p.equals("stacksize")) {
+      r=Util.i2s(stacksize);
+    } else  if (p.equals("smfont")) {
+      r=smfont;
+    } else if (p.equals("configpath")) {
+      r=configpath;
+    } else
+      theWd.error("get command not recognized: " + p + " " + v);
+    return Util.s2ba(r);
   }
 
-  public int wdgetimg(byte[] data, Object[] res)
+  public void setpref(String p,String v)
   {
-    return com.jsoftware.jn.wd.JBitmap.wdgetimg(data, res);
-  }
-
-  public int wdwriteimg(int[] p, int w, int h, String f, String format, int quality)
-  {
-    return com.jsoftware.jn.wd.JBitmap.wdwriteimg(p, w, h, f, format, quality);
-  }
-
-  public int wdputimg(int[] p, int w, int h, String format, int quality, Object[] res)
-  {
-    return com.jsoftware.jn.wd.JBitmap.wdputimg(p, w, h, format, quality, res);
+    if (p.equals("asyncj")) {
+      asyncj0 = !Util.remquotes(v).equals("0");   // effective after restart
+      savePref();
+    } else if (p.equals("stacksize")) {
+      stacksize = Util.c_strtoi(v);
+      savePref();
+    } else if (p.equals("smfont")) {
+      smfont = Util.remquotes(v).trim();
+      savePref();
+    } else  if (p.equals("configpath")) {
+      configpath = Util.remquotes(v).trim();
+      savePref();
+    } else
+      theWd.error("set command not recognized: " + p + " " + v);
   }
 
 }

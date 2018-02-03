@@ -1,0 +1,14 @@
+cp -r ..../appcompat .
+needs android-support-
+v4 24.1.1
+annotations
+v7 external with res
+
+cd appcompat
+android update lib-project -p . --target android-23
+cd -
+append the following line to project.properties
+
+android.library.reference.1=appcompat
+
+# android update project -t android-23 -p . --subprojects --library appcompat

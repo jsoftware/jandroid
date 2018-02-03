@@ -13,17 +13,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import com.jsoftware.j.android.AbstractActivity;
 import com.jsoftware.j.android.AndroidJInterface;
 import com.jsoftware.j.android.JConsoleApp;
+import com.jsoftware.j.android.FileEdit;
 import com.jsoftware.jn.base.Util;
 import com.jsoftware.jn.base.Utils;
+import java.io.File;
 import java.lang.Math;
 import java.util.ArrayList;
 
-public class JWdActivity extends Activity
+public class JWdActivity extends AbstractActivity
 {
-  protected com.jsoftware.j.JInterface jInterface = null;
-  public java.lang.String jlocale = "";
+  protected com.jsoftware.j.android.AndroidJInterface jInterface = null;
+  public String jlocale = "";
   protected java.lang.String japparg = null;
 
   Form form;
@@ -39,17 +42,14 @@ public class JWdActivity extends Activity
   protected void onCreate(Bundle bundle)
   {
     super.onCreate(bundle);
-    jInterface = JConsoleApp.theApp.jInterface;
+    jInterface = theApp.jInterface;
     jlocale = getIntent().getStringExtra("jlocale");
     Log.d(JConsoleApp.LogTag,"onCreate "+jlocale);
     backbuttonAct = getIntent().getStringExtra("backbuttonAct");
     fullscreen = getIntent().getStringExtra("fullscreen");
     // remove title
     if (fullscreen.equals("yes")) {
-      if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)
-        getActionBar().hide();
-      else
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+      getSupportActionBar().hide();
       getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                            WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
@@ -63,10 +63,6 @@ public class JWdActivity extends Activity
       form.onStart();
     else
       jInterface.callJ( "(i.0 0)\"_ onStart_" + jlocale + "_$0");
-    if (null!=form) {
-      JConsoleApp.theApp.addIntent("wd:"+jlocale, getIntent());
-    } else
-      finish();
   }
   @Override
   protected void onPause()
@@ -113,9 +109,9 @@ public class JWdActivity extends Activity
     Log.d(JConsoleApp.LogTag,"onDestroy "+jlocale);
     super.onDestroy();
     if(isFinishing()) {
+      theApp.removeFile("wd:"+jlocale);
       if (null!=form) {
-        form.onDestroy();
-        JConsoleApp.theApp.removeFile("wd:"+jlocale);
+        if (!theApp.asyncj)form.onDestroy(); // not working for asyncj
       }
     }
   }
@@ -143,6 +139,7 @@ public class JWdActivity extends Activity
   public void onBackPressed()
   {
     if (null==form) {
+      theApp.removeFile("wd:"+jlocale);
       JWdActivity.super.onBackPressed();
       return;
     }
@@ -168,12 +165,14 @@ public class JWdActivity extends Activity
         }
       }).create().show();
     } else {
+      theApp.removeFile("wd:"+jlocale);
       JWdActivity.super.onBackPressed();
     }
   }
   @Override
   public boolean onCreateOptionsMenu( Menu menu)
   {
+    Log.d(JConsoleApp.LogTag,"onCreateOptionsMenu "+jlocale);
     if (null==form || null==form.menubar) return super.onCreateOptionsMenu(menu);
     form.menubar.curMenu=menu;
     form.menubar.initmenu();
@@ -183,6 +182,7 @@ public class JWdActivity extends Activity
   @Override
   public boolean onOptionsItemSelected( MenuItem item)
   {
+    Log.d(JConsoleApp.LogTag,"onOptionsItemSelected "+jlocale);
     if (null==form || null==form.menubar) return super.onOptionsItemSelected(item);
     if (form.menubar.menu_triggered(item)) return true;
     return super.onOptionsItemSelected(item);
@@ -191,6 +191,38 @@ public class JWdActivity extends Activity
   public boolean onTouchEvent(android.view.MotionEvent arg1)
   {
     return super.onTouchEvent( arg1);
+  }
+
+  @Override
+  public boolean shouldEnableDrawer()
+  {
+    return true;
+  }
+
+  @Override
+  protected void addIntent()
+  {
+    String jlocale = getIntent().getStringExtra("jlocale");
+    Log.d(JConsoleApp.LogTag,"wd addIntent "+jlocale);
+    theApp.addIntent("wd:"+jlocale, getIntent());
+  }
+
+  @Override
+  protected FileEdit getEditor()
+  {
+    return null;
+  }
+
+  @Override
+  protected void onSaveInstanceState(Bundle savedInstanceState)
+  {
+    super.onSaveInstanceState(savedInstanceState);
+  }
+
+  @Override
+  protected void onRestoreInstanceState(Bundle savedInstanceState)
+  {
+    super.onRestoreInstanceState(savedInstanceState);
   }
 
 }

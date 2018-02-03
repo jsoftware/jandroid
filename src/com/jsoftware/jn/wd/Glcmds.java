@@ -7,6 +7,8 @@ import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PathEffect;
+import android.graphics.PorterDuff;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -16,29 +18,45 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import com.jsoftware.j.android.JConsoleApp;
+import com.jsoftware.j.android.AndroidJInterface;
 import com.jsoftware.jn.base.Util;
 import com.jsoftware.jn.base.Utils;
 import java.lang.Character;
 import java.lang.System;
 import java.nio.charset.Charset;
+import java.util.concurrent.CountDownLatch;
+import java.util.Arrays;
 
 //complex unit (sp, dip, pt, px, mm, in)
 
 public class Glcmds
 {
 
+  AndroidJInterface jInterface = null;
   View view;
-  String type;
+  public Child pchild=null;
+  String type="";
+  public int[] sbuf=new int[0];   // stash buffer
+  float[] tarc = new float [8];
+  String errmsg = "error";
 
   static Context context;
   static Font FontExtent;
   static float point;
 
   Font font;
-  Canvas canvas;
-  Bitmap bitmap;
+  Canvas canvas=null;
+  Bitmap bitmap=null;
+  public boolean nodblbuf=false;
   Paint paint;
   Path path;
+  final int PS_DASH = 1;
+  final int PS_DASHDOT = 3;
+  final int PS_DASHDOTDOT = 4;
+  final int PS_DOT = 2;
+  final int PS_INSIDEFRAME = 6;
+  final int PS_NULL = 5;
+  final int PS_SOLID = 0;
   final int RGBSEQ=1;
 
   int    andclipped;
@@ -55,14 +73,23 @@ public class Glcmds
   int    andorgy;
   int    nodoublebuf=1;
 
-  float[] tarc = new float [8];
 
 
-  public Glcmds(View view, String type)
+  public Glcmds(Child a)
   {
-    this.view=view;
-    this.type=type;
-    this.bitmap=bitmap;
+
+    jInterface = JConsoleApp.theApp.jInterface;
+    type=a.type;
+    pchild=a;
+    if (type.equals("isigraph")||type.equals("isidraw")) {
+      view=((JIsigraph)a).widget;
+      bitmap = ((JIsigraph)a).bitmap;
+      nodblbuf=((JIsigraph)a).nodblbuf;
+    } else if (type.equals("opengl")) {
+      view=((JOpengl)a).widget;
+      bitmap = ((JOpengl)a).bitmap;
+      nodblbuf=((JOpengl)a).nodblbuf;
+    }
     path=new Path();
     paint=new Paint();
     paint.setAntiAlias(true);
@@ -130,6 +157,11 @@ public class Glcmds
     if (null!=canvas) {
       canvas.translate(-andorgx,-andorgy);
       canvas.clipRect(0,0,view.getWidth(),view.getHeight(),Region.Op.REPLACE);
+      if (clear) {
+        canvas.drawARGB(255, 255, 255, 255);
+      } else {
+        canvas.drawColor(0, PorterDuff.Mode.MULTIPLY);
+      }
     }
     andrgb = Color.argb(255,0,0,0);
     if (0!=glfont0("profont")) return 1;
@@ -143,9 +175,6 @@ public class Glcmds
     paint.setStrokeWidth(2f);
     paint.setARGB(255,255,255,255);
     paint.setStyle(Paint.Style.FILL);
-    if (null!=canvas) {
-      if (clear) canvas.drawRect(0,0,view.getWidth(),view.getHeight(),paint);
-    }
     andbrushnull = 1;
     andtextx = 0;
     andtexty = 0;
@@ -187,19 +216,51 @@ public class Glcmds
     return wlen;
   }
 
-  public int glcmds ( int[] buf , Object[] res)
+// ---------------------------------------------------------------------
+  public int appendsbuf(int[] buf, int p, int cnt)
+  {
+    if (JConsoleApp.theApp.asyncj) {
+      int len=sbuf.length;
+      sbuf = Arrays.copyOf(sbuf, len+cnt);
+      System.arraycopy(buf, p, sbuf, len, cnt);
+      return 0;
+    } else {
+      errmsg = "null canvas";
+      return 1;
+    }
+  }
+
+// ---------------------------------------------------------------------
+  public int commitsbuf()
+  {
+    int rc=0;
+    int len=sbuf.length;
+    if (len>0) {
+      int[] intbuf = new int[2+len];
+      intbuf[0]=2+len;
+      intbuf[1]=2999;
+      System.arraycopy(sbuf, 0, intbuf, 2, len);
+      sbuf=new int[0];
+      rc=uiglcmds(intbuf);
+    }
+    return rc;
+  }
+
+// ---------------------------------------------------------------------
+  public int uiglcmds(int[] buf)
   {
 
-    int[] result=new int[0];
+    int[] intresult=new int[0];
+    int[] intresultshape=new int[] {4,-1,-1};
     String textstring;
     int[] intbuf;
     Rect rect=new Rect();
     RectF rectf;
     Font fnt;
     String face;
-    int errcnt =  0;
+    int rc =  0;
     int ncnt =  buf.length;
-    int cmd;
+    int cmd = 0;
     int p =  0;
     int i,c,cnt;
     int a;
@@ -209,8 +270,7 @@ public class Glcmds
     Paint tpaint;
 
 //    Log.d(JConsoleApp.LogTag, "Glcmds ncnt: " + Integer.toString(ncnt));
-    while ((0>=errcnt) && (p<ncnt)) {
-      errcnt=0;
+    while ((0==rc) && (p<ncnt)) {
 //      Log.d(JConsoleApp.LogTag, "Glcmds p: " + Integer.toString(p));
       cnt =  buf[p];
       cmd =  buf[p+1];
@@ -219,8 +279,13 @@ public class Glcmds
       switch (cmd) {
 
       case 2001 : // glarc
+        if (cnt != 10) {
+          errmsg = "invalid argument";
+          rc=1;
+          break;
+        }
         if (null==canvas) {
-          errcnt=1;
+          rc=appendsbuf(buf, p, cnt);
           break;
         }
         paint.setStyle(Paint.Style.STROKE);
@@ -233,24 +298,54 @@ public class Glcmds
         break;
 
       case 2004 :    // glbrush
+        if (cnt != 2) {
+          errmsg = "invalid argument";
+          rc=1;
+          break;
+        }
+        if (JConsoleApp.theApp.asyncj && null==canvas) {
+          rc=appendsbuf(buf, p, cnt);
+          break;
+        }
         andbrushrgb = andrgb;
         andbrushnull = 0;
         break;
 
       case 2005 :    // glbrushnull
+        if (cnt != 2) {
+          errmsg = "invalid argument";
+          rc=1;
+          break;
+        }
+        if (JConsoleApp.theApp.asyncj && null==canvas) {
+          rc=appendsbuf(buf, p, cnt);
+          break;
+        }
         andbrushnull = 1;
         break;
 
       case 2007 : // glclear
-
+        if (cnt != 2) {
+          errmsg = "invalid argument";
+          rc=1;
+          break;
+        }
+        if (JConsoleApp.theApp.asyncj && this.canvas == null) {
+          rc=appendsbuf(buf, p, cnt);
+          break;
+        }
         FontExtent=null;
-        errcnt=glclear2(false);
+        rc=glclear2(false);
         break;
 
       case 2078 : // glclip
-
+        if (cnt != 6) {
+          errmsg = "invalid argument";
+          rc=1;
+          break;
+        }
         if (null==canvas) {
-          errcnt=1;
+          rc=appendsbuf(buf, p, cnt);
           break;
         }
         andclipped= 1;
@@ -258,9 +353,13 @@ public class Glcmds
         break;
 
       case 2079 : // glclipreset
-
+        if (cnt != 2) {
+          errmsg = "invalid argument";
+          rc=1;
+          break;
+        }
         if (null==canvas) {
-          errcnt=1;
+          rc=appendsbuf(buf, p, cnt);
           break;
         }
         andclipped= 0;
@@ -268,15 +367,27 @@ public class Glcmds
         break;
 
       case 2999 : // glcmds
+        if (cnt == 2) {
+          break;
+        }
+        if (JConsoleApp.theApp.asyncj && this.canvas == null) {
+          rc=appendsbuf(buf, p, cnt);
+          break;
+        }
         intbuf = new int[cnt-2];
         System.arraycopy(buf, p+2, intbuf, 0, cnt-2);
-        errcnt=glcmds(intbuf, res);
+        rc=uiglcmds(intbuf);
         intbuf = null;
         break;
 
       case 2008 : // glellipse
+        if (cnt != 6) {
+          errmsg = "invalid argument";
+          rc=1;
+          break;
+        }
         if (null==canvas) {
-          errcnt=1;
+          rc=appendsbuf(buf, p, cnt);
           break;
         }
         paint.setStyle(Paint.Style.FILL);
@@ -294,23 +405,37 @@ public class Glcmds
         break;
 
       case 2093:		// glfill
-        if (null==canvas) {
-          errcnt=1;
+        if (cnt != 5 &&  cnt != 6) {
+          errmsg = "invalid argument";
+          rc=1;
           break;
         }
+        if (null==canvas) {
+          rc=appendsbuf(buf, p, cnt);
+          break;
+        }
+
         tpaint=new Paint();
-        tpaint.setARGB(buf[p+5], buf[p+2], buf[p+3], buf[p+4]);
-        tpaint.setStyle(Paint.Style.FILL);
-        canvas.drawRect (0, 0, view.getWidth(), view.getHeight(), tpaint);
+        if (cnt==6)
+          tpaint.setARGB(buf[p+5], buf[p+2], buf[p+3], buf[p+4]);
+        else
+          tpaint.setARGB(255, buf[p+2], buf[p+3], buf[p+4]);
         tpaint=null;
         break;
 
       case 2012:		// glfont
-        face = Util.int2String(buf, p+2, cnt-2);
-        errcnt=glfont0(face);
+        if (JConsoleApp.theApp.asyncj && this.canvas == null) {
+          rc=appendsbuf(buf, p, cnt);
+          break;
+        }
+        rc = this.glfont0(Util.int2String(buf, p + 2, cnt - 2));
         break;
 
       case 2312:		// glfont2
+        if (JConsoleApp.theApp.asyncj && this.canvas == null) {
+          rc=appendsbuf(buf, p, cnt);
+          break;
+        }
         int size10 = buf[ p + 2 ];
         int bold = 1 & buf[ p + 3 ];
         int italic = 2 & buf[ p + 3 ];
@@ -322,7 +447,7 @@ public class Glcmds
         face = Util.int2String(buf, p+5, cnt-5);
         fnt=new Font(face,size10, bold, italic, strikeout, andunderline, andfontangle);
         if (fnt.error) {
-          errcnt=1;
+          rc=1;
         } else {
           font=fnt;
           // also set glfontextent
@@ -332,19 +457,45 @@ public class Glcmds
         break;
 
       case 2342:		//glfontangle
+        if (cnt != 3) {
+          errmsg = "invalid argument";
+          rc=1;
+          break;
+        }
+        if (JConsoleApp.theApp.asyncj && this.canvas == null) {
+          rc=appendsbuf(buf, p, cnt);
+          break;
+        }
         andfontangle = buf[ p + 2 ];
+        break;
+
+      case 2094:		// glfontextent
+        if (JConsoleApp.theApp.asyncj && this.canvas == null) {
+          rc=appendsbuf(buf, p, cnt);
+          break;
+        }
+        textstring = Util.int2String(buf, p+2, cnt-2);
+        if (0==textstring.length())
+          FontExtent=null;
+        else {
+          fnt = new Font(textstring);
+          if (fnt.error)
+            rc=1;
+          else
+            FontExtent=fnt;
+          fnt=null;
+        }
         break;
 
       case 2015 :    // gllines
         if (null==canvas) {
-          errcnt=1;
+          rc=appendsbuf(buf, p, cnt);
           break;
         }
         paint.setColor(andpenrgb);
         paint.setStyle(Paint.Style.STROKE);
         c = (cnt - 2) / 2;
-        if (0 == c) break;
-        {
+        if (0 != c) {
           path.reset();
           path.moveTo(buf[p+2],buf[p+3]);
           for (i = 0; i < c - 1; i++) path.lineTo(buf[ p + 2 + 2 * (1 + i)], buf[ p + 2 + 1 + 2 * (1 + i)]);
@@ -353,55 +504,138 @@ public class Glcmds
         }
         break;
 
-      case 2094:		// glfontextent
-        textstring = Util.int2String(buf, p+2, cnt-2);
-        if (0==textstring.length())
-          FontExtent=null;
-        else {
-          fnt = new Font(textstring);
-          if (fnt.error)
-            errcnt=1;
-          else
-            FontExtent=fnt;
-          fnt=null;
+      case 2070:    // glnodblbuf
+        if (cnt > 3) {
+          this.errmsg = "invalid argument";
+          rc = 1;
+          break;
         }
-        break;
-
+        if (JConsoleApp.theApp.asyncj && this.canvas == null) {
+          rc = this.appendsbuf(buf, p, cnt);
+          break;
+        }
+        if (!this.type.equals((Object)"isidraw")) {
+          if (this.view == null) {
+            break;
+          }
+          boolean anodblbuf = (cnt == 2) || buf[p + 2] != 0;
+          if (anodblbuf == this.nodblbuf) {
+            break;
+          }
+          if (this.type.equals((Object)"isigraph")) {
+            if (anodblbuf) {
+              ((JIsigraph)this.pchild).canvas = null;
+              this.canvas = null;
+              if (!((JIsigraph)this.pchild).bitmap.isRecycled()) {
+                ((JIsigraph)this.pchild).bitmap.recycle();
+              }
+              ((JIsigraph)this.pchild).bitmap = null;
+              this.bitmap = null;
+            } else {
+              this.bitmap = ((JIsigraph)this.pchild).bitmap = Bitmap.createBitmap((int)(128 + this.view.getWidth()), (int)(128 + this.view.getHeight()), (Bitmap.Config)Bitmap.Config.ARGB_8888);
+              this.canvas = ((JIsigraph)this.pchild).canvas = new Canvas(this.bitmap);
+            }
+            ((JIsigraph)this.pchild).nodblbuf = anodblbuf;
+          } else if (this.type.equals((Object)"opengl")) {
+            if (anodblbuf) {
+              ((JOpengl)this.pchild).canvas = null;
+              this.canvas = null;
+              if (!((JOpengl)this.pchild).bitmap.isRecycled()) {
+                ((JOpengl)this.pchild).bitmap.recycle();
+              }
+              ((JOpengl)this.pchild).bitmap = null;
+              this.bitmap = null;
+            } else {
+              this.bitmap = ((JOpengl)this.pchild).bitmap = Bitmap.createBitmap((int)(128 + this.view.getWidth()), (int)(128 + this.view.getHeight()), (Bitmap.Config)Bitmap.Config.ARGB_8888);
+              this.canvas = ((JOpengl)this.pchild).canvas = new Canvas(this.bitmap);
+            }
+            ((JOpengl)this.pchild).nodblbuf = anodblbuf;
+          }
+          this.nodblbuf = anodblbuf;
+          break;
+        }
       case 2020 :    // glpaint
-        if (type.equals("isigraph")||type.equals("opengl")) {
-          if (null==canvas)
-            view.invalidate();
-        } else if (type.equals("isidraw")) {
-          view.invalidate();
+        if (cnt != 2) {
+          errmsg = "invalid argument";
+          rc=1;
+          break;
+        }
+        if (this.view != null && !this.pchild.pform.closed) {
+          if (!this.nodblbuf && this.bitmap != null) {
+            this.canvas.drawBitmap(this.bitmap, 0.0f, 0.0f, this.paint);
+          }
+          if (this.type.equals((Object)"isidraw")) {
+            if (!((JIsigraph)this.pchild).nopaintevent) {
+              this.view.invalidate();
+            }
+          } else if (this.type.equals((Object)"isigraph")) {
+            if (!((JIsigraph)this.pchild).nopaintevent) {
+              this.view.invalidate();
+            }
+          } else if (this.type.equals((Object)"opengl") && !((JOpengl)this.pchild).nopaintevent) {
+            this.view.invalidate();
+          }
         }
         break;
 
       case 2021 :    // glpaintx
-        if (type.equals("isigraph")||type.equals("opengl")) {
-          if (null==canvas)
-            view.invalidate();
-        } else if (type.equals("isidraw")) {
-          view.draw(canvas);
+        if (cnt != 2) {
+          errmsg = "invalid argument";
+          rc=1;
+          break;
+        }
+        if (this.view != null && !this.pchild.pform.closed) {
+          if (!this.nodblbuf && this.bitmap != null) {
+            if (!JConsoleApp.theApp.asyncj) {
+              this.canvas.drawBitmap(this.bitmap, 0.0f, 0.0f, this.paint);
+            }
+            if (this.type.equals((Object)"isigraph") || this.type.equals((Object)"isidraw")) {
+              ((JIsigraph)this.pchild).paintx = true;
+              this.view.invalidate();
+            }
+            if (this.type.equals((Object)"opengl")) {
+              ((JOpengl)this.pchild).paintx = true;
+              this.view.invalidate();
+            }
+          } else {
+            if (JConsoleApp.theApp.asyncj && this.type.equals((Object)"isigraph")) {
+              ((JIsigraph)this.pchild).paintx = true;
+              this.view.invalidate();
+            }
+            if (JConsoleApp.theApp.asyncj && this.type.equals((Object)"opengl")) {
+              ((JOpengl)this.pchild).paintx = true;
+              this.view.invalidate();
+            }
+          }
         }
         break;
 
       case 2022 :    // glpen
+        if (cnt != 4) {
+          errmsg = "invalid argument";
+          rc=1;
+          break;
+        }
+        if (JConsoleApp.theApp.asyncj && this.canvas == null) {
+          rc=appendsbuf(buf, p, cnt);
+          break;
+        }
         andpenrgb = andrgb;
         paint.setStrokeWidth(Math.max(1.3f,(float)buf[p+2]));
         switch (buf[p+3]) {
-        case 1 : // solid
+        case PS_SOLID : // solid
           paint.setPathEffect(new DashPathEffect(new float[] {1, 0}, 0));
           break;
-        case 2 : // dash
+        case PS_DASH : // dash
           paint.setPathEffect(new DashPathEffect(new float[] {12, 3}, 0));
           break;
-        case 3 : // dot
+        case PS_DOT : // dot
           paint.setPathEffect(new DashPathEffect(new float[] {3, 3}, 0));
           break;
-        case 4 : // dash dot
+        case PS_DASHDOT : // dash dot
           paint.setPathEffect(new DashPathEffect(new float[] {12, 3, 3, 3}, 0));
           break;
-        case 5 : // dash dot dot
+        case PS_DASHDOTDOT : // dash dot dot
           paint.setPathEffect(new DashPathEffect(new float[] {12, 3, 3, 3, 3, 3}, 0));
           break;
         default : // no
@@ -410,8 +644,13 @@ public class Glcmds
         break;
 
       case 2023 :  // glpie
+        if (cnt != 10) {
+          errmsg = "invalid argument";
+          rc=1;
+          break;
+        }
         if (null==canvas) {
-          errcnt=1;
+          rc=appendsbuf(buf, p, cnt);
           break;
         }
         paint.setStyle(Paint.Style.FILL);
@@ -424,14 +663,18 @@ public class Glcmds
         break;
 
       case 2024 :    // glpixel
+        if (cnt != 4) {
+          errmsg = "invalid argument";
+          rc=1;
+          break;
+        }
         if (null==canvas) {
-          errcnt=1;
+          rc=appendsbuf(buf, p, cnt);
           break;
         }
         paint.setColor(andrgb);
         c = (cnt - 2) / 2;
-        if (0 == c) break;
-        {
+        if (0 != c) {
           float[] pts = new float[cnt-2];
           for (i = 0; i < cnt - 2; i++) pts[i] = (float)buf[p + 2 + i];
           canvas.drawPoints(pts, paint);
@@ -440,7 +683,7 @@ public class Glcmds
 
       case 2076 :  // glpixels
         if (null==canvas) {
-          errcnt=1;
+          rc=appendsbuf(buf, p, cnt);
           break;
         }
         a = buf[p + 2];
@@ -457,12 +700,11 @@ public class Glcmds
 
       case 2029 :    // glpolygon
         if (null==canvas) {
-          errcnt=1;
+          rc=appendsbuf(buf, p, cnt);
           break;
         }
         c = (cnt - 2) / 2;
-        if (0 == c) break;
-        {
+        if (0 != c) {
           path.reset();
           path.moveTo(buf[p+2], buf[p+3]);
           for (i=0; i<c-1; i++) path.lineTo(buf[p+2+2*(1+i)], buf[p+2+1+2*(1+i)]);
@@ -486,40 +728,52 @@ public class Glcmds
       case 2057 :    // glqextent
         textstring = Util.int2String(buf, p+2, cnt-2);
         int[] wh = qextent(textstring);
-        result=new int[] {wh[0], wh[1],};
-        errcnt=-1;
+        intresult=new int[] {wh[0], wh[1],};
+        rc=-1;
         break;
 
       case 2083 :    // glqextentw
         textstring = Util.int2String(buf, p+2, cnt-2);
         int[] ws = qextentw(textstring.split("\n"));
         if (0<ws.length) {
-          result=new int[ws.length];
+          intresult=new int[ws.length];
           for (int j=0; j<ws.length-1; j++)
-            result[j]=ws[j];
+            intresult[j]=ws[j];
         } else {
-          result=new int[0];
+          intresult=new int[0];
         }
-        errcnt=-1;
+        rc=-1;
         break;
 
       case 2060 :    // glqhandles
-        result=new int[] {view.getId(), 0, 0,};
-        errcnt=-1;
+        if (cnt != 2) {
+          errmsg = "invalid argument";
+          rc=1;
+          break;
+        }
+        intresult=new int[] {view.getId(), 0, 0,};
+        rc=-1;
         break;
 
       case 2077 :    // glqpixels
+        if (cnt != 6) {
+          errmsg = "invalid argument";
+          rc=1;
+          break;
+        }
         a=buf[p+2];
         b=buf[p+3];
         w=buf[p+4];
         h=buf[p+5];
-        result=new int[w*h];
+        intresult=new int[w*h];
 // only works for isidraw; return all zero for isigraph
-        if (type.equals("isidraw")) {
-          bitmap.getPixels(result, 0, w, a, b, w, h);
+        if ((!nodblbuf || type.equals("isidraw")) && bitmap!=null) {
+          bitmap.getPixels(intresult, 0, w, a, b, w, h);
+          if (0==RGBSEQ) fliprgb (intresult, w*h);
+        } else {
+          Arrays.fill(intresult, 0);
         }
-        if (0==RGBSEQ) fliprgb (result, w*h);
-        errcnt=-1;
+        rc=-1;
         break;
 
       case 2058 :    // glqtextmetrics
@@ -540,24 +794,34 @@ public class Glcmds
         float top=-metrics.top;
         float cw=qextent("8")[0];
         float cw1=qextent("M")[0];
-        result=new int[] {(int)(top+bottom),(int)asc,(int)dsc,0,(int)leading,(int)cw,(int)cw1};
-        errcnt=-1;
+        intresult=new int[] {(int)(top+bottom),(int)asc,(int)dsc,0,(int)leading,(int)cw,(int)cw1};
+        rc=-1;
         break;
 
       case 2095 :    // glqtype
-        result=new int[] {(type.equals("opengl"))?2:(type.equals("isidraw"))?1:0};
-        errcnt=-1;
+        if (cnt != 2) {
+          errmsg = "invalid argument";
+          rc=1;
+          break;
+        }
+        intresult=new int[] {(type.equals("opengl"))?2:(type.equals("isidraw"))?1:0};
+        rc=-1;
         break;
 
       case 2059 :    // glqwh
-        result=new int[] {view.getWidth(),view.getHeight()};
+        if (cnt != 2) {
+          errmsg = "invalid argument";
+          rc=1;
+          break;
+        }
+        intresult=new int[] {view.getWidth(),view.getHeight()};
         Log.d(JConsoleApp.LogTag,"glqwh : "+view.getWidth()+" "+view.getHeight());
-        errcnt=-1;
+        rc=-1;
         break;
 
       case 2031 :    // glrect
         if (null==canvas) {
-          errcnt=1;
+          rc=appendsbuf(buf, p, cnt);
           break;
         }
         if (0 == andbrushnull) {
@@ -583,16 +847,34 @@ public class Glcmds
         break;
 
       case 2032 :    // glrgb
+        if (cnt != 5) {
+          errmsg = "invalid argument";
+          rc=1;
+          break;
+        }
+        if (JConsoleApp.theApp.asyncj && this.canvas == null) {
+          rc=appendsbuf(buf, p, cnt);
+          break;
+        }
         andrgb = Color.argb (255, buf[p+2], buf[p+3], buf[p+4]);
         break;
 
       case 2343 :    // glrgba
+        if (cnt != 6) {
+          errmsg = "invalid argument";
+          rc=1;
+          break;
+        }
+        if (JConsoleApp.theApp.asyncj && this.canvas == null) {
+          rc=appendsbuf(buf, p, cnt);
+          break;
+        }
         andrgb = Color.argb (buf[p+5], buf[p+2], buf[p+3], buf[p+4]);
         break;
 
       case 2038 :    // gltext
         if (null==canvas) {
-          errcnt=1;
+          rc=appendsbuf(buf, p, cnt);
           break;
         }
         textstring = Util.int2String(buf, p+2, cnt-2);
@@ -603,23 +885,47 @@ public class Glcmds
           canvas.rotate(-andfontangle/10f, andtextx, andtexty);
         }
         paint.getTextBounds(textstring,0,textstring.length(),rect);
-        canvas.drawText(textstring, andtextx-rect.left, andtexty-rect.top, paint);
+//        canvas.drawText(textstring, andtextx-rect.left, andtexty-rect.top, paint);
+        canvas.drawText(textstring, andtextx-rect.left, andtexty, paint);
         if (0!=andfontangle)
           canvas.restore();
         break;
 
       case 2040 :    // gltextcolor
+        if (cnt != 2) {
+          errmsg = "invalid argument";
+          rc=1;
+          break;
+        }
+        if (JConsoleApp.theApp.asyncj && this.canvas == null) {
+          rc=appendsbuf(buf, p, cnt);
+          break;
+        }
         andtextrgb = andrgb;
         break;
 
       case 2056 :    // gltextxy
+        if (cnt != 4) {
+          errmsg = "invalid argument";
+          rc=1;
+          break;
+        }
+        if (JConsoleApp.theApp.asyncj && this.canvas == null) {
+          rc=appendsbuf(buf, p, cnt);
+          break;
+        }
         andtextx = buf[p+2];
         andtexty = buf[p+3];
         break;
 
       case 2045 :    // glwindoworg
+        if (cnt != 4) {
+          errmsg = "invalid argument";
+          rc=1;
+          break;
+        }
         if (null==canvas) {
-          errcnt=1;
+          rc=appendsbuf(buf, p, cnt);
           break;
         }
         andorgx += buf[p+2];
@@ -627,17 +933,26 @@ public class Glcmds
         canvas.translate(buf[p+2],buf[p+3]);
         break;
 
+// legacy commands ignored
+      case 2003 :    // bkmode
+      case 2071 :    // noerasebkgnd
+        break;
+
       default :
-        Log.d(JConsoleApp.LogTag, "Glcmds: cmd not implemented " + Integer.toString(cmd));
-        errcnt=1;
+        errmsg = "cmd not implemented " + Integer.toString(cmd);
+        rc=1;
       }
       p =  p + cnt;
     }
 
-    if (0>errcnt)
-      res[0]=result;
-    if (0<errcnt) Log.d(JConsoleApp.LogTag, "Glcmds err: " + Integer.toString(errcnt));
-    return errcnt;
+    if (0>rc) {
+      JConsoleApp.theWd.intresult=intresult;
+      JConsoleApp.theWd.intresultshape=intresultshape;
+    } else if (0<rc) {
+      Log.d(JConsoleApp.LogTag, "Glcmds cmd err: " + Integer.toString(cmd) + " " + errmsg);
+      JConsoleApp.theWd.glerror(cmd,errmsg);
+    }
+    return rc;
   }
 
 }

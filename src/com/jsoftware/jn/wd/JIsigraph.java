@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import com.jsoftware.j.android.JConsoleApp;
+import com.jsoftware.j.android.AndroidJInterface;
 import com.jsoftware.jn.base.Util;
 import com.jsoftware.jn.base.Utils;
 
@@ -13,9 +14,12 @@ class JIsigraph extends Child
 {
 
   Glcmds glcmds;
+  public boolean nodblbuf=false;
+  public boolean nopaintevent=false;
+  public boolean paintx=false;
 
   Bitmap bitmap=null;
-  private Canvas canvas;
+  Canvas canvas=null;
 // sysdata
   private int cx,cy,andw,andh,button1,button2,control,shift,button3;
 
@@ -32,22 +36,23 @@ class JIsigraph extends Child
     childStyle(opt);
 
     w.setFocusable(true);
-    glcmds=new Glcmds(widget, type);
+    glcmds=new Glcmds(this);
 
-    if (type.equals("isidraw")) {
+    if (!nodblbuf || type.equals("isidraw")) {
       bitmap=Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
       canvas=new Canvas(bitmap);
       canvas.drawARGB(255,255,255,255);
       glcmds.canvas=canvas;
       glcmds.bitmap=bitmap;
     }
-    glcmds.glclear2(false);
+    JConsoleApp.theWd.gltarget = 0;
     JConsoleApp.theWd.isigraph = this;
 
+    glcmds.glclear2(false);
     w.setOnTouchListener(new View.OnTouchListener() {
       @Override
       public boolean onTouch(View view, MotionEvent event) {
-        return JIsigraph.this.onTounch(view, event);
+        return JIsigraph.this.onTouch(view, event);
       }
     });
 
@@ -77,10 +82,12 @@ class JIsigraph extends Child
   void onDraw (Canvas canvas)
   {
     Log.d(JConsoleApp.LogTag,"JIsigraph onDraw");
+    nopaintevent=true;
     if (type.equals("isidraw"))
       paintEvent_isidraw(canvas);
     else
       paintEvent_isigraph(canvas);
+    nopaintevent=false;
   }
 
 // ---------------------------------------------------------------------
@@ -88,7 +95,7 @@ class JIsigraph extends Child
   {
     andw=w;
     andh=h;
-    if (type.equals("isidraw")) {
+    if (!nodblbuf || type.equals("isidraw")) {
       if (null!=bitmap) {
         if (w > bitmap.getWidth() || h > bitmap.getHeight()) {
           Bitmap p=Bitmap.createBitmap(w+128, h+128, Bitmap.Config.ARGB_8888);
@@ -103,15 +110,18 @@ class JIsigraph extends Child
         canvas=new Canvas(bitmap);
         canvas.drawARGB(255,255,255,255);
       }
+      glcmds.canvas=canvas;
+      glcmds.bitmap=bitmap;
+      if(type=="isidraw") {
+        event="resize";
+        pform.signalevent(this);
+      } else
+        widget.invalidate();  // isigraph paint event
     }
-    glcmds.canvas=canvas;
-    glcmds.bitmap=bitmap;
-    event="resize";
-    pform.signalevent(this);
   }
 
 // ---------------------------------------------------------------------
-  boolean onTounch(View view, MotionEvent event)
+  boolean onTouch(View view, MotionEvent event)
   {
     String name;
     int action=event.getAction();
@@ -143,7 +153,8 @@ class JIsigraph extends Child
   @Override
   void setform()
   {
-    if (!(event.equals("paint") || event.equals("resize"))) super.setform();
+    if (!(event.equals("paint") || event.equals("resize") || event.equals("mmove") || event.equals("mwheel") || event.equals("focus") || event.equals("lostfocus"))) super.setform();
+    JConsoleApp.theWd.gltarget = 0;
     JConsoleApp.theWd.isigraph=this;
   }
 
@@ -178,34 +189,52 @@ class JIsigraph extends Child
 //   else
 //     glcmds.painter.fillRect(0,0,width(),height(),c);
   }
-//
-// // ---------------------------------------------------------------------
+
+// ---------------------------------------------------------------------
   private Bitmap getbitmap()
   {
-//   Bitmap m=new Bitmap();
-//   if (null!=bitmap)
-//     return bitmap.copy(0,0,widget.getWidth(),widget.getHeight());
-//   if (null!=glcmds.canvas) return m;
-//   Bitmap p=Bitmap.createBitmap(widget.getWidth(),widget.getHeight(), Bitmap.Config.ARGB_8888);
-//  render(&p);
-    return null;
+    ((View)widget).setDrawingCacheEnabled(true);
+    Bitmap bitmap = Bitmap.createBitmap(((View)widget).getDrawingCache());
+    ((View)widget).setDrawingCacheEnabled(false);
+    return bitmap;
   }
-//
+
 // ---------------------------------------------------------------------
   private void paintEvent_isidraw(Canvas canvas)
   {
-    if (null==bitmap) return;
-    canvas.drawBitmap(bitmap,0f,0f,glcmds.paint);
+    if (bitmap!=null)
+      canvas.drawBitmap(bitmap,0f,0f,glcmds.paint);
   }
 //
 // ---------------------------------------------------------------------
   private void paintEvent_isigraph(Canvas canvas)
   {
-    JConsoleApp.theWd.isigraph=this;
-    glcmds.canvas=canvas;
-    event="paint";
-    pform.signalevent(this);
-    glcmds.canvas=null;
+    if(nodblbuf) {
+      this.canvas = canvas;
+      glcmds.canvas=canvas;
+    }
+    if (0<glcmds.sbuf.length) {
+      glcmds.commitsbuf();
+    }
+    if(nodblbuf && JConsoleApp.theApp.asyncj) {
+      this.canvas = null;
+      glcmds.canvas=null;
+    }
+    if (!paintx) {         // suppress paint event if called from glpaintx
+      JConsoleApp.theWd.gltarget=0;
+      JConsoleApp.theWd.isigraph=this;
+      event="paint";
+      pform.signalevent(this);
+    } else
+      paintx=false;
+    if (!nodblbuf || type.equals("isidraw")) {
+      if (bitmap!=null)
+        canvas.drawBitmap(bitmap,0f,0f,glcmds.paint);
+    }
+    if(nodblbuf) {
+      this.canvas = null;
+      glcmds.canvas=null;
+    }
   }
 // // ---------------------------------------------------------------------
 // private void buttonEvent(QEvent.Type type, QMouseEvent *event)

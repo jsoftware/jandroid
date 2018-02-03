@@ -13,6 +13,8 @@
     <string name="wdactivity_name">Wd</string>
     <string name="textviewactivity_name">TextView</string>
     
+    <string name="jversion">807</string>
+
     <string name="runpacman">runpacman_jpacman_ 0 [ require \'pacman ~addons/ide/ja/pacman.ijs\'</string>
     <string name="help_start">dictionary/vocabul.htm</string>
     <string name="learning">learning/contents.htm</string>

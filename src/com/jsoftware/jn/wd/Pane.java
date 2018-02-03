@@ -82,7 +82,7 @@ class Pane extends LinearLayout
 //     child=(Child ) new IsiGrid(n,p,pform,this);
     else if (c.equals("listbox"))
       child=(Child ) new JListView(n,p,pform,this);
-    else if (c.equals("opengl"))
+    else if (!JConsoleApp.theApp.asyncj && c.equals("opengl"))
       child=(Child ) new JOpengl(n,p,pform,this);
     else if (c.equals("progressbar"))
       child=(Child ) new JProgressBar(n,p,pform,this);

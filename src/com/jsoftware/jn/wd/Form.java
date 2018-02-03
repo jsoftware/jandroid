@@ -8,7 +8,10 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.support.v7.widget.Toolbar;
+import android.content.res.TypedArray;
 import com.jsoftware.j.android.JConsoleApp;
 import com.jsoftware.jn.base.Util;
 import com.jsoftware.jn.base.Utils;
@@ -21,7 +24,7 @@ import java.util.Map;
 
 class Form extends LinearLayout
 {
-  com.jsoftware.j.JInterface jInterface = null;
+  com.jsoftware.j.android.AndroidJInterface jInterface = null;
   JMb dialog;
   boolean oldform=false;
   boolean closed;
@@ -46,6 +49,7 @@ class Form extends LinearLayout
   Map<String, Integer> binx;
   private Handler timerHandler;
   private Runnable timerRunnable;
+  boolean mPause = false;
 
 // private
   private long timerInterval;
@@ -92,7 +96,7 @@ class Form extends LinearLayout
     timerRunnable = new Runnable() {
       @Override
       public void run() {
-        if (0!=timerInterval) {
+        if (0<timerInterval) {
           timerHandler.postDelayed(timerRunnable, timerInterval);
           systimer();
         }
@@ -110,10 +114,6 @@ class Form extends LinearLayout
     if (this==JConsoleApp.theWd.evtform) JConsoleApp.theWd.evtform = null;
     JConsoleApp.theWd.Forms.remove(this);
     if (JConsoleApp.theWd.Forms.isEmpty()) JConsoleApp.theWd.form=null;
-    if (!JConsoleApp.theWd.Forms.isEmpty()) {
-      JConsoleApp.theWd.form=JConsoleApp.theWd.Forms.get(JConsoleApp.theWd.Forms.size()-1);
-      JConsoleApp.theWd.wdactivateform();
-    }
     if (JConsoleApp.theWd.Forms.isEmpty() && (!Util.ShowIde)) {
 //   var_cmddo("(i.0 0)\"_ (2!:55)0");
 //   state_quit();
@@ -129,6 +129,7 @@ class Form extends LinearLayout
 // ---------------------------------------------------------------------
   void onPause()
   {
+    mPause = true;
     for (Child c : children) {
       if (c.type.equals("opengl"))
         ((JOpengl)c).onPause();
@@ -140,6 +141,7 @@ class Form extends LinearLayout
 // ---------------------------------------------------------------------
   void onResume()
   {
+    mPause = false;
     for (Child c : children) {
       if (c.type.equals("isigraph")||c.type.equals("isidraw"))
         ((JIsigraph)c).onResume();
@@ -216,17 +218,6 @@ class Form extends LinearLayout
     pane=new Pane(n,this);
     panes.add(pane);
     return pane;
-  }
-
-// ---------------------------------------------------------------------
-  void backButtonTimer()
-  {
-    backButtonPressed=false;
-    if (2>JConsoleApp.theWd.Forms.size()) return;
-    JConsoleApp.theWd.Forms.remove(this);
-    JConsoleApp.theWd.Forms.add(0,this);
-    JConsoleApp.theWd.form=JConsoleApp.theWd.Forms.get(JConsoleApp.theWd.Forms.size()-1);
-    JConsoleApp.theWd.wdactivateform();
   }
 
 // // ---------------------------------------------------------------------
@@ -432,29 +423,7 @@ class Form extends LinearLayout
 //   } else
 //     View::keyPressEvent(e);
 // }
-//
-// // ---------------------------------------------------------------------
-// void keyReleaseEvent(QKeyEvent e)
-// {
-//   if (e.key()==KEYCODE_Back) {
-//     if (!(backButtonPressed||(Qt::NonModal!=windowModality()))) {
-//       backButtonPressed=true;
-//       QTimer::singleShot(2000, this, SLOT(backButtonTimer()));
-//     } else {
-//       if (closed) return;
-//       if (closeok) {
-//         closed=true;
-//         close();
-//       } else {
-//         event="close";
-//         fakeid="";
-//         JConsoleApp.theWd.form=this;
-//         signalevent(null);
-//       }
-//     }
-//   } else View::keyReleaseEvent(e);
-// }
-//
+
 // ---------------------------------------------------------------------
   void set(String p,String v)
   {
@@ -526,30 +495,22 @@ class Form extends LinearLayout
   void settimer(String p)
   {
     timerInterval=Util.c_strtol(p);
-    if (0!=timerInterval) {
+    if (0<timerInterval) {
       if (null==timerHandler) timerHandler = new Handler();
       timerHandler.postDelayed(timerRunnable, timerInterval);
-    } else {
-      if (null!=timerHandler) {
-        timerHandler.removeCallbacks(timerRunnable);
-        timerHandler = null;
-      }
     }
   }
-//
+
 // ---------------------------------------------------------------------
   void showit(String p)
   {
     if (!shown) {
-// showide(false);
-//      if (JConsoleApp.theWd.Forms.size()>1)
-//        (JConsoleApp.theWd.Forms.get(JConsoleApp.theWd.Forms.size()-2)).setVisibility(View.GONE);
       for (int i=panes.size()-1; i>=0; i--)
         panes.get(i).fini();
 
       addView(pane);
 
-      activity.setContentView(this);
+      activity.getFrame().addView(this);
       shown=true;
     }
   }
@@ -564,6 +525,7 @@ class Form extends LinearLayout
   void signalevent(Child c, KeyEvent e)
   {
     if ((0!=Util.NoEvents) || closed) return;
+    if (mPause) return;
     String loc = locale;
     JConsoleApp.theWd.evtform=this;
     if (null!=c) {
@@ -624,9 +586,9 @@ class Form extends LinearLayout
     boolean jecallback=false;
     if (jecallback) {
 //     term.removeprompt();
-      jInterface.callJ("wdhandlerx_ja_ '" + loc + "'");
+      jInterface.callJ("(i.0 0)\"_ wdhandlerx_ja_ '" + loc + "'", false);
     } else
-      jInterface.callJ("wdhandler_" + loc + "_$0");
+      jInterface.callJ("(i.0 0)\"_ wdhandler_" + loc + "_$0", false);
   }
 
 // ---------------------------------------------------------------------
@@ -684,9 +646,9 @@ class Form extends LinearLayout
       for (int i=0; i<children.size(); i++)
         r.write(children.get(i).state());
     } catch (IOException exc) {
-      Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
+      Log.e(JConsoleApp.LogTag,Log.getStackTraceString(exc));
     } catch (Exception exc) {
-      Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
+      Log.e(JConsoleApp.LogTag,Log.getStackTraceString(exc));
     }
 
     return r.toByteArray();
@@ -703,6 +665,7 @@ class Form extends LinearLayout
 // ---------------------------------------------------------------------
   private void systimer()
   {
+    if (mPause) return;
     event="timer";
     fakeid="";
     signalevent(null);

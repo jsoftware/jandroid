@@ -14,8 +14,12 @@ class JOpengl extends Child
 {
 
   Glcmds glcmds;
+  public boolean nodblbuf=true;
+  public boolean nopaintevent=false;
+  public boolean paintx=false;
 
-  private Canvas canvas;
+  Bitmap bitmap=null;
+  Canvas canvas=null;
 // sysdata
   private int cx,cy,andw,andh,button1,button2,control,shift,button3;
 
@@ -47,13 +51,18 @@ class JOpengl extends Child
     }
 
     JGLView w= new JGLView(this, f.activity, new int[] {ver1,ver2});
+    if (!w.initOK) {
+      JConsoleApp.theWd.error(type);
+      return;
+    }
     widget=(View ) w;
     childStyle(opt);
 
     w.setFocusable(true);
-    glcmds=new Glcmds(widget, type);
+    glcmds=new Glcmds(this);
 
     glcmds.glclear2(false);
+    JConsoleApp.theWd.gltarget = 1;
     JConsoleApp.theWd.opengl = this;
 
     w.setOnTouchListener(new View.OnTouchListener() {
@@ -100,11 +109,30 @@ class JOpengl extends Child
   void onDraw (Canvas canvas)
   {
     Log.d(JConsoleApp.LogTag,"JOpengl onDraw");
-    JConsoleApp.theWd.opengl=this;
-    glcmds.canvas=canvas;
-    event="paint";
-    pform.signalevent(this);
-    glcmds.canvas=null;
+    nopaintevent=true;
+    if(nodblbuf) {
+      this.canvas = canvas;
+      glcmds.canvas=canvas;
+    }
+    if (0<glcmds.sbuf.length) {
+      glcmds.commitsbuf();
+    }
+    if(nodblbuf && JConsoleApp.theApp.asyncj) {
+      this.canvas = null;
+      glcmds.canvas=null;
+    }
+    if (!paintx) {         // suppress paint event if called from glpaintx
+      JConsoleApp.theWd.gltarget = 1;
+      JConsoleApp.theWd.opengl=this;
+      event="paint";
+      pform.signalevent(this);
+    } else
+      paintx=false;
+    if(nodblbuf) {
+      this.canvas = null;
+      glcmds.canvas=null;
+    }
+    nopaintevent=false;
   }
 
 // ---------------------------------------------------------------------
@@ -159,6 +187,7 @@ class JOpengl extends Child
   {
     if (null==widget) return;
     if (!(event.equals("paint") || event.equals("resize"))) super.setform();
+    JConsoleApp.theWd.gltarget = 1;
     JConsoleApp.theWd.opengl=this;
   }
 
@@ -183,13 +212,4 @@ class JOpengl extends Child
     return new byte[0];
   }
 
-// ---------------------------------------------------------------------
-  private void paintEvent_opengl(Canvas canvas)
-  {
-    JConsoleApp.theWd.opengl=this;
-    glcmds.canvas=canvas;
-    event="paint";
-    pform.signalevent(this);
-    glcmds.canvas=null;
-  }
 }

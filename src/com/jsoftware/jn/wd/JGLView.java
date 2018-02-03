@@ -36,6 +36,7 @@ class JGLView extends SurfaceView implements SurfaceHolder.Callback
 
   private SurfaceHolder mHolder;
   private boolean mPause=false;
+  public boolean initOK = false;
 
 // ---------------------------------------------------------------------
   JGLView (JOpengl pchild, Context context, int[] version)
@@ -68,6 +69,7 @@ class JGLView extends SurfaceView implements SurfaceHolder.Callback
      * and grab the first configuration that matches is
      */
     mEglHelper.start();
+    initOK = mEglHelper.mEglOK;
     gl = null;
   }
 
@@ -174,6 +176,7 @@ class JGLView extends SurfaceView implements SurfaceHolder.Callback
     EGLSurface mEglSurface;
     EGLConfig mEglConfig;
     EGLContext mEglContext;
+    boolean mEglOK = false;
 
 // ----------------------------------------------------------------------
     public EglHelper()
@@ -229,6 +232,7 @@ class JGLView extends SurfaceView implements SurfaceHolder.Callback
       mEglDisplay = mEgl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY);
       if (mEglDisplay == EGL10.EGL_NO_DISPLAY) {
         Log.d(JConsoleApp.LogTag,"JGLView failed: "+"eglGetDisplay");
+        return;
       }
 
       /*
@@ -237,6 +241,7 @@ class JGLView extends SurfaceView implements SurfaceHolder.Callback
       int[] eglversion = new int[2];
       if (!mEgl.eglInitialize(mEglDisplay, eglversion)) {
         Log.d(JConsoleApp.LogTag,"JGLView failed: "+"eglInitialize");
+        return;
       }
 
       EGLConfig[] configs = new EGLConfig[1];
@@ -246,6 +251,7 @@ class JGLView extends SurfaceView implements SurfaceHolder.Callback
       mEglConfig = configs[0];
       if (null==mEglConfig) {
         Log.d(JConsoleApp.LogTag,"JGLView failed: "+"eglChooseConfig");
+        return;
       }
 
       /*
@@ -288,9 +294,11 @@ class JGLView extends SurfaceView implements SurfaceHolder.Callback
       }
       if (EGL10.EGL_NO_CONTEXT==mEglContext ) {
         Log.d(JConsoleApp.LogTag,"JGLView failed: "+"eglCreateContext");
+        return;
       }
 
       mEglSurface = null;
+      mEglOK = true;
     }
 
 // ----------------------------------------------------------------------

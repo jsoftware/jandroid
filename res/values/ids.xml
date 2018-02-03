@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="sliderItemIcon" type="id"/>
+    <item name="sliderItemTitle" type="id"/>
+    <item name="sliderItemProgress" type="id"/>
+    <item name="sliderItemState" type="id"/>
+</resources>

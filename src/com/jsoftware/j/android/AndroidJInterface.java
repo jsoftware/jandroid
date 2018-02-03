@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
+import java.lang.ThreadGroup;
 
 import com.jsoftware.j.ExecutionListener;
 import com.jsoftware.j.JInterface;
@@ -21,29 +22,26 @@ public class AndroidJInterface extends JInterface
 {
 
   public static final String INTERFACE_VERSION="1.0";
-  JRunner runner = null;
+  Thread runner = null;
   Thread thread = null;
   LinkedList<String> commandBuffer = new LinkedList<String>();
+  Boolean waiting = false;
 
   public AndroidJInterface(JConsoleApp theApp)
   {
     super.theApp = theApp;
-    runner = new JRunner();
+    super.asyncj = theApp.asyncj;
+    runner = new Thread(new ThreadGroup("j"), new JRunnable(), "j", theApp.stacksize);
   }
 
   public void stop()
   {
-    runner.stop();
     intr();
   }
 
   public void start()
   {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-      runner.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, new String[] {});
-    }  else {
-      runner.execute(new String[] {});
-    }
+    runner.start();
   }
 
   public void intr()
@@ -53,10 +51,14 @@ public class AndroidJInterface extends JInterface
     }
   }
 
-  public void addLine(String sentence)
+  public void addLine(String sentence, boolean addprompt)
   {
-    synchronized (commandBuffer) {
-      commandBuffer.addFirst(sentence);
+    LinkedList<String> linkedList = this.commandBuffer;
+    synchronized (linkedList) {
+      if (addprompt)
+        commandBuffer.addFirst(promptkey + sentence);
+      else
+        commandBuffer.addFirst(sentence);
       intr();
     }
   }
@@ -66,8 +68,52 @@ public class AndroidJInterface extends JInterface
     return theApp.launchActivity(action,data,type,flags);
   }
 
-  public String nextLine()
+  public String nextLine(String s)
   {
+    synchronized (waiting ) {
+      waiting = true;
+    }
+    try {
+      thread = Thread.currentThread();
+      while(true) {
+        synchronized(commandBuffer) {
+          if(commandBuffer.size() >0) {
+            synchronized (waiting ) {
+              waiting = false;
+            }
+            return commandBuffer.removeLast();
+          }
+        }
+        try {
+          Thread.sleep(250);
+        } catch(Exception e) {
+          // ignore sleep/interrupted exceptions
+        }
+      }
+    } catch(Exception e) {
+      Log.e(LOGTAG,"error reading line",e);
+    } finally {
+      synchronized(commandBuffer) {
+        thread = null;
+      }
+    }
+    synchronized (waiting ) {
+      waiting = false;
+    }
+    return null;
+  }
+
+  public String localnextLine()
+  {
+    synchronized (waiting ) {
+      while (waiting) {
+        try {
+          Thread.sleep(250);
+        } catch(Exception e) {
+          // ignore sleep/interrupted exceptions
+        }
+      }
+    }
     try {
       thread = Thread.currentThread();
       while(true) {
@@ -103,68 +149,40 @@ public class AndroidJInterface extends JInterface
     return runtime.exec(cmd);
   }
 
+  public int callSuperJ(String sentence, boolean addprompt)
+  {
+    return super.callJ(sentence, addprompt);
+  }
+  @Override
+  public int callJ(String sentence, boolean addprompt)
+  {
+    if (asyncj) {
+      addLine(sentence, addprompt);
+      return 0;
+    } else
+      return super.callJ(sentence, addprompt);
+  }
+
   protected void callBreak()
   {
-    callJ("break_z_ ''");
+    callJ("(i.0 0)\"_ break_z_$0", false);
   }
 
-  class JRunner extends AsyncTask<String, Object, Integer>
-    implements ExecutionListener, OutputListener
+  class JRunnable implements Runnable
   {
-    LinkedList<String> cms = new LinkedList<String>();
-    boolean running = true;
-
-    public void stop()
-    {
-      running = false;
-      //		intr();
-    }
     @Override
-    protected void onProgressUpdate(Object... objs)
+    public void run()
     {
-      for(Object o : objs) {
-        if(o instanceof Boolean) {
-          theApp.setEnableConsole((Boolean)o);
-        } else if(o instanceof EngineOutput) {
-          theApp.consoleOutput((EngineOutput)o);
-        }
-      }
-    }
-
-    @Override
-    protected Integer doInBackground(String... params)
-    {
-      AndroidJInterface.this.addOutputListener(this);
-      thread = Thread.currentThread();
-      while (running) {
-        String cmd = nextLine();
+      while (true) {
+        String cmd = localnextLine();
         if(cmd != null) {
-          // publishProgress(false);
-          StringBuilder sb = new StringBuilder();
-          AndroidJInterface.this.addExecutionListener(this);
-          callJ(cmd);
-          AndroidJInterface.this.removeExecutionListener(this);
-          synchronized (commandBuffer) {
-            if(commandBuffer.size() == 0) {
-              publishProgress(true);
-            }
-          }
+          if (cmd.startsWith(promptkey))
+            callSuperJ(cmd.substring(promptkey.length()), true);
+          else
+            callSuperJ(cmd, false);
         }
       }
-      AndroidJInterface.this.removeOutputListener(this);
-      return 0;
-    }
-
-    public void onCommandComplete(int resultCode)
-    {
-      EngineOutput eo = new EngineOutput(AndroidJInterface.MTYOFM, "   ");
-      publishProgress(eo);
-    }
-
-    public void onOutput(int type, String s)
-    {
-      EngineOutput eo = new EngineOutput(type, s);
-      publishProgress(eo);
     }
   }
+
 }

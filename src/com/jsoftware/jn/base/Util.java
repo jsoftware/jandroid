@@ -130,7 +130,7 @@ public class Util
       f.close();
       return s.length();
     } catch (IOException exc) {
-      Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
+      Log.e(JConsoleApp.LogTag,Log.getStackTraceString(exc));
       return 0;
     }
   }
@@ -145,7 +145,7 @@ public class Util
       f.close();
       return b.length;
     } catch (IOException exc) {
-      Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
+      Log.e(JConsoleApp.LogTag,Log.getStackTraceString(exc));
       return 0;
     }
   }
@@ -865,9 +865,9 @@ public class Util
       r.write(t.getBytes(Charset.forName("UTF-8")));
       r.write('\0');
     } catch (IOException exc) {
-      Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
+      Log.e(JConsoleApp.LogTag,Log.getStackTraceString(exc));
     } catch (Exception exc) {
-      Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
+      Log.e(JConsoleApp.LogTag,Log.getStackTraceString(exc));
     }
     return r.toByteArray();
   }

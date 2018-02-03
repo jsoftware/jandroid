@@ -58,19 +58,30 @@ public class HelpActivity extends AbstractActivity
     return true;
   }
   @Override
-  public boolean onMenuItemSelected(int featureId, MenuItem item)
+  public boolean onOptionsItemSelected(MenuItem item)
   {
     boolean result = true;
     int itemId = item.getItemId();
-    Log.d(JConsoleApp.LogTag,"selection " + itemId + ", " + getClass().getName());
+    Log.d(JConsoleApp.LogTag,"onOptionsItemSelected selection " + itemId + ", " + getClass().getName());
     switch(itemId) {
     default:
       result = false;
     }
     if(!result) {
-      result = super.onMenuItemSelected(featureId, item);
+      result = super.onOptionsItemSelected(item);
     }
 
     return result;
   }
+  @Override
+  public boolean shouldEnableDrawer()
+  {
+    return true;
+  }
+
+  @Override
+  protected void addIntent()
+  {
+  }
+
 }

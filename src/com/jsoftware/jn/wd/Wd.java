@@ -30,6 +30,7 @@ import java.lang.Math;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 public class Wd
 {
@@ -38,14 +39,15 @@ public class Wd
   static public int nextId=1;
 
   JWdActivity activity;
+  public String locale="";
   private Cmd cmd;
   private Child cc;
   Form form;
   Form evtform;
   private Font fontdef;
   private Font FontExtent;
-  JIsigraph isigraph;
-  JOpengl opengl;
+  JIsigraph isigraph=null;
+  JOpengl opengl=null;
 
   private Handler systimerHandler;
   private Runnable systimerRunnable;
@@ -55,7 +57,11 @@ public class Wd
   int FormSeq;
   int rc;
   private String lasterror="";
-  private byte[] result;
+  public byte[] result;
+  public int[] resultshape;
+  public int[] intresult;
+  public int[] intresultshape;
+  public int gltarget=0;
 
   private String ccmd="";
 
@@ -81,9 +87,9 @@ public class Wd
     systimerRunnable = new Runnable() {
       @Override
       public void run() {
-        if (0!=systimerInterval) {
-          systimerHandler.postDelayed(systimerRunnable, systimerInterval);
-          JConsoleApp.theApp.jInterface.callJ("(i.0 0)\"_ sys_timer_z_$0");
+        if (0<systimerInterval) {
+          systimerHandler.postDelayed(this, systimerInterval);
+          JConsoleApp.theApp.jInterface.callJ("(i.0 0)\"_ sys_timer_z_$0", false);
         }
       }
     };
@@ -92,50 +98,53 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  public int gl2(String type, int[] buf, Object[] res)
+  public int uigl2(int t, int[] buf)
   {
+    int rc=0;
     int cnt=buf.length;
-    if (cnt<2) return 1;
-    if (!(type.equals("isigraph")||type.equals("isidraw")||type.equals("opengl"))) return 1;
-    if (2345==buf[1]) {
+    if (2345==t) {
 // glwaitgl
-      return glwaitgl(type);
-    } else if (2346==buf[1]) {
+      return rc = glwaitgl();
+    } else if (2346==t) {
 // glwaitnative
-      return glwaitnative(type);
-    } else if (2035==buf[1]) {
-// glsel
-      if (cnt<3) return 1;
-      return glsel(type, Util.i2s(buf[2]));
-    } else if (2344==buf[1]) {
-// glsel2
-      byte[] textbuf = new byte[cnt-2];
-      for (int i=0; i<cnt-2; i++) textbuf[i] = (byte)buf[2+i];
-      String g = (new String(textbuf, Charset.forName("UTF-8"))).trim();
-      return glsel(type, g);
-    } else if (2094==buf[1]) {
+      return rc = glwaitnative();
+    } else if (2035==t||2344==t) {
+// glsel glsel2
+      byte[] textbuf = new byte[cnt];
+      for (int i=0; i<cnt; i++) textbuf[i] = (byte)buf[i];
+      try {
+        String g = (new String(textbuf, Charset.forName("UTF-8"))).trim();
+        return rc = glsel(g);
+      } catch (Exception exc) {
+        Log.d(JConsoleApp.LogTag,"wd exception "+exc);
+        glerror(t, exc.toString());
+        return rc = 1;
+      }
+    } else if (2094==t) {
 // glfontextent
-      String textstring = Util.int2String(buf, 2, cnt-2);
+      String textstring = Util.int2String(buf, 0, cnt);
       if (0==textstring.length())
         FontExtent=null;
       else {
         Font fnt = new Font(textstring);
-        if (fnt.error)
-          return 1;
-        else
+        if (fnt.error) {
+          glerror(t, "command failed");
+          return rc = 1;
+        } else
           FontExtent=fnt;
       }
-      return 0;
-    } else if (2057==buf[1]) {
+      return rc = 0;
+    } else if (2057==t) {
 // glqextent
-      String textstring = Util.int2String(buf, 2, cnt-2);
+      String textstring = Util.int2String(buf, 0, cnt);
       int[] wh = Glcmds.qextent(textstring);
-      res[0]=new int[] {wh[0], wh[1],};
-      return -1;
-    } else if (2083==buf[1]) {
+      intresult=new int[] {wh[0], wh[1],};
+      intresultshape=new int[] {4,-1,-1};
+      return rc = -1;
+    } else if (2083==t) {
 // glqextentw
       int[] glresult;
-      String textstring = Util.int2String(buf, 2, cnt-2);
+      String textstring = Util.int2String(buf, 0, cnt);
       int[] ws = Glcmds.qextentw(textstring.split("\n"));
       if (0<ws.length) {
         glresult=new int[ws.length];
@@ -144,79 +153,122 @@ public class Wd
       } else {
         glresult=new int[0];
       }
-      res[0]=glresult;
-      return -1;
+      intresult=glresult;
+      intresultshape=new int[] {4,-1,-1};
+      return rc = -1;
     }
-    if (type.equals("opengl")) {
-      if (null==JConsoleApp.theWd.opengl) return 1;
-      return JConsoleApp.theWd.opengl.glcmds.glcmds(buf, res);
+    int[] buf1=new int[2+buf.length];
+    buf1[0]=2+buf.length;
+    buf1[1]=t;
+    System.arraycopy(buf, 0, buf1, 2, buf.length);
+
+    if (gltarget==1) {
+      if (null==JConsoleApp.theWd.opengl) {
+        glerror(t, "no target selected");
+        return rc = 1;
+      }
+      return rc = JConsoleApp.theWd.opengl.glcmds.uiglcmds(buf1);
+    } else if (gltarget==0) {
+      if (null==JConsoleApp.theWd.isigraph) {
+        glerror(t, "no target selected");
+        return rc = 1;
+      }
+      return rc = JConsoleApp.theWd.isigraph.glcmds.uiglcmds(buf1);
     } else {
-      if (null==JConsoleApp.theWd.isigraph) return 1;
-      return JConsoleApp.theWd.isigraph.glcmds.glcmds(buf, res);
+      glerror(t, "no target selected");
+      return rc = 1;
     }
   }
 
 // ---------------------------------------------------------------------
-  int glwaitgl(String type)
+  int glwaitgl()
   {
-    if (null==opengl || !type.equals("opengl")) return 0;
+    if (null==opengl) return 0;
     opengl.glwaitgl();
     return 0;
   }
 
 // ---------------------------------------------------------------------
-  int glwaitnative(String type)
+  int glwaitnative()
   {
-    if (null==opengl || !type.equals("opengl")) return 0;
+    if (null==opengl) return 0;
     opengl.glwaitnative();
     return 0;
   }
 
 // ---------------------------------------------------------------------
-  int glsel(String type, String p)
+  int glsel(String p)
   {
+    Log.d(JConsoleApp.LogTag,"glsel p: "+p);
     if (p.isEmpty()) return 1;
     if (0==Forms.size()) return 1;
-    if (!(type.equals("isigraph")||type.equals("isidraw")||type.equals("opengl"))) return 1;
     if (Util.isInteger(p)) {
       long n= Util.c_strtol(p);
       for (Form f : Forms) {
         if (!f.closed) {
           for (Child c : f.children) {
-            if (type.equals("opengl")) {
-              if (c.type.equals("opengl") && n==c.widget.getId()) {
-                this.opengl=(JOpengl)c;
-                form=f;
-                form.child=c;
-                Log.d(JConsoleApp.LogTag,"glsel "+form.id+" "+c.id+" "+c.widget.getId());
-                return 0;
-              }
-            } else {
-              if ((c.type.equals("isigraph")||c.type.equals("isidraw")) && n==c.widget.getId()) {
+            if (c.widget==null)
+              Log.d(JConsoleApp.LogTag,"glsel a1 "+c.id+" "+c.type);
+            else
+              Log.d(JConsoleApp.LogTag,"glsel a1 "+c.id+" "+c.type+" "+c.widget.getId());
+            if ((c.type.equals("isigraph")||c.type.equals("isidraw")||c.type.equals("opengl")||c.type.equals("isiprint")) &&
+                ((c.widget==null &&  n==c.handle) || (c.widget!=null &&  n==c.widget.getId()))) {
+              if (c.type=="isigraph"||c.type=="isidraw") {
                 this.isigraph=(JIsigraph)c;
-                form=f;
-                form.child=c;
-                Log.d(JConsoleApp.LogTag,"glsel "+form.id+" "+c.id+" "+c.widget.getId());
-                return 0;
+                this.gltarget=0;
+              } else if (c.type=="opengl") {
+                this.opengl=(JOpengl)c;
+                this.gltarget=1;
+              } else if (c.type=="isiprint") {
+//                this.isiprint=(JIsiprint)c;
+                this.gltarget=2;
               }
+//                form=f;
+//                form.child=c;
+              Log.d(JConsoleApp.LogTag,"glsel "+form.id+" "+c.id+" "+c.widget.getId());
+              return 0;
             }
           }
         }
       }
     } else {
+// MUST search current form first
       if ((null!=form) && (!form.closed)) {
         for (Child c : form.children) {
-          if (type.equals("opengl")) {
-            if (c.type.equals("opengl") && c.id.equals(p)) {
-              this.opengl=(JOpengl)c;
-              form.child=c;
-              Log.d(JConsoleApp.LogTag,"glsel "+form.id+" "+c.id+" "+c.widget.getId());
-              return 0;
-            }
-          } else {
-            if ((c.type.equals("isigraph")||c.type.equals("isidraw")) && c.id.equals(p)) {
+          if ((c.type.equals("isigraph")||c.type.equals("isidraw")||c.type.equals("opengl")||c.type.equals("isiprint")) &&
+              c.id.equals(p)) {
+            if (c.type=="isigraph"||c.type=="isidraw") {
               this.isigraph=(JIsigraph)c;
-              form.child=c;
+              this.gltarget=0;
+            } else if (c.type=="opengl") {
+              this.opengl=(JOpengl)c;
+              this.gltarget=1;
+            } else if (c.type=="isiprint") {
+//                this.isiprint=(JIsiprint)c;
+              this.gltarget=2;
+            }
+//              form.child=c;
+            Log.d(JConsoleApp.LogTag,"glsel "+form.id+" "+c.id+" "+c.widget.getId());
+            return 0;
+          }
+        }
+      }
+      for (Form f : Forms) {
+        if (!f.closed) {
+          for (Child c : f.children) {
+            if ((c.type.equals("isigraph")||c.type.equals("isidraw")||c.type.equals("opengl")||c.type.equals("isiprint")) &&
+                c.id.equals(p)) {
+              if (c.type=="isigraph"||c.type=="isidraw") {
+                this.isigraph=(JIsigraph)c;
+                this.gltarget=0;
+              } else if (c.type=="opengl") {
+                this.opengl=(JOpengl)c;
+                this.gltarget=1;
+              } else if (c.type=="isiprint") {
+//                this.isiprint=(JIsiprint)c;
+                this.gltarget=2;
+              }
+//              form.child=c;
               Log.d(JConsoleApp.LogTag,"glsel "+form.id+" "+c.id+" "+c.widget.getId());
               return 0;
             }
@@ -224,23 +276,174 @@ public class Wd
         }
       }
     }
+    Log.d(JConsoleApp.LogTag,"glsel failed");
+    glerror(2035, "glsel failed");
     return 1;
   }
 
 // ---------------------------------------------------------------------
-  public int wd(String s, Object[] res)
+  public int wd(int t, int[] inta, Object[] inarr, Object[] res, String loc)
+  {
+    final int tt = t;
+    final int[] intas = inta;
+    final Object[] inarrs = inarr;
+    final Object[] ress = {null,new int[]{2,-1,-1}};
+    final String sloc = loc;
+    final Integer[] rcs = {0};
+    final CountDownLatch latch = new CountDownLatch(1);
+    JConsoleApp.theApp.activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        int rc = uiwd(tt, intas, inarrs, ress, sloc, rcs);
+        latch.countDown();
+      }
+    });
+    try {
+      latch.await();
+    } catch (InterruptedException e) {
+      error(Log.getStackTraceString(e));
+    }
+    res[0]=ress[0];
+    res[1]=ress[1];
+    return rcs[0].intValue();
+  }
+
+// ---------------------------------------------------------------------
+  public int uiwd(int t, int[] inta, Object[] inarr, Object[] res, String loc, Integer[] rcs)
   {
     rc=0;
-    result=null;
-    cmd=new Cmd();
-    cmd.init(s);
-    _wd();
-    if (rc<0) {
-      res[0]=result;
+    locale = loc;
+    if (t!=0) Log.d(JConsoleApp.LogTag,"wd type: "+t);
+    if (t==0) {
+      result=null;
+      resultshape=new int[] {2,-1,-1};
+      String s;
+      if (inta[0]==2) {
+        try {
+          s = new String((byte[])inarr[0], Charset.forName("UTF-8"));
+        } catch (Exception exc) {
+          Log.d(JConsoleApp.LogTag,"wd exception "+exc);
+          glerror(t, exc.toString());
+          return rcs[0] = 1;
+        }
+      } else {
+        error("argument error");
+        return rcs[0] = 1;
+      }
+      Log.d(JConsoleApp.LogTag,"wd cmd: "+s);
+      cmd=new Cmd();
+      cmd.init(s);
+      _wd();
+      if (rc<0) {
+        res[0]=result;
+        res[1]=resultshape;
+      }
+      return rcs[0] = rc;
+    } else if (t>=1000 && t<=2999) {
+      intresult=null;
+      intresultshape=new int[] {4,-1,-1};
+      int[] buf;
+      if (inta[0]==4) {
+        buf = (int[])inarr[0];
+      } else if (inta[0]==2) {
+        byte[] bytea = (byte[]) inarr[0];
+        buf =  new int[bytea.length];
+        for (int i=0; i<bytea.length; i++) buf[i]=bytea[i];
+      } else {
+        glerror(t, "argument error");
+        return rcs[0] = 1;
+      }
+      rc = uigl2(t, buf);
+      if (rc<0) {
+        res[0]=intresult;
+        res[1]=intresultshape;
+      }
+      return rcs[0] = rc;
+    } else if (t==3000) {
+      if (inarr.length!=1 ||inta[0]!=2) {
+        glerror(t, "argument error");
+        return rcs[0] = 1;
+      }
+      try {
+        String fname = new String((byte[])inarr[0], Charset.forName("UTF-8"));
+        rc = JBitmap.glreadimg(t, fname, res);
+      } catch (Exception exc) {
+        Log.d(JConsoleApp.LogTag,"wd exception "+exc);
+        glerror(t, exc.toString());
+        return rcs[0] = rc;
+      }
+      if (0<rc) glerror(t, "command failed");
+      return rcs[0] = rc;
+    } else if (t==3001) {
+      if (inarr.length!=1 ||inta[0]!=2) {
+        glerror(t, "argument error");
+        return rcs[0] = 1;
+      }
+      byte[] buf = (byte[])inarr[0];
+      try {
+        rc = JBitmap.glgetimg(t, buf, res);
+      } catch (Exception exc) {
+        Log.d(JConsoleApp.LogTag,"wd exception "+exc);
+        glerror(t, exc.toString());
+        return rcs[0] = rc;
+      }
+      if (0<rc) glerror(t, "command failed");
+      return rcs[0] = rc;
+    } else if (t==3002) {
+      if (inarr.length<2 || inarr.length>4 || inta[0]!=4 || inta[3]!=2) {
+        glerror(t, "argument error");
+        return rcs[0] = 1;
+      }
+      if (inarr.length>2 && inta[6]!=2) {
+        glerror(t, "argument error");
+        return rcs[0] = 1;
+      }
+      if (inarr.length>3 && inta[9]!=4) {
+        glerror(t, "argument error");
+        return rcs[0] = 1;
+      }
+      int[] buf = (int[])inarr[0];
+      String imgfmt = "";
+      int[] q=new int[] {-1};
+      try {
+        String fname = new String((byte[])inarr[1], Charset.forName("UTF-8"));
+        if (inarr.length>2) imgfmt = new String((byte[])inarr[2], Charset.forName("UTF-8"));
+        if (inarr.length>3) q=(int[])inarr[3];
+        rc = JBitmap.glwriteimg(t, buf, inta[2], inta[1], fname, imgfmt, (q.length>0)?q[0]:-1);
+      } catch (Exception exc) {
+        Log.d(JConsoleApp.LogTag,"wd exception "+exc);
+        glerror(t, exc.toString());
+        return rcs[0] = 1;
+      }
+      if (0<rc) glerror(t, "command failed");
+      return rcs[0] = rc;
+    } else if (t==3003) {
+      if (inarr.length<2 || inarr.length>3 || inta[0]!=4 || inta[3]!=2) {
+        glerror(t, "argument error");
+        return rcs[0] = 1;
+      }
+      if (inarr.length>2 && inta[6]!=4) {
+        glerror(t, "argument error");
+        return rcs[0] = 1;
+      }
+      int[] buf = (int[])inarr[0];
+      int[] q=new int[] {-1};
+      try {
+        String imgfmt = new String((byte[])inarr[1], Charset.forName("UTF-8"));
+        if (inarr.length>2) q=(int[])inarr[2];
+        rc = JBitmap.glputimg(t, buf, inta[2], inta[1], imgfmt, (q.length>0)?q[0]:-1, res);
+      } catch (Exception exc) {
+        Log.d(JConsoleApp.LogTag,"wd exception "+exc);
+        glerror(t, exc.toString());
+        return rcs[0] = 1;
+      }
+      if (0<rc) glerror(t, "command failed");
+      return rcs[0] = rc;
+    } else {
+      Log.d(JConsoleApp.LogTag,"not implemented");
+      glerror(t, "not implemented");
+      return rcs[0] = 1;
     }
-    int r=rc;
-    rc=0;
-    return r;
   }
 
 // ---------------------------------------------------------------------
@@ -297,6 +500,8 @@ public class Wd
         wdfontfile();
       else if (c.equals("get"))
         wdget();
+      else if (c.equals("getj"))
+        wdgetj();
       else if (c.equals("getp"))
         wdgetp();
       else if (c.equals("grid"))
@@ -327,6 +532,8 @@ public class Wd
         wdreset();
       else if (c.equals("set"))
         wdset();
+      else if (c.equals("setj"))
+        wdsetj();
       else if (c.equals("setp"))
         wdsetp();
       else if (c.startsWith("set"))
@@ -388,16 +595,8 @@ public class Wd
   {
     if (null!=form) {
       form.setVisibility(View.VISIBLE);
-//     form.activateWindow();
-//     form.raise();
-//     form.repaint();
     } else if (0==Forms.size()) {
-//    if (null!=term) return;
-//    showide(true);
       if (Utils.ShowIde) {
-//       term.activateWindow();
-//       term.raise();
-//       term.repaint();
       }
     }
   }
@@ -543,6 +742,16 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
+  private void wdgetj()
+  {
+    String p=cmd.getid();
+    String v=cmd.getparms();
+    rc=-1;
+    result=JConsoleApp.theApp.getpref(p,v);
+    return;
+  }
+
+// ---------------------------------------------------------------------
   private void wdgetp()
   {
     String p=cmd.getid();
@@ -580,8 +789,8 @@ public class Wd
 // ---------------------------------------------------------------------
   private void wdimmexj()
   {
-    String p=cmd.getparms();
-//  immexj(p.Util.c_str());
+    String p=Util.remquotes(cmd.getparms());
+    JConsoleApp.theApp.jInterface.callJ("(i.0 0)\"_ " + p, false);
   }
 
 // ---------------------------------------------------------------------
@@ -1012,7 +1221,8 @@ public class Wd
     else if (s.equals("qhwndc")) {
       Child cc;
       if (p.equals("_")) p=formchildid();
-      if (null!=(cc=form.id2child(p))) result=Util.s2ba(Util.i2s((null!=cc.widget)?cc.widget.getId():0));
+      if (null!=(cc=form.id2child(p)))
+        result=Util.s2ba(Util.i2s((null!=cc.widget)?cc.widget.getId():0));
       else
         error("no child selected: " + p);
       if (rc==-1)
@@ -1083,6 +1293,15 @@ public class Wd
     String p=cmd.getid();
     String v=cmd.getparms();
     wdset1(n,p,v);
+  }
+
+// ---------------------------------------------------------------------
+  private void wdsetj()
+  {
+    String p=cmd.getid();
+    String v=cmd.getparms();
+    JConsoleApp.theApp.setpref(p,v);
+    return;
   }
 
 // ---------------------------------------------------------------------
@@ -1190,14 +1409,9 @@ public class Wd
   {
     String p=Util.remquotes(cmd.getparms());
     systimerInterval=Util.c_strtol(p);
-    if (0!=systimerInterval) {
+    if (0<systimerInterval) {
       if (null==systimerHandler) systimerHandler = new Handler();
       systimerHandler.postDelayed(systimerRunnable, systimerInterval);
-    } else {
-      if (null!=systimerHandler) {
-        systimerHandler.removeCallbacks(systimerRunnable);
-        systimerHandler = null;
-      }
     }
   }
 
@@ -1285,9 +1499,17 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
-  void error(String s)
+  public void error(String s)
   {
     lasterror=ccmd+" : "+s;
+    Log.d(JConsoleApp.LogTag,"error: "+lasterror);
+    rc=1;
+  }
+
+// ---------------------------------------------------------------------
+  public void glerror(int t, String s)
+  {
+    lasterror=Integer.toString(t)+" : "+s;
     Log.d(JConsoleApp.LogTag,"error: "+lasterror);
     rc=1;
   }

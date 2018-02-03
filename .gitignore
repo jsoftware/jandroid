@@ -8,9 +8,12 @@
 **/obj/**
 **/temp/**
 .classpath
+.project
+**/appcompat-bak/**
 buildbase.sh
 jassets.tar.gz
 local.properties
+proguard-project.txt
 copyassets.sh
 deploy.sh
 genkey.sh

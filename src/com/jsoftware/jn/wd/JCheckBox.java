@@ -64,9 +64,9 @@ class JCheckBox extends Child
       else
         r.write(super.get(p,v));
     } catch (IOException exc) {
-      Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
+      Log.e(JConsoleApp.LogTag,Log.getStackTraceString(exc));
     } catch (Exception exc) {
-      Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
+      Log.e(JConsoleApp.LogTag,Log.getStackTraceString(exc));
     }
     return r.toByteArray();
   }
@@ -101,9 +101,9 @@ class JCheckBox extends Child
     try {
       r.write(Util.spair(id,w.isChecked()?(String)"1":(String)"0"));
     } catch (IOException exc) {
-      Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
+      Log.e(JConsoleApp.LogTag,Log.getStackTraceString(exc));
     } catch (Exception exc) {
-      Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
+      Log.e(JConsoleApp.LogTag,Log.getStackTraceString(exc));
     }
     return r.toByteArray();
   }

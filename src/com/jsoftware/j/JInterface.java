@@ -21,42 +21,49 @@ public class JInterface
   public static final int MTYOSYS	 =	4;	/* system assertion failure */
   public static final int MTYOEXIT =	5;	/* exit */
   public static final int MTYOFILE =	6;	/* output 1!:2[2 */
+  public static String promptkey = "\u00fe\u00fd\u00fc\u00fd\u00fe";
 
   public static final String LOGTAG = "jandroid";
-  public final boolean asyncj = false;
+  public static boolean asyncj;
 
   private long nativeInstance = 0L;
 
   private List<ExecutionListener> execlist = new ArrayList<ExecutionListener>();
   private List<OutputListener> outputs = new ArrayList<OutputListener>();
 
-  protected JConsoleApp theApp;
+  protected static JConsoleApp theApp;
 
   public int callJ(String sentence)
   {
-    return callJ(sentence, asyncj);
+    return callJ(sentence, false);
   }
 
-  public int callJ(String sentence, boolean asyncj)
+  public int callJ(String sentence, boolean addprompt)
   {
     int result = -1;
     try {
       if(nativeInstance == 0L) {
         synchronized(this) {
           if(nativeInstance == 0L) {
-            nativeInstance = initializeJ(asyncj);
+            nativeInstance = initializeJ();
           }
         }
       }
       result = -1;
-      Log.i(LOGTAG, "executing: " + sentence);
-      result = callJNative(nativeInstance,sentence);
+      Log.d(LOGTAG, "executing: " + sentence);
+      result = JDo(sentence);
     } catch(Throwable e) {
       Log.e(LOGTAG, "error executing sentence: " + sentence, e);
     } finally {
       if (asyncj) {
-        for(ExecutionListener l : execlist) {
-          l.onCommandComplete(result);
+        final boolean addp = addprompt;
+        if (addp) {
+          theApp.activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              theApp.consoleOutput(MTYOFM, "   ");
+            }
+          });
         }
       }
     }
@@ -71,39 +78,36 @@ public class JInterface
       if(nativeInstance == 0L) {
         synchronized(this) {
           if(nativeInstance == 0L) {
-            nativeInstance = initializeJ(asyncj);
+            nativeInstance = initializeJ();
           }
         }
       }
-      Log.i(LOGTAG, "executing: " + sentence);
-      result = dorsNative(nativeInstance,sentence);
+      Log.d(LOGTAG, "executing: " + sentence);
+      result = JDoR(sentence);
     } catch(Throwable e) {
-      Log.e(LOGTAG, "error executing sentence: " + sentence, e);
+      Log.e(LOGTAG, "error dors sentence: " + sentence, e);
+      throw new RuntimeException(e);
     }
     return result;
   }
 
 
-  protected synchronized long initializeJ(boolean async)
+  protected synchronized long initializeJ()
   {
-    return initializeJNative(async);
+    return JInit(theApp.getApplicationInfo().nativeLibraryDir);
   }
 
   public synchronized void destroyJ()
   {
     if(nativeInstance != 0L) {
-      destroyJNative(nativeInstance);
+      JFree();
       nativeInstance = 0L;
     }
-  }
-  public Object getVariable(String ident)
-  {
-    return getVariableNative(nativeInstance, ident);
   }
 
   public String getLocale()
   {
-    return getLocaleNative(nativeInstance);
+    return JGetLocale();
   }
 
   public void reset()
@@ -114,7 +118,7 @@ public class JInterface
           nativeInstance = 0L;
           destroyJ();
         }
-        nativeInstance = initializeJ(asyncj);
+        nativeInstance = initializeJ();
       }
     }
   }
@@ -146,45 +150,43 @@ public class JInterface
     }
   }
 
-  /// not implemented, returns null
-  native public Object getVariableNative(long inst,String name);
-  /// not implemented
-  native public void setVariableNative(long inst,String name, Object value);
+  native public static int JDo(String s);
+  native public static String JDoR(String s);
+  native public static void JFree();
+  native public static long JInit(String libpath);
+  native public static String JGetLocale();
+  native public static void JSetEnv(String key,String value);
 
-  native public int callJNative(long inst,String s);
-  native public String dorsNative(long inst,String s);
-  native public void destroyJNative(long inst);
-  native public long initializeJNative(boolean async);
-  native public String getLocaleNative(long inst);
-  native public void setEnvNative(String key,String value);
+  public static String input(String s)
+  {
+    return JInterface.theApp.jInterface.nextLine(s);
+  }
 
 // to be called back from library
-  public void output(int type,String s)
+  public static void output(final int type,final String s)
   {
     if (!asyncj)
       theApp.consoleOutput(type,s);
     else {
-      for(OutputListener oo : outputs) {
-        oo.onOutput(type,s);
-      }
+      JInterface.theApp.activity.runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          JInterface.theApp.consoleOutput(type, s);
+        }
+      });
     }
   }
 
-// callback to j
-//cover for native method
-  public synchronized Object Jnido(Object appobj,String verb,Object[] objref,int direct)
+// call back from J
+  public static int wd(int t, int[] inta, Object[] inarr, Object[] res, String loc)
   {
-    return jnido(nativeInstance,appobj,verb,objref,direct);
+    return JConsoleApp.theWd.wd(t, inta, inarr, res, loc);
   }
-
-//native method declaration
-  native public Object jnido(long jt,Object appobj,String verb,Object[] objref,int direct);
 
   static
   {
     try {
-
-      System.loadLibrary("j");
+      System.loadLibrary("jnative");
     } catch(Exception e) {
       Log.e(LOGTAG , "failed to load j shared object", e);
       throw new RuntimeException(e);

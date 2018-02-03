@@ -2,6 +2,7 @@ package com.jsoftware.jn.wd;
 
 import android.graphics.Typeface;
 import android.util.Log;
+import java.io.File;
 import com.jsoftware.j.android.JConsoleApp;
 import com.jsoftware.jn.base.Util;
 import com.jsoftware.jn.base.Utils;
@@ -9,13 +10,13 @@ import com.jsoftware.jn.base.Utils;
 public class Font
 {
 
-  Typeface font;
-  float fontsize;
-  int angle;
-  boolean error;
+  public Typeface font;
+  public float fontsize;
+  public int angle;
+  public boolean error;
 
 // ---------------------------------------------------------------------
-  Font(String s)
+  public Font(String s)
   {
     this(s,-1f);
   }
@@ -59,7 +60,21 @@ public class Font
     if (0f<size) fontsize=size;
     else fontsize=14f;
     Log.d(JConsoleApp.LogTag, "font: " + face + " size=" + fontsize + " bold=" + bold + " italic=" + italic + " strikeout=" + strikeout + " underline=" + underline + " angle=" + angle);
-    font= Typeface.create(face,bold*Typeface.BOLD+italic*Typeface.ITALIC);
+    if (!face.startsWith("@")) {
+      font = Typeface.create(face,bold*(int)Typeface.BOLD+italic*(int)Typeface.ITALIC);
+    } else {
+      File file;
+      font = null;
+      String fontfile = "";
+      if (!JConsoleApp.theApp.configpath.isEmpty()) {
+        fontfile = JConsoleApp.theApp.configpath + "/" + face.substring(1) + ".ttf";
+      }
+      if (!fontfile.isEmpty() && (file = new File(fontfile)).exists()) {
+        font = Typeface.createFromFile(file);
+      }
+      if (font != null) return;
+      font = Typeface.create((Typeface)Typeface.MONOSPACE, bold*(int)Typeface.BOLD+italic*(int)Typeface.ITALIC);
+    }
   }
 
 // ---------------------------------------------------------------------
@@ -69,7 +84,21 @@ public class Font
     String face = Util.remquotes(s);
     fontsize=size10/10f;
     Log.d(JConsoleApp.LogTag, "font: " + face + " size=" + fontsize + " bold=" + bold + " italic=" + italic + " strikeout=" + strikeout + " underline=" + underline + " angle=" + angle);
-    font= Typeface.create(face,bold*(int)Typeface.BOLD+italic*(int)Typeface.ITALIC);
+    if (!face.startsWith("@")) {
+      font = Typeface.create(face,bold*(int)Typeface.BOLD+italic*(int)Typeface.ITALIC);
+    } else {
+      File file;
+      font = null;
+      String fontfile = "";
+      if (!JConsoleApp.theApp.configpath.isEmpty()) {
+        fontfile = JConsoleApp.theApp.configpath + "/" + face.substring(1) + ".ttf";
+      }
+      if (!fontfile.isEmpty() && (file = new File(fontfile)).exists()) {
+        font = Typeface.createFromFile(file);
+      }
+      if (font != null) return;
+      font = Typeface.create((Typeface)Typeface.MONOSPACE, bold*(int)Typeface.BOLD+italic*(int)Typeface.ITALIC);
+    }
   }
 
 }

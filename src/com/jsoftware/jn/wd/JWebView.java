@@ -76,9 +76,9 @@ class JWebView extends Child
     try {
       r.write(Util.spair(id+"_curl",Util.q2s(curl)));
     } catch (IOException exc) {
-      Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
+      Log.e(JConsoleApp.LogTag,Log.getStackTraceString(exc));
     } catch (Exception exc) {
-      Log.d(JConsoleApp.LogTag,Log.getStackTraceString(exc));
+      Log.e(JConsoleApp.LogTag,Log.getStackTraceString(exc));
     }
     return r.toByteArray();
   }

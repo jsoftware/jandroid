@@ -1,13 +1,20 @@
 package com.jsoftware.j.android;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.support.annotation.Nullable;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.InputType;
 import android.util.Log;
@@ -19,6 +26,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -27,33 +35,179 @@ import com.jsoftware.j.JInterface;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.lang.NumberFormatException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 
-public abstract class AbstractActivity extends Activity
+public abstract class AbstractActivity extends AppCompatActivity
 {
 
-  public static final String EMPTY = " -- empty -- ";
-  JConsoleApp theApp=null;
-  public static final String CONSOLE_NAME = "J Android";
+  FrameLayout contentFrame;
+  LinearLayout drawerView;
+  DrawerLayout leftDrawer;
+  private ActionBarDrawerToggle mDrawerToggle;
 
-  public void onCreate(Bundle savedInstanceState)
+  public static final String EMPTY = " -- empty -- ";
+  public JConsoleApp theApp=null;
+  public static final String JANDROID = "J Android";
+
+  @Override
+  protected void onCreate(@Nullable Bundle savedInstanceState)
   {
     super.onCreate(savedInstanceState);
     theApp = (JConsoleApp) this.getApplication();
-    theApp.setActivity(this);
+    if (getClass().getSimpleName().equals("JActivity")) theApp.setActivity(this);
+    addIntent();
+    ActionBar actionbar = getSupportActionBar();
+    if (actionbar != null) {
+      Log.d(JConsoleApp.LogTag, "Setting up action bar home button.");
+      actionbar.setDisplayHomeAsUpEnabled(true);
+      actionbar.setHomeButtonEnabled(true);
+    } else {
+      Log.d(JConsoleApp.LogTag, "action bar is null");
+    }
+    setContentView(shouldEnableDrawer() ? R.layout.activity_base_with_drawer : R.layout.activity_base_without_drawer);
+
+    contentFrame = (FrameLayout) findViewById(R.id.content_frame);
+    Log.d(JConsoleApp.LogTag, "drawer enabled: " + shouldEnableDrawer());
+    if (shouldEnableDrawer()) {
+      drawerView = (LinearLayout) findViewById(R.id.drawer);
+      leftDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+      mDrawerToggle = new ActionBarDrawerToggle(
+        AbstractActivity.this,
+        leftDrawer,
+        R.string.app_name,
+        R.string.app_name
+      ) {
+
+        @Override
+        public void onDrawerClosed(View drawerView) {
+          super.onDrawerClosed(drawerView);
+        }
+      };
+
+
+      leftDrawer.setDrawerListener(mDrawerToggle);
+
+    }
+  }
+
+  @Override
+  protected void onResume()
+  {
+    super.onResume();
+    if (shouldEnableDrawer()) {
+      //Populate the drawer
+      final List<SliderMenuItem> sliderMenuItems = new ArrayList<SliderMenuItem>();
+      SliderMenuItem item1 = new SliderMenuItem();
+      item1.setId(1);
+      item1.setTitle(JANDROID);
+      item1.setClickHandler(new SliderMenuItem.MenuItemClickHandler() {
+        @Override
+        public void handleMenuClick() {
+          startDrawerActivity(JActivity.class);
+        }
+      });
+      sliderMenuItems.add(item1);
+
+      int i=1;
+      for (String s : theApp.getWindowsAsArray()) {
+        if (!s.equals(JANDROID)) {
+          SliderMenuItem item2 = new SliderMenuItem();
+          item2.setId(++i);
+          item2.setTitle(s);
+          final String ss=s;
+          item2.setClickHandler(new SliderMenuItem.MenuItemClickHandler() {
+            @Override
+            public void handleMenuClick() {
+              startDrawerActivity(ss);
+            }
+          });
+          sliderMenuItems.add(item2);
+        }
+      }
+
+      SliderMenuItem item3 = new SliderMenuItem();
+      item3.setId(++i);
+      item3.setTitle("Editor");
+      item3.setClickHandler(new SliderMenuItem.MenuItemClickHandler() {
+        @Override
+        public void handleMenuClick() {
+          startDrawerActivity(EditActivity.class);
+        }
+      });
+      sliderMenuItems.add(item3);
+
+      drawerView.removeAllViews();
+      for (SliderMenuItem item : sliderMenuItems) {
+        SliderMenuItemView view = new SliderMenuItemView(this);
+        view.setItem(item);
+        drawerView.addView(view);
+      }
+    }
+  }
+
+  private void startDrawerActivity(final Class cclass)
+  {
+    leftDrawer.closeDrawer(GravityCompat.START);
+    Handler handler = new Handler();
+    handler.postDelayed(new Runnable() {
+      @Override
+      public void run() {
+        if (cclass.getSimpleName().equals("JActivity")) {
+          startActivity(new Intent(AbstractActivity.this, cclass));
+        } else {
+          Intent intent = new Intent();
+          intent.setClass(getApplicationContext(), EditActivity.class);
+          intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+          startActivity(intent);
+        }
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+      }
+    }, 200);
+  }
+
+  private void startDrawerActivity(final String ss)
+  {
+    leftDrawer.closeDrawer(GravityCompat.START);
+    Handler handler = new Handler();
+    handler.postDelayed(new Runnable() {
+      @Override
+      public void run() {
+        theApp.setWindow(AbstractActivity.this,ss);
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+      }
+    }, 200);
+  }
+
+  @Override
+  protected void onPostCreate(@Nullable Bundle savedInstanceState)
+  {
+    super.onPostCreate(savedInstanceState);
+    mDrawerToggle.syncState();
+  }
+
+  public abstract boolean shouldEnableDrawer();
+
+  protected abstract void addIntent();
+
+  public ViewGroup getFrame()
+  {
+    return contentFrame;
+  }
+
+  @Override
+  public void onConfigurationChanged(Configuration newConfig)
+  {
+    super.onConfigurationChanged(newConfig);
+    mDrawerToggle.onConfigurationChanged(newConfig);
   }
 
   public void alert(String message)
@@ -68,11 +222,14 @@ public abstract class AbstractActivity extends Activity
   }
 
   @Override
-  public boolean onMenuItemSelected(int featureId, MenuItem item)
+  public boolean onOptionsItemSelected(MenuItem item)
   {
     boolean result = true;
-    int itemId = item.getItemId();
 
+    if (mDrawerToggle.onOptionsItemSelected(item)) {
+      return true;
+    }
+    int itemId = item.getItemId();
     switch(itemId) {
     case R.id.newf:
       theApp.newFile(this);
@@ -84,7 +241,7 @@ public abstract class AbstractActivity extends Activity
       requestWindowSelect();
       break;
     case R.id.pacman:
-      theApp.callJ("(i.0 0)\"_ "+getResources().getString(R.string.runpacman));
+      theApp.callJ("(i.0 0)\"_ "+getResources().getString(R.string.runpacman), false);
       break;
     case R.id.log:
       showHistoryDialog();
@@ -102,16 +259,16 @@ public abstract class AbstractActivity extends Activity
       showHelp(R.string.learning);
       break;
     case R.id.labs:
-      theApp.callJ("(i.0 0)\"_ "+getResources().getString(R.string.runlabs));
+      theApp.callJ("(i.0 0)\"_ "+getResources().getString(R.string.runlabs), false);
       break;
     case R.id.labsadvance:
-      theApp.callJ("(i.0 0)\"_ "+getResources().getString(R.string.runlabsadvance));
+      theApp.callJ("(i.0 0)\"_ "+getResources().getString(R.string.runlabsadvance), false);
       break;
     case R.id.demos:
-      theApp.callJ("(i.0 0)\"_ "+getResources().getString(R.string.rundemos));
+      theApp.callJ("(i.0 0)\"_ "+getResources().getString(R.string.rundemos), false);
       break;
     case R.id.showcase:
-      theApp.callJ("(i.0 0)\"_ "+getResources().getString(R.string.runshowcase));
+      theApp.callJ("(i.0 0)\"_ "+getResources().getString(R.string.runshowcase), false);
       break;
     case R.id.aboutj:
 //      showTextFile(R.string.aboutj);
@@ -121,13 +278,14 @@ public abstract class AbstractActivity extends Activity
       updateJ();
       break;
     case R.id.checknewver:
-      new GetHttpTask().execute("http://www.jsoftware.com/download/j805/install/AndroidManifest.xml");
+      new GetHttpTask().execute("http://www.jsoftware.com/download/j" + this.theApp.jversion + "/install/AndroidManifest.xml");
       break;
     default:
       result = false;
     }
     return result;
   }
+
   protected abstract FileEdit getEditor();
 
   protected void runCurrentLine()
@@ -139,13 +297,13 @@ public abstract class AbstractActivity extends Activity
       --n;
     String line = editor.getLineForPosition(n);
     theApp.consoleOutput(JInterface.MTYOFM, line + "\n");
-    theApp.callJ(line);
+    theApp.callJ(line, true);
   }
 
   protected void updateJ()
   {
     theApp.consoleOutput(JInterface.MTYOFM, "Updating J...\n");
-    theApp.callJ("'upgrade'jpkg'all' [ 'upgrade'jpkg'all' [ require 'pacman'");
+    theApp.callJ("(i.0 0)\"_ 'upgrade'jpkg'all' [ 'upgrade'jpkg'all' [ require 'pacman'", false);
   }
 
   public void requestWindowSelect()
@@ -318,7 +476,7 @@ public abstract class AbstractActivity extends Activity
     StringBuilder sb = new StringBuilder("load '");
     sb.append(f.getAbsolutePath()).append("'");
     theApp.consoleOutput(JInterface.MTYOFM, sb.toString() + "\n");
-    theApp.callJ(sb.toString());
+    theApp.callJ(sb.toString(), false);
   }
 
   class RunFileAction implements FileAction
@@ -602,19 +760,15 @@ public abstract class AbstractActivity extends Activity
     protected String doInBackground(String... url)
     {
       // constants
-      int timeoutSocket = 5000;
       int timeoutConnection = 5000;
-
-      HttpParams httpParameters = new BasicHttpParams();
-      HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
-      HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
-      HttpClient client = new DefaultHttpClient(httpParameters);
-
-      HttpGet httpget = new HttpGet(url[0]);
-
       try {
-        HttpResponse getResponse = client.execute(httpget);
-        final int statusCode = getResponse.getStatusLine().getStatusCode();
+        URL url0 = new URL(url[0]);
+        HttpURLConnection connection = (HttpURLConnection)url0.openConnection();
+        connection.setRequestProperty("User-Agent", "");
+        connection.setRequestMethod("GET");
+        connection.connect();
+
+        final int statusCode = connection.getResponseCode();
 
         if(statusCode != 200) {
           Log.d(JConsoleApp.LogTag, "Download Error: " + statusCode + "| for URL: " + url);
@@ -623,9 +777,11 @@ public abstract class AbstractActivity extends Activity
 
         String line = "";
         StringBuilder total = new StringBuilder();
-        HttpEntity getResponseEntity = getResponse.getEntity();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(getResponseEntity.getContent()));
-        while((line = reader.readLine()) != null) {
+
+        InputStream inputStream = connection.getInputStream();
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        while ((line = reader.readLine()) != null) {
           total.append(line);
         }
 
@@ -659,7 +815,7 @@ public abstract class AbstractActivity extends Activity
                 public void onClick(DialogInterface dialog, int which) {
                   dialog.dismiss();
                   Intent myIntent = new Intent(Intent.ACTION_VIEW,
-                                               Uri.parse("http://www.jsoftware.com/download/j805/install/jandroid.apk"));
+                                               Uri.parse("http://www.jsoftware.com/download/j" + theApp.jversion + "/install/jandroid.apk"));
                   startActivity(myIntent);
                 }
               });
@@ -676,6 +832,19 @@ public abstract class AbstractActivity extends Activity
       }
     }
   }
+
+  @Override
+  protected void onSaveInstanceState(Bundle savedInstanceState)
+  {
+    super.onSaveInstanceState(savedInstanceState);
+  }
+
+  @Override
+  protected void onRestoreInstanceState(Bundle savedInstanceState)
+  {
+    super.onRestoreInstanceState(savedInstanceState);
+  }
+
 }
 
 

@@ -1,6 +1,7 @@
 package com.jsoftware.j.android;
 
 import com.jsoftware.j.JInterface;
+import com.jsoftware.jn.wd.Font;
 
 import android.content.Context;
 import android.graphics.Rect;
@@ -48,6 +49,7 @@ public class Console extends FileEdit
     super(context, attrs, defStyle);
     yinit();
   }
+
   public void setJActivity(JActivity jActivity)
   {
     this.jActivity = jActivity;
@@ -111,6 +113,15 @@ public class Console extends FileEdit
     theApp = app;
   }
 
+  public void setFont()
+  {
+    if (this.theApp.started && !this.theApp.smfont.isEmpty()) {
+      Font font = new Font(this.theApp.smfont);
+      this.setTypeface(font.font);
+      this.setTextSize(font.fontsize);
+    }
+  }
+
   @Override
   public void onScrollChanged(int l, int t, int oldl, int oldt)
   {
@@ -123,12 +134,17 @@ public class Console extends FileEdit
   {
     if (last) {
       appendSeq("\n");
-      if (line != null && line.trim().length() > 0) {
-        theApp.callWithHistory(line.replace("\u00a0"," "));
-        if (!theApp.jInterface.asyncj)
-          prompt();
-      } else {
-        prompt();
+      if (line != null) {
+        if (theApp.jInterface.waiting)
+          theApp.callJ(line.replace("\u00a0"," "), false);
+        else {
+          if (line.trim().length() > 0) {
+            theApp.callWithHistory(line.replace("\u00a0"," "));
+            if (!theApp.asyncj)
+              prompt();
+          } else
+            prompt();
+        }
       }
     } else {
       if (line != null) {
@@ -218,8 +234,7 @@ public class Console extends FileEdit
   }
   public void consoleOutput(int type,String s)
   {
-    if(JInterface.MTYOEXIT==type)
-    {
+    if(JInterface.MTYOEXIT==type) {
       quit();
     }
     if(s!=null) appendSeq(s,getColorForType(type));

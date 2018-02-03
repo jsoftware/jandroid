@@ -9,7 +9,9 @@ import java.io.InputStreamReader;
 import com.jsoftware.j.android.JConsoleApp.ResponseAction;
 
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,7 +20,6 @@ import android.widget.Toast;
 public class EditActivity extends AbstractActivity
 {
 
-  JConsoleApp theApp;
   FileEdit editor;
   File file;
   boolean textChanged = false;
@@ -33,10 +34,10 @@ public class EditActivity extends AbstractActivity
   public void onCreate(Bundle savedInstanceState)
   {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.edit);
+    LayoutInflater.from(this).inflate(R.layout.edit, getFrame());
+
     editor = (FileEdit) findViewById(R.id.edit);
     editor.setActivity(this);
-    theApp = (JConsoleApp) this.getApplication();
     /*
 
     if(!restore(s)) {
@@ -96,12 +97,16 @@ public class EditActivity extends AbstractActivity
     capture();
   }
   @Override
-  public void onResume()
+  protected void onResume()
   {
     super.onResume();
-    String s = getIntent().getData().getPath();
+    String s;
+    if (null != getIntent().getData()) {
+      s = getIntent().getData().getPath();
+    } else {
+      s = theApp.newFileName().getAbsolutePath();
+    }
     file = new File(s);
-    theApp.addIntent(file.getAbsolutePath(),getIntent());
     editor.setName(file.getName());
     if(!restore(s)) {
       try {
@@ -159,11 +164,30 @@ public class EditActivity extends AbstractActivity
   {
     capture();
     super.onDestroy();
-    Log.d("jandroid", "editactivity destroy");
+    Log.d(JConsoleApp.LogTag, "editactivity destroy");
     if(isFinishing()) {
-      Log.d("jandroid", "editactivity destroy isFinishing");
+      Log.d(JConsoleApp.LogTag, "editactivity destroy isFinishing");
       theApp.removeFile(file.getAbsolutePath());
     }
+  }
+
+  @Override
+  public boolean shouldEnableDrawer()
+  {
+    return true;
+  }
+
+  @Override
+  protected void addIntent()
+  {
+    String s;
+    if (null != getIntent().getData()) {
+      s = getIntent().getData().getPath();
+    } else {
+      s = theApp.newFileName().getAbsolutePath();
+    }
+    file = new File(s);
+    theApp.addIntent(file.getAbsolutePath(),getIntent());
   }
 
 
@@ -180,7 +204,7 @@ public class EditActivity extends AbstractActivity
     return true;
   }
   @Override
-  public boolean onMenuItemSelected(int featureId, MenuItem item)
+  public boolean onOptionsItemSelected(MenuItem item)
   {
     boolean result = true;
     int itemId = item.getItemId();
@@ -202,7 +226,7 @@ public class EditActivity extends AbstractActivity
       result = false;
     }
     if(!result) {
-      result = super.onMenuItemSelected(featureId, item);
+      result = super.onOptionsItemSelected(item);
     }
 
     return result;
@@ -220,6 +244,7 @@ public class EditActivity extends AbstractActivity
                      + ": " + e.getLocalizedMessage() , Toast.LENGTH_LONG).show();
     }
   }
+
   public void close()
   {
 //		testQuit();

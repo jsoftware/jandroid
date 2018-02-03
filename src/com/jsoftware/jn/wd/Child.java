@@ -25,6 +25,8 @@ class Child
   Pane ppane;
   View widget;
   float weight=0f;
+  int handle=0;
+  boolean mPause = false;
 
   private JWdActivity activity;
 
@@ -53,11 +55,13 @@ class Child
 // ---------------------------------------------------------------------
   void onPause()
   {
+    mPause = true;
   }
 
 // ---------------------------------------------------------------------
   void onResume()
   {
+    mPause = false;
   }
 
 // ---------------------------------------------------------------------
