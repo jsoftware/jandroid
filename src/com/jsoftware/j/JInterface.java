@@ -92,6 +92,68 @@ public class JInterface
   }
 
 
+  public String dorsm(String verb, String y)
+  {
+    String result = "";
+    try {
+      if(nativeInstance == 0L) {
+        synchronized(this) {
+          if(nativeInstance == 0L) {
+            nativeInstance = initializeJ();
+          }
+        }
+      }
+      Log.d(LOGTAG, "executing: " + verb);
+      JSetc("y_jrx_", y, y.length());
+      result = JDoR(verb+"]y_jrx_");
+    } catch(Throwable e) {
+      Log.e(LOGTAG, "error dorsm verb: " + verb, e);
+      throw new RuntimeException(e);
+    }
+    return result;
+  }
+
+
+  public String getc(String s)
+  {
+    String result = "";
+    try {
+      if(nativeInstance == 0L) {
+        synchronized(this) {
+          if(nativeInstance == 0L) {
+            nativeInstance = initializeJ();
+          }
+        }
+      }
+      Log.d(LOGTAG, "getc: " + s);
+      result = JGetc(s);
+    } catch(Throwable e) {
+      Log.e(LOGTAG, "error getc: " + s, e);
+      throw new RuntimeException(e);
+    }
+    return result;
+  }
+
+
+  public void setc(String s, String v)
+  {
+    try {
+      if(nativeInstance == 0L) {
+        synchronized(this) {
+          if(nativeInstance == 0L) {
+            nativeInstance = initializeJ();
+          }
+        }
+      }
+      Log.d(LOGTAG, "setc: " + s);
+      JSetc(s, v, v.length());
+    } catch(Throwable e) {
+      Log.e(LOGTAG, "error setc: " + s, e);
+      throw new RuntimeException(e);
+    }
+  }
+
+
   protected synchronized long initializeJ()
   {
     return JInit(theApp.getApplicationInfo().nativeLibraryDir);
@@ -152,8 +214,11 @@ public class JInterface
 
   native public static int JDo(String s);
   native public static String JDoR(String s);
+  native public static String JGetc(String nam);
+  native public static void JSetc(String nam,String value,long len);
   native public static void JFree();
   native public static long JInit(String libpath);
+  native public static long JInit2(String libpath,String libj);
   native public static String JGetLocale();
   native public static void JSetEnv(String key,String value);
 
