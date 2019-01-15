@@ -71,7 +71,7 @@ public class JWdActivity extends AbstractActivity
     super.onPause();
     if (null!=form) {
       form.onPause();
-      jInterface.callJ( "(i.0 0)\"_ onPause_" + jlocale + "_^:(3=(4!:0 ::_2:)<'onPause_" + jlocale + "_')$0");
+      jInterface.callJ( "(i.0 0)\"_ ExecIfExist 'onPause_" + jlocale + "_'");
     }
   }
   @Override
@@ -81,7 +81,7 @@ public class JWdActivity extends AbstractActivity
     super.onResume();
     if (null!=form) {
       form.onResume();
-      jInterface.callJ( "(i.0 0)\"_ onResume_" + jlocale + "_^:(3=(4!:0 ::_2:)<'onResume_" + jlocale + "_')$0");
+      jInterface.callJ( "(i.0 0)\"_ ExecIfExist 'onResume_" + jlocale + "_'");
     }
   }
   @Override
@@ -91,7 +91,7 @@ public class JWdActivity extends AbstractActivity
     super.onRestart();
     if (null!=form) {
       form.onRestart();
-      jInterface.callJ( "(i.0 0)\"_ onRestart_" + jlocale + "_^:(3=(4!:0 ::_2:)<'onRestart_" + jlocale + "_')$0");
+      jInterface.callJ( "(i.0 0)\"_ ExecIfExist 'onRestart_" + jlocale + "_'");
     }
   }
   @Override
@@ -101,7 +101,7 @@ public class JWdActivity extends AbstractActivity
     super.onStop();
     if (null!=form) {
       form.onStop();
-      jInterface.callJ( "(i.0 0)\"_ onStop_" + jlocale + "_^:(3=(4!:0 ::_2:)<'onStop_" + jlocale + "_')$0");
+      jInterface.callJ( "(i.0 0)\"_ ExecIfExist 'onStop_" + jlocale + "_'");
     }
   }
   @Override protected void onDestroy()

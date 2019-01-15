@@ -594,6 +594,7 @@ public class JConsoleApp extends Application
       // Log.d(JConsoleApp.LogTag,sb.toString());
       callJ(sb.toString(), false);
     }
+    callJ("ExecIfExist_z_=: 3 : 'if. 3=(4!:0 ::_2:)<y do. y~$0 else. y end.'", false);
 //    if (!asyncj) console.prompt();
     console.prompt();
     console.setEnabled(true);
