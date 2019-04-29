@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jsoftware.j.android"
-    android:versionCode="23"
-    android:versionName="1.2.05" >
+    android:versionCode="24"
+    android:versionName="1.2.06" >
 
     <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="23"/>
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -68,6 +68,16 @@
             android:exported="true" 
             android:enabled="true" 
             android:label="JKeyboard">
+            <intent-filter>
+                <action android:name="android.view.InputMethod" />
+            </intent-filter>
+            <meta-data android:name="android.view.im" android:resource="@xml/method" />
+        </service>
+        <service android:name=".SoftKeyboard2"
+            android:permission="android.permission.BIND_INPUT_METHOD" 
+            android:exported="true" 
+            android:enabled="true" 
+            android:label="JDKeyboard">
             <intent-filter>
                 <action android:name="android.view.InputMethod" />
             </intent-filter>
