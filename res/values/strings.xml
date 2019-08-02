@@ -2,7 +2,7 @@
 <resources>
     <!-- Symbols that are commonly considered word separators in this language -->
     <string name="word_separators">\u0020.,;:!?\n()[]*&amp;@{}/&lt;&gt;_+=|&quot;</string>
-    
+
     <string name="hello">Hello World, JActivity!</string>
     <string name="app_name">J Android</string>
     <string name="help_name">J Help</string>
@@ -12,8 +12,6 @@
 
     <string name="wdactivity_name">Wd</string>
     <string name="textviewactivity_name">TextView</string>
-    
-    <string name="jversion">807</string>
 
     <string name="runpacman">runpacman_jpacman_ 0 [ require \'pacman ~addons/ide/ja/pacman.ijs\'</string>
     <string name="help_start">dictionary/vocabul.htm</string>
@@ -22,5 +20,5 @@
     <string name="runlabsadvance">labs_run_ja_ 0</string>
     <string name="rundemos">demoja_ja_$0</string>
     <string name="runshowcase">demowd_ja_$0</string>
-        
+
 </resources>

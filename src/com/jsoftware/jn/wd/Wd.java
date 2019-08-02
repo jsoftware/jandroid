@@ -290,18 +290,22 @@ public class Wd
     final Object[] ress = {null,new int[]{2,-1,-1}};
     final String sloc = loc;
     final Integer[] rcs = {0};
-    final CountDownLatch latch = new CountDownLatch(1);
-    JConsoleApp.theApp.activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        int rc = uiwd(tt, intas, inarrs, ress, sloc, rcs);
-        latch.countDown();
+    if (t>=4000) {
+      int rc = uiwd(tt, intas, inarrs, ress, sloc, rcs);
+    } else {
+      final CountDownLatch latch = new CountDownLatch(1);
+      JConsoleApp.theApp.activity.runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          int rc = uiwd(tt, intas, inarrs, ress, sloc, rcs);
+          latch.countDown();
+        }
+      });
+      try {
+        latch.await();
+      } catch (InterruptedException e) {
+        error(Log.getStackTraceString(e));
       }
-    });
-    try {
-      latch.await();
-    } catch (InterruptedException e) {
-      error(Log.getStackTraceString(e));
     }
     res[0]=ress[0];
     res[1]=ress[1];
@@ -436,6 +440,42 @@ public class Wd
         Log.d(JConsoleApp.LogTag,"wd exception "+exc);
         glerror(t, exc.toString());
         return rcs[0] = 1;
+      }
+      if (0<rc) glerror(t, "command failed");
+      return rcs[0] = rc;
+    } else if (t==4000) {
+      if (!(inarr.length>0&&inarr.length<=3)) {
+        glerror(t, "length error");
+        return rcs[0] = 1;
+      }
+      try {
+        if (inarr.length==1&&inta[0]==2) {
+          String url = new String((byte[])inarr[0], Charset.forName("UTF-8"));
+          rc = JHttpReq.httpreq("get", url, null, res);
+        } else if (inarr.length>1&&inta[0]==2&&inta[3]==2) {
+          String req = new String((byte[])inarr[0], Charset.forName("UTF-8"));
+          String url = new String((byte[])inarr[1], Charset.forName("UTF-8"));
+          if(!(req.equals("get")||req.equals("post")||req.equals("put"))) {
+            glerror(t, "argument error");
+            return rcs[0] = 1;
+          }
+          if(req.equals("get"))
+            rc = JHttpReq.httpreq(req, url, null, res);
+          else {
+            if(!(inarr.length==3&&inta[6]==2)) {
+              glerror(t, "argument error");
+              return rcs[0] = 1;
+            }
+            rc = JHttpReq.httpreq(req, url, (byte[])inarr[2], res);
+          }
+        } else {
+          glerror(t, "argument error");
+          return rcs[0] = 1;
+        }
+      } catch (Exception exc) {
+        Log.d(JConsoleApp.LogTag,"wd exception "+exc);
+        glerror(t, exc.toString());
+        return rcs[0] = rc;
       }
       if (0<rc) glerror(t, "command failed");
       return rcs[0] = rc;

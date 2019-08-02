@@ -24,7 +24,7 @@ public class JInterface
   public static String promptkey = "\u00fe\u00fd\u00fc\u00fd\u00fe";
 
   public static final String LOGTAG = "jandroid";
-  public static boolean asyncj;
+  public static boolean asyncj = true;
 
   private long nativeInstance = 0L;
 

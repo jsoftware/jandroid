@@ -92,7 +92,7 @@ public class JConsoleApp extends Application
   protected File installRoot;
   protected File currentLocalDir = null;
   private Console console;
-  public String jversion = "807";
+  public final String jversion = "901";
   boolean localFile = false;
 
   List<EngineOutput> outputs = new LinkedList<EngineOutput>();
@@ -149,7 +149,7 @@ public class JConsoleApp extends Application
     } else {
       IF64 = Build.SUPPORTED_ABIS[0].contains("64");
     }
-    jversion = getResources().getString(R.string.jversion);
+//    jversion = getResources().getString(R.string.jversion);
   }
 
   public void setup(JActivity jActivity, Console console)
@@ -182,7 +182,7 @@ public class JConsoleApp extends Application
       started = true;
 
       console.setEnabled(false);
-      if (Build.VERSION.SDK_INT >= 23) {
+      if (false && Build.VERSION.SDK_INT < 28 && Build.VERSION.SDK_INT >= 23) {
         boolean bl = ContextCompat.checkSelfPermission((Context)jActivity, "android.permission.WRITE_EXTERNAL_STORAGE") == 0;
         if (!bl) {
           ActivityCompat.requestPermissions(jActivity, new String[] {"android.permission.WRITE_EXTERNAL_STORAGE"}, 100);
@@ -202,18 +202,26 @@ public class JConsoleApp extends Application
       jInterface.start();
       jInterface.JSetEnv("TMPDIR", sysTmpDir.getAbsolutePath());
       String state = Environment.getExternalStorageState();
-      if(Environment.MEDIA_MOUNTED.equals(state)) {
+      if (false && Build.VERSION.SDK_INT < 28 && Environment.MEDIA_MOUNTED.equals(state)) {
         jInterface.JSetEnv("HOME", SDCARD);
         home = SDCARD;
-        userDir = IF64 ? new File(SDCARD, "j64-" + jversion + "-user") : new File(SDCARD, "j" + jversion + "-user");
+        userDir = new File(SDCARD, "j"+jversion+"-user");
         installRoot = getExternalFilesDir(null);
         installRoot.mkdirs();
+        currentExternDir = userDir;
+        currentLocalDir = root;
+      } else if (Environment.MEDIA_MOUNTED.equals(state)) {
+        installRoot = getExternalFilesDir(null);
+        installRoot.mkdirs();
+        jInterface.JSetEnv("HOME", installRoot.getAbsolutePath());
+        home = installRoot.getAbsolutePath();
+        userDir = new File(installRoot, "j"+jversion+"-user");
         currentExternDir = userDir;
         currentLocalDir = root;
       } else {
         jInterface.JSetEnv("HOME", root.getAbsolutePath());
         home = root.getAbsolutePath();
-        userDir = IF64 ? new File(root, "j64-" + jversion + "-user") : new File(root, "j" + jversion + "-user");
+        userDir = new File(root, "j"+jversion+"-user");
         installRoot = root;
         currentLocalDir = userDir;
       }
@@ -702,7 +710,7 @@ public class JConsoleApp extends Application
     {
       try {
 //        if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-//          File lo = new File(params[0],"j807-user");
+//          File lo = new File(params[0],"j901-user");
 //          if(lo.exists()) {
 //            File ex = new File(Environment.getExternalStorageDirectory().getPath());
 //            if(ex.canWrite()) {
@@ -894,7 +902,7 @@ public class JConsoleApp extends Application
   public void loadPref()
   {
     SharedPreferences sp = getSharedPreferences("jpreferences", Context.MODE_PRIVATE);
-    asyncj0 = sp.getBoolean("asyncj", false);        // default value
+    asyncj0 = sp.getBoolean("asyncj", true);         // default value
     stacksize = sp.getInt("stacksize", 5000000);
     smfont = sp.getString("smfont", "");
     configpath = sp.getString("configpath", "");
