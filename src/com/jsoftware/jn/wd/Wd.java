@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.Character;
 import java.lang.Math;
+import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -1471,6 +1472,25 @@ public class Wd
   }
 
 // ---------------------------------------------------------------------
+  private String wdosrelease()
+  {
+    /*
+        Field[] fields = Build.VERSION_CODES.class.getFields();
+        String codeName = "";
+        for (Field field : fields) {
+          try {
+            if (field.getInt(Build.VERSION_CODES.class) == Build.VERSION.SDK_INT) {
+              codeName = " "+field.getName();
+            }
+          } catch (IllegalAccessException e) {
+            e.printStackTrace();
+          }
+        }
+        return Build.VERSION.RELEASE+codeName;
+    */
+    return Build.VERSION.RELEASE;
+  }
+// ---------------------------------------------------------------------
   private void wdversion()
   {
     String p=Util.remquotes(cmd.getparms());
@@ -1478,7 +1498,7 @@ public class Wd
       error("extra parameters: " + p);
       return;
     }
-    result=Util.s2ba(JConsoleApp.theApp.mVersionName+"/"+Util.i2s(Build.VERSION.SDK_INT));
+    result=Util.s2ba(JConsoleApp.theApp.mVersionName+"/"+wdosrelease()+"/"+Util.i2s(Build.VERSION.SDK_INT));
     rc=-1;
   }
 

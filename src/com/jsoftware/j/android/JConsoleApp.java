@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 import com.jsoftware.j.JInterface;
 import com.jsoftware.jn.base.Util;
 
@@ -582,6 +581,8 @@ public class JConsoleApp extends Application
     .append("/bin").append("'")
     .append(" [ INSTALLROOT_z_=:'").append(installRoot.getAbsolutePath()).append("'")
     .append(" [ AndroidPackage_z_=:'").append(activity.getApplicationContext().getPackageName()).append("'")
+    .append(" [ APILEVEL_ja_=:").append(""+Build.VERSION.SDK_INT)
+    .append(" [ OSRELEASE_ja_=:'").append(Build.VERSION.RELEASE).append("'")
     .append(" [ LIBFILE_z_=: '").append(JConsoleApp.theApp.getApplicationInfo().nativeLibraryDir).append("/libj.so'")
     .append(" [ IFJA_z_=: 1")
     .append(" [ UNAME_z_=: 'Android'")
