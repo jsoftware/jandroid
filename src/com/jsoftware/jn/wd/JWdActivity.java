@@ -112,6 +112,7 @@ public class JWdActivity extends AbstractActivity
       theApp.removeFile("wd:"+jlocale);
       if (null!=form) {
         if (!theApp.asyncj)form.onDestroy(); // not working for asyncj
+        else form.dispose();
       }
     }
   }
