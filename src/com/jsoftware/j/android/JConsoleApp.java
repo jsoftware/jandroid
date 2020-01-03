@@ -144,9 +144,11 @@ public class JConsoleApp extends Application
       mVersionCode = -1;
     }
     if (Build.VERSION.SDK_INT < 21) {
-      IF64 = Build.CPU_ABI.contains("64");
+//      IF64 = Build.CPU_ABI.contains("64");
+        IF64 = false;  // always false
     } else {
-      IF64 = Build.SUPPORTED_ABIS[0].contains("64");
+//      IF64 = Build.SUPPORTED_ABIS[0].contains("64");
+      IF64 = android.os.Process.is64Bit();
     }
 //    jversion = getResources().getString(R.string.jversion);
   }
