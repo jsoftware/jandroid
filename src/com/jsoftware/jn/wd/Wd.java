@@ -5,12 +5,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
 import com.jsoftware.j.android.AndroidJInterface;
 import com.jsoftware.j.android.JConsoleApp;
 import com.jsoftware.jn.base.Util;
@@ -28,6 +32,7 @@ import java.io.OutputStream;
 import java.lang.Character;
 import java.lang.Math;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -1130,7 +1135,7 @@ public class Wd
       return;
     }
     rc=-1;
-    android.util.DisplayMetrics dm=context.getResources().getDisplayMetrics();
+    DisplayMetrics dm=context.getResources().getDisplayMetrics();
     result=Util.s2ba(Util.d2s((double)dm.density)+" "+
                      Util.d2s((double)dm.scaledDensity)+" "+
                      Util.i2s(dm.densityDpi)+" "+
@@ -1196,20 +1201,41 @@ public class Wd
       error("command not found");
       return;
     } else if (s.equals("qscreen")) {
-      int dpix,dpiy,w,h;
-//     android_getdisplaymetrics(0);
-//     dpix=DM_densityDpi;
-//     dpiy=DM_densityDpi;
-//     w=DM_widthPixels;
-//     h=DM_heightPixels;
-      dpix=300;
-      dpiy=300;
-      w=900;
-      h=1920;
-      int mmx=(int)(25.4*(double)w/(double)dpix);
-      int mmy=(int)(25.4*(double)h/(double)dpiy);
-      int dia=(int)Math.sqrt((float)(dpix*dpix+dpiy*dpiy));
-      result=Util.s2ba(Util.i2s(mmx) + " " + Util.i2s(mmy) + " " + Util.i2s(w) + " " + Util.i2s(h) + " " + Util.i2s(dpix) + " " + Util.i2s(dpiy) + " " + Util.i2s(1) + " 1 " + Util.i2s(24) + " " + Util.i2s(dpix) + " " + Util.i2s(dpiy) + " " + Util.i2s(dia));
+      Point point = new Point();
+      float dpix,dpiy;
+      int w,h;
+      DisplayMetrics dm = new DisplayMetrics();
+      Display display = JConsoleApp.theApp.activity.getWindowManager().getDefaultDisplay();
+      if (Build.VERSION.SDK_INT >= 17) {
+        //get real metrics
+        display.getRealMetrics(dm);
+        w = dm.widthPixels;
+        h = dm.heightPixels;
+      } else if (Build.VERSION.SDK_INT >= 14) {
+        display.getMetrics(dm);
+        //reflection for this weird in-between time
+        try {
+          Method mGetRawH = Display.class.getMethod("getRawHeight");
+          Method mGetRawW = Display.class.getMethod("getRawWidth");
+          w = (Integer) mGetRawW.invoke(display);
+          h = (Integer) mGetRawH.invoke(display);
+        } catch (Exception e) {
+          //this may not be 100% accurate, but it's all we've got
+          w = display.getWidth();
+          h = display.getHeight();
+        }
+      } else {
+        display.getMetrics(dm);
+        //This should be close, as lower API devices should not have window navigation bars
+        w = display.getWidth();
+        h = display.getHeight();
+      }
+      dpix = dm.xdpi;
+      dpiy = dm.ydpi;
+      int mmx=(int)(25.4*(float)w/dpix);
+      int mmy=(int)(25.4*(float)h/dpiy);
+      int dia=(int)Math.sqrt(dpix*dpix+dpiy*dpiy);
+      result=Util.s2ba(Util.i2s(mmx) + " " + Util.i2s(mmy) + " " + Util.i2s(w) + " " + Util.i2s(h) + " " + Util.i2s((int)dpix) + " " + Util.i2s((int)dpiy) + " " + Util.i2s(1) + " 1 " + Util.i2s(24) + " " + Util.i2s((int)dpix) + " " + Util.i2s((int)dpiy) + " " + Util.i2s(dia));
       return;
     } else if (s.equals("qwd")) {
       result=Util.s2ba("android");

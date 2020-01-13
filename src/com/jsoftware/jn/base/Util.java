@@ -3,7 +3,6 @@ package com.jsoftware.jn.base;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
-import android.content.Context;
 import android.util.Log;
 import com.jsoftware.j.android.JConsoleApp;
 import java.io.ByteArrayOutputStream;
