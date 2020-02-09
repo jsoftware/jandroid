@@ -6,8 +6,8 @@
             <item android:id="@+id/open" android:title="Open..." android:orderInCategory="2"/>
             <item android:id="@+id/save" android:title="Save" android:orderInCategory="3"/>
             <item android:id="@+id/saveas" android:title="Save As..." android:orderInCategory="4"/>
-       		  <item android:id="@+id/clear" android:title="Clear" android:orderInCategory="6"/>
-            <item android:id="@+id/exit" android:title="Exit" android:orderInCategory="8"/>
+            <item android:id="@+id/clearterm" android:title="Clear" android:orderInCategory="5"/>
+            <item android:id="@+id/exit" android:title="Exit" android:orderInCategory="6"/>
         </menu>
     </item>
 

@@ -131,7 +131,7 @@ public class JActivity extends AbstractActivity implements ExecutionListener
     int itemId = item.getItemId();
     Log.d(JConsoleApp.LogTag,"onOptionstemSelected selection " + itemId + ", " + getClass().getName());
     switch(itemId) {
-    case R.id.clear:
+    case R.id.clearterm:
       console.clear();
       break;
     case R.id.jbreak:
