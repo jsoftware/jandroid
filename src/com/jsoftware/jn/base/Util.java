@@ -976,6 +976,18 @@ public class Util
   }
 
 // ---------------------------------------------------------------------
+  public static String stringToHex(String string)
+  {
+    StringBuilder buf = new StringBuilder(5*string.length());
+    for (char ch: string.toCharArray()) {
+      if (buf.length() > 0)
+        buf.append(' ');
+      buf.append(String.format("%04x", (int) ch));
+    }
+    return buf.toString();
+  }
+
+// ---------------------------------------------------------------------
   @SuppressWarnings( "deprecation" )
   public static void clipcopy(Context ctx, String text)
   {

@@ -32,6 +32,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.jsoftware.j.JInterface;
+import com.jsoftware.jn.base.Util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -252,6 +253,9 @@ public abstract class AbstractActivity extends AppCompatActivity
     case R.id.runf:
       requestFileRun();
       break;
+    case R.id.runcb:
+      runClipboard();
+      break;
     case R.id.vocab:
       showHelp(R.string.help_start);
       break;
@@ -298,6 +302,25 @@ public abstract class AbstractActivity extends AppCompatActivity
     String line = editor.getLineForPosition(n);
     theApp.consoleOutput(JInterface.MTYOFM, line + "\n");
     theApp.callJ(line, true);
+  }
+
+  protected void runClipboard()
+  {
+    String m=Util.clipread(this.getApplicationContext());
+    if (0!=m.length()) {
+      String m1=m.replace("\u00a0"," ");
+// strip last LF
+      if((m1.length()-1) == m1.lastIndexOf("\n")) m1 = m1.substring(0,m1.length()-1);
+      if(m1.contains("\n")) {
+// run as script if multiple lines
+        theApp.consoleOutput(JInterface.MTYOFM, "\n");
+        theApp.callJ("(i.0 0)\"_ (0!:100)'"+ m1.replace("'","''")+"'", true);
+      } else {
+// run as sentence if only 1 line
+        theApp.consoleOutput(JInterface.MTYOFM, m1 + "\n");
+        theApp.callJ(m1, true);
+      }
+    }
   }
 
   protected void updateJ()

@@ -15,6 +15,7 @@
             <item android:id="@+id/runl" android:title="Run Line"  android:orderInCategory="1"/>
             <item android:id="@+id/runf" android:title="Run File"  android:orderInCategory="2"/>
             <item android:id="@+id/runc" android:title="Run Current"  android:orderInCategory="3"/>
+            <item android:id="@+id/runcb" android:title="Run Clipboard"  android:orderInCategory="4"/>
             <item android:id="@+id/upgrade" android:title="Update J"  android:orderInCategory="5"/>
             <item android:id="@+id/jbreak" android:title="Break"  android:orderInCategory="6"/>
         </menu>
