@@ -2,6 +2,7 @@ package com.jsoftware.jn.base;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
+import android.content.ClipData;
 import android.content.Context;
 import android.util.Log;
 import com.jsoftware.j.android.JConsoleApp;
@@ -1015,9 +1016,12 @@ public class Util
       }
     } else {
       android.content.ClipboardManager clipboard = (android.content.ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
-      android.content.ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
-      if (item.getText() != null) {
-        res=item.getText().toString();
+      ClipData clipdata = clipboard.getPrimaryClip();
+      if (clipdata != null && clipdata.getItemCount()>0) {
+        android.content.ClipData.Item item = clipdata.getItemAt(0);
+        if (item != null && item.getText() != null) {
+          res=item.getText().toString();
+        }
       }
     }
     return res;
