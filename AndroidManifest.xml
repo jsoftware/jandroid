@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jsoftware.j.android"
-    android:versionCode="38"
-    android:versionName="1.4.08" >
+    android:versionCode="39"
+    android:versionName="1.4.09" >
 
     <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="23"/>
     <uses-permission android:name="android.permission.INTERNET"/>
