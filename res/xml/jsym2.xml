@@ -53,7 +53,7 @@
         <Key android:codes="-1129" android:keyWidth="10%p" android:keyLabel="t:"/>
         <Key android:codes="32" android:keyWidth="20%p" android:keyIcon="@drawable/sym_keyboard_space"  android:isRepeatable="true"/>
         <Key android:codes="-1130" android:keyWidth="10%p" android:keyLabel="u:"/>
-        <Key android:codes="-1130" android:keyWidth="10%p" android:keyLabel="x:"/>
+        <Key android:codes="-1131" android:keyWidth="10%p" android:keyLabel="x:"/>
         <Key android:codes="10" android:keyWidth="15%p" android:keyIcon="@drawable/sym_keyboard_return" android:keyEdgeFlags="right"/>
     </Row>
 </Keyboard>
