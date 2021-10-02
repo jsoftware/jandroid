@@ -206,7 +206,8 @@ public class JConsoleApp extends Application
       if (false && Build.VERSION.SDK_INT < 28 && Environment.MEDIA_MOUNTED.equals(state)) {
         jInterface.JSetEnv("HOME", SDCARD);
         home = SDCARD;
-        userDir = new File(SDCARD, "j"+jversion+"-user");
+//        userDir = new File(SDCARD, "j"+jversion+"-user");
+        userDir = new File(SDCARD, "j-user");
         installRoot = getExternalFilesDir(null);
         installRoot.mkdirs();
         currentExternDir = userDir;
@@ -216,13 +217,15 @@ public class JConsoleApp extends Application
         installRoot.mkdirs();
         jInterface.JSetEnv("HOME", installRoot.getAbsolutePath());
         home = installRoot.getAbsolutePath();
-        userDir = new File(installRoot, "j"+jversion+"-user");
+//        userDir = new File(installRoot, "j"+jversion+"-user");
+        userDir = new File(installRoot, "j-user");
         currentExternDir = userDir;
         currentLocalDir = root;
       } else {
         jInterface.JSetEnv("HOME", root.getAbsolutePath());
         home = root.getAbsolutePath();
-        userDir = new File(root, "j"+jversion+"-user");
+//        userDir = new File(root, "j"+jversion+"-user");
+        userDir = new File(root, "j-user");
         installRoot = root;
         currentLocalDir = userDir;
       }
