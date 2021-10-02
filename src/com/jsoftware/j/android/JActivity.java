@@ -52,7 +52,7 @@ public class JActivity extends AbstractActivity implements ExecutionListener
   {
     Intent ii = new Intent(getIntent());
     ii.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-    theApp.addIntent(JANDROID, ii);
+    theApp.addIntent(getResources().getString(R.string.app_name), ii);
   }
 
   public void quit()

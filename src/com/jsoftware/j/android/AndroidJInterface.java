@@ -91,7 +91,7 @@ public class AndroidJInterface extends JInterface
         }
       }
     } catch(Exception e) {
-      Log.e(LOGTAG,"error reading line",e);
+      Log.e(JConsoleApp.LogTag,"error reading line",e);
     } finally {
       synchronized(commandBuffer) {
         thread = null;
@@ -129,7 +129,7 @@ public class AndroidJInterface extends JInterface
         }
       }
     } catch(Exception e) {
-      Log.e(LOGTAG,"error reading line",e);
+      Log.e(JConsoleApp.LogTag,"error reading line",e);
     } finally {
       synchronized(commandBuffer) {
         thread = null;

@@ -56,7 +56,6 @@ public abstract class AbstractActivity extends AppCompatActivity
 
   public static final String EMPTY = " -- empty -- ";
   public JConsoleApp theApp=null;
-  public static final String JANDROID = "J Android";
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -109,7 +108,7 @@ public abstract class AbstractActivity extends AppCompatActivity
       final List<SliderMenuItem> sliderMenuItems = new ArrayList<SliderMenuItem>();
       SliderMenuItem item1 = new SliderMenuItem();
       item1.setId(1);
-      item1.setTitle(JANDROID);
+      item1.setTitle(getResources().getString(R.string.app_name));
       item1.setClickHandler(new SliderMenuItem.MenuItemClickHandler() {
         @Override
         public void handleMenuClick() {
@@ -120,7 +119,7 @@ public abstract class AbstractActivity extends AppCompatActivity
 
       int i=1;
       for (String s : theApp.getWindowsAsArray()) {
-        if (!s.equals(JANDROID)) {
+        if (!s.equals(getResources().getString(R.string.app_name))) {
           SliderMenuItem item2 = new SliderMenuItem();
           item2.setId(++i);
           item2.setTitle(s);

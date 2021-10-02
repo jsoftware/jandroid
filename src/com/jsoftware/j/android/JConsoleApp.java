@@ -189,7 +189,7 @@ public class JConsoleApp extends Application
           ActivityCompat.requestPermissions(jActivity, new String[] {"android.permission.WRITE_EXTERNAL_STORAGE"}, 100);
         }
       }
-      root = getDir("jandroid", Context.MODE_WORLD_READABLE
+      root = getDir(LogTag, Context.MODE_WORLD_READABLE
                     | Context.MODE_WORLD_WRITEABLE);
 
       File binDir = new File(root, "bin");
@@ -254,7 +254,7 @@ public class JConsoleApp extends Application
 
   public void addIntent(String path, Intent intent)
   {
-    if (!JActivity.JANDROID.equals(path)) {
+    if (!path.equals(getResources().getString(R.string.app_name))) {
 //      path = new File(path).getName();
     } else {
 
@@ -269,7 +269,7 @@ public class JConsoleApp extends Application
 
   public void removeFile(String path)
   {
-    Log.d("jandroid", "removeFile "+path);
+    Log.d(LogTag, "removeFile "+path);
     intentMap.remove(path);
   }
 
@@ -502,7 +502,7 @@ public class JConsoleApp extends Application
               + f.getName() + ": "
               + e.getLocalizedMessage(),
               Toast.LENGTH_LONG).show();
-            Log.e(JConsoleApp.LogTag,
+            Log.e(LogTag,
                   "there was an error overwriting file "
                   + f.getName(), e);
           }
@@ -533,7 +533,7 @@ public class JConsoleApp extends Application
             action.action(true);
           dialog.dismiss();
         } catch (IOException e) {
-          Log.e(JConsoleApp.LogTag,
+          Log.e(LogTag,
                 "error saving file", e);
         }
       }
@@ -592,20 +592,20 @@ public class JConsoleApp extends Application
     .append(" [ IFJA_z_=: 1")
     .append(" [ UNAME_z_=: 'Android'")
     .append(" [ 1!:44 ::0: '").append(home).append("'");
-    Log.d(JConsoleApp.LogTag, "initialize engine");
+    Log.d(LogTag, "initialize engine");
 
     if (args.length > 1) {
       String[] ss = new String[args.length];
       ss[0] = sb.toString();
-      // Log.d(JConsoleApp.LogTag,ss[0]);
+      // Log.d(LogTag,ss[0]);
       for (int i = 1; i < args.length; ++i) {
         ss[i] = args[i];
-        Log.d(JConsoleApp.LogTag, ss[i]);
+        Log.d(LogTag, ss[i]);
       }
       for (String s: ss)
         callJ(s, false);
     } else {
-      // Log.d(JConsoleApp.LogTag,sb.toString());
+      // Log.d(LogTag,sb.toString());
       callJ(sb.toString(), false);
     }
     callJ("ExecIfExist_z_=: 3 : 'if. 3=(4!:0 ::_2:)<y do. y~$0 else. y end.'", false);
@@ -625,7 +625,7 @@ public class JConsoleApp extends Application
         task.execute(base);
       }
     } else {
-      Log.d(JConsoleApp.LogTag, "bootstraping session");
+      Log.d(LogTag, "bootstraping session");
       bootstrap();
     }
   }
@@ -744,7 +744,7 @@ public class JConsoleApp extends Application
       try {
         copyFiles(new File(base, "system/config"), JConsoleApp.this.cfgDir);
       } catch (Exception exception) {
-        Log.e("jandroid", "failed to copy config");
+        Log.e(LogTag, "failed to copy config");
       }
 
 //       publishProgress("installing help files");
@@ -753,7 +753,7 @@ public class JConsoleApp extends Application
       publishProgress("installing addons");
       installDirectory(base, "addons");
 
-      File root = getDir("jandroid", Context.MODE_WORLD_READABLE
+      File root = getDir(LogTag, Context.MODE_WORLD_READABLE
                          | Context.MODE_WORLD_WRITEABLE);
       installDirectory(root , "libexec");
       final Runtime runtime = Runtime.getRuntime();
@@ -787,7 +787,7 @@ public class JConsoleApp extends Application
       try {
         return _installFile(base, path);
       } catch (Exception e) {
-        Log.e(JConsoleApp.LogTag, "failed to install " + path);
+        Log.e(LogTag, "failed to install " + path);
       }
       return false;
     }
@@ -832,7 +832,7 @@ public class JConsoleApp extends Application
         try {
           res &= _installFile(base, directory + "/" + t);
         } catch (FileNotFoundException e) {
-          Log.d(JConsoleApp.LogTag, "recursing to " + directory + "/"
+          Log.d(LogTag, "recursing to " + directory + "/"
                 + t);
           installDirectory(base, directory + "/" + t);
         }

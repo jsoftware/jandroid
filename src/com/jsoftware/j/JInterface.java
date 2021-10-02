@@ -23,7 +23,6 @@ public class JInterface
   public static final int MTYOFILE =	6;	/* output 1!:2[2 */
   public static String promptkey = "\u00fe\u00fd\u00fc\u00fd\u00fe";
 
-  public static final String LOGTAG = "jandroid";
   public static boolean asyncj = true;
 
   private long nativeInstance = 0L;
@@ -50,10 +49,10 @@ public class JInterface
         }
       }
       result = -1;
-      Log.d(LOGTAG, "executing: " + sentence);
+      Log.d(JConsoleApp.LogTag, "executing: " + sentence);
       result = JDo(sentence);
     } catch(Throwable e) {
-      Log.e(LOGTAG, "error executing sentence: " + sentence, e);
+      Log.e(JConsoleApp.LogTag, "error executing sentence: " + sentence, e);
     } finally {
       if (asyncj) {
         final boolean addp = addprompt;
@@ -82,10 +81,10 @@ public class JInterface
           }
         }
       }
-      Log.d(LOGTAG, "executing: " + sentence);
+      Log.d(JConsoleApp.LogTag, "executing: " + sentence);
       result = JDoR(sentence);
     } catch(Throwable e) {
-      Log.e(LOGTAG, "error dors sentence: " + sentence, e);
+      Log.e(JConsoleApp.LogTag, "error dors sentence: " + sentence, e);
       throw new RuntimeException(e);
     }
     return result;
@@ -103,11 +102,11 @@ public class JInterface
           }
         }
       }
-      Log.d(LOGTAG, "executing: " + verb);
+      Log.d(JConsoleApp.LogTag, "executing: " + verb);
       JSetc("y_jrx_", y, y.length());
       result = JDoR(verb+"]y_jrx_");
     } catch(Throwable e) {
-      Log.e(LOGTAG, "error dorsm verb: " + verb, e);
+      Log.e(JConsoleApp.LogTag, "error dorsm verb: " + verb, e);
       throw new RuntimeException(e);
     }
     return result;
@@ -125,10 +124,10 @@ public class JInterface
           }
         }
       }
-      Log.d(LOGTAG, "getc: " + s);
+      Log.d(JConsoleApp.LogTag, "getc: " + s);
       result = JGetc(s);
     } catch(Throwable e) {
-      Log.e(LOGTAG, "error getc: " + s, e);
+      Log.e(JConsoleApp.LogTag, "error getc: " + s, e);
       throw new RuntimeException(e);
     }
     return result;
@@ -145,10 +144,10 @@ public class JInterface
           }
         }
       }
-      Log.d(LOGTAG, "setc: " + s);
+      Log.d(JConsoleApp.LogTag, "setc: " + s);
       JSetc(s, v, v.length());
     } catch(Throwable e) {
-      Log.e(LOGTAG, "error setc: " + s, e);
+      Log.e(JConsoleApp.LogTag, "error setc: " + s, e);
       throw new RuntimeException(e);
     }
   }
@@ -253,7 +252,7 @@ public class JInterface
     try {
       System.loadLibrary("jnative");
     } catch(Exception e) {
-      Log.e(LOGTAG , "failed to load j shared object", e);
+      Log.e(JConsoleApp.LogTag , "failed to load j shared object", e);
       throw new RuntimeException(e);
     }
   }
