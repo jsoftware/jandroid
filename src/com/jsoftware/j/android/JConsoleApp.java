@@ -756,7 +756,7 @@ public class JConsoleApp extends Application
       final Runtime runtime = Runtime.getRuntime();
       setWorldReadable(runtime, new File(root, "libexec"), true);
 
-      installFile(base, "assets_version.txt");
+//      installFile(base, "assets_version.txt");
       publishProgress("installation complete");
 
       return true;
@@ -829,7 +829,7 @@ public class JConsoleApp extends Application
         try {
           res &= _installFile(base, directory + "/" + t);
         } catch (FileNotFoundException e) {
-          Log.i(JConsoleApp.LogTag, "recursing to " + directory + "/"
+          Log.d(JConsoleApp.LogTag, "recursing to " + directory + "/"
                 + t);
           installDirectory(base, directory + "/" + t);
         }

@@ -558,6 +558,8 @@ public class Wd
         wdimmexj();
       else if (c.startsWith("line"))
         wdline(c);
+      else if (c.equals("logcat"))
+        wdlogcat();
       else if (c.startsWith("mb"))
         wdmb();
       else if (c.startsWith("menu"))
@@ -1316,6 +1318,14 @@ public class Wd
   private void wdrem()
   {
     cmd.getparms();
+  }
+
+// ---------------------------------------------------------------------
+  private void wdlogcat()
+  {
+    String p=Util.remquotes(cmd.getparms());
+    Log.i(JConsoleApp.LogTag,p);
+    return;
   }
 
 // ---------------------------------------------------------------------
