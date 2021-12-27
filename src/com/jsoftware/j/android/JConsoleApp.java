@@ -91,7 +91,7 @@ public class JConsoleApp extends Application
   protected File installRoot;
   protected File currentLocalDir = null;
   private Console console;
-  public final String jversion = "902";
+  public final String jversion = "903";
   boolean localFile = false;
 
   List<EngineOutput> outputs = new LinkedList<EngineOutput>();
@@ -716,7 +716,7 @@ public class JConsoleApp extends Application
     {
       try {
 //        if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-//          File lo = new File(params[0],"j902-user");
+//          File lo = new File(params[0],"j903-user");
 //          if(lo.exists()) {
 //            File ex = new File(Environment.getExternalStorageDirectory().getPath());
 //            if(ex.canWrite()) {
