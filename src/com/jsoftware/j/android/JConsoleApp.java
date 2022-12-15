@@ -590,6 +590,7 @@ public class JConsoleApp extends Application
     .append(" [ OSRELEASE_ja_=:'").append(Build.VERSION.RELEASE).append("'")
     .append(" [ LIBFILE_z_=: '").append(JConsoleApp.theApp.getApplicationInfo().nativeLibraryDir).append("/libj.so'")
     .append(" [ IFJA_z_=: 1")
+    .append(" [ IFRASPI_z_=: 0")
     .append(" [ UNAME_z_=: 'Android'")
     .append(" [ 1!:44 ::0: '").append(home).append("'");
     Log.d(LogTag, "initialize engine");
