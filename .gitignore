@@ -9,6 +9,8 @@
 **/temp/**
 .classpath
 .project
+.gradle/
+build/
 **/appcompat-bak/**
 buildbase.sh
 jassets.tar.gz
@@ -16,4 +18,5 @@ local.properties
 proguard-project.txt
 copyassets.sh
 deploy.sh
+deploy2.sh
 genkey.sh

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="PackagedPrivateKey">
+        <ignore path="assets/addons/ide/jhs/node/key.pem"/>
+    </issue>
+</lint>
