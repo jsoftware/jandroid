@@ -1,0 +1,30 @@
+name: JANDROID
+
+on:
+ push:
+  branches:
+   - '**'
+
+# trigger workflow on file change
+#on:
+# push:
+#  paths:
+#   - 'version.txt'
+
+# if: ${{ false }}
+
+jobs:
+
+# linux ----------------------------------------------------------------
+ jalinux:
+  name: JANROID
+  runs-on: ubuntu-20.04
+  steps:
+   - name: Checkout Git repository
+     uses: actions/checkout@v2
+
+   - name: Build JANDROID
+     run: |
+      ./gradlew build
+      ./gradlew assemble
+
