@@ -1,14 +1,10 @@
-cp -r ..../appcompat .
-needs android-support-
-v4 24.1.1
-annotations
-v7 external with res
+make sure java is compatible with gradle v18 or older
+or set up $JAVA_HOME properly
 
-cd appcompat
-android update lib-project -p . --target android-23
-cd -
-append the following line to project.properties
+./gradlew build
+./gradlew assemnle
 
-android.library.reference.1=appcompat
+or
 
-# android update project -t android-23 -p . --subprojects --library appcompat
+gradle build      # build
+gradle assemble   # output unsigned apk
