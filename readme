@@ -2,7 +2,7 @@ make sure java is compatible with gradle v18 or older
 or set up $JAVA_HOME properly
 
 ./gradlew build
-./gradlew assemnle
+./gradlew assemble
 
 or
 
