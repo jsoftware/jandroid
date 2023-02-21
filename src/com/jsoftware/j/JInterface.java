@@ -220,6 +220,7 @@ public class JInterface
   native public static long JInit2(String libpath,String libj);
   native public static String JGetLocale();
   native public static void JSetEnv(String key,String value);
+  native public static void JInterrupt();
 
   public static String input(String s)
   {

@@ -281,7 +281,7 @@ public abstract class AbstractActivity extends AppCompatActivity
       updateJ();
       break;
     case R.id.checknewver:
-      new GetHttpTask().execute("http://www.jsoftware.com/download/j" + this.theApp.jversion + "/install/AndroidManifest.xml");
+      new GetHttpTask().execute("http://www.jsoftware.com/download/j" + this.theApp.jversion + "/install/androidversionCode.xml");
       break;
     default:
       result = false;
@@ -837,7 +837,7 @@ public abstract class AbstractActivity extends AppCompatActivity
                 public void onClick(DialogInterface dialog, int which) {
                   dialog.dismiss();
                   Intent myIntent = new Intent(Intent.ACTION_VIEW,
-                                               Uri.parse("http://www.jsoftware.com/download/j" + theApp.jversion + "/install/jandroid.apk"));
+                                               Uri.parse("http://www.jsoftware.com/download/j" + theApp.jversion + "/install/" + theApp.jversion + "_jandroid.apk"));
                   startActivity(myIntent);
                 }
               });
