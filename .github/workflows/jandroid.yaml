@@ -46,6 +46,15 @@ jobs:
        keyStorePassword: ${{ secrets.SIGNING_STORE_PASSWORD }}
        keyPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}
  
+   - name: Release
+     uses: ncipollo/release-action@v1
+     with:
+      tag: build
+      artifacts: ${{steps.sign_apk.outputs.signedReleaseFile}}
+      token: ${{ secrets.GITHUB_TOKEN }}
+      allowUpdates: true
+      replacesArtifacts: true
+
    - name: Upload
      uses: actions/upload-artifact@v2
      with:
