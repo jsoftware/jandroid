@@ -15,9 +15,9 @@ on:
 
 jobs:
 
-# linux ----------------------------------------------------------------
- jalinux:
-  name: JANROID
+# jandroid -------------------------------------------------------------
+ jandroid:
+  name: JANDROID
   runs-on: ubuntu-20.04
   steps:
    - name: Checkout Git repository
@@ -53,7 +53,7 @@ jobs:
      uses: ncipollo/release-action@v1
      with:
       tag: build
-      artifacts: ${{steps.sign_apk.outputs.signedReleaseFile}}
+      artifacts: "${{steps.sign_apk.outputs.signedReleaseFile}},androidversionCode.xml"
       token: ${{ secrets.GITHUB_TOKEN }}
       allowUpdates: true
       replacesArtifacts: true
@@ -63,3 +63,18 @@ jobs:
      with:
        name: Build Artifacts
        path: ${{steps.sign_apk.outputs.signedReleaseFile}}
+
+# webhook --------------------------------------------------------------
+ webhook:
+  name: Run Webhook
+# remove the following line to run
+  if: ${{ false }}
+  runs-on: ubuntu-22.04
+  needs: jandroid
+  steps:
+   - name: update server
+     uses: distributhor/workflow-webhook@v2
+     env:
+      webhook_url: ${{ secrets.WEBHOOK_URL }}
+      webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
+      data: '{ "id": "jandroid" }'
