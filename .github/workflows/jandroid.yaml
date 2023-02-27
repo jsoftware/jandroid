@@ -25,6 +25,29 @@ jobs:
 
    - name: Build JANDROID
      run: |
+      cd ~/
+      wget https://github.com/jsoftware/jsource/releases/download/build/androidlibs.zip
+      unzip androidlibs.zip
+      cd -
+      cp ~/libs/arm64-v8a/* libs/arm64-v8a/.
+      cp ~/libs/armeabi/* libs/armeabi/.
+      cp ~/libs/armeabi-v7a/* libs/armeabi-v7a/.
+      cp ~/libs/x86/* libs/x86/.
       ./gradlew build
       ./gradlew assemble
 
+   - name: Sign apk
+     id: sign_apk
+     uses: r0adkll/sign-android-release@v1
+     with:
+       releaseDirectory: build/outputs/apk/release
+       signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+       alias: ${{ secrets.ALIAS }}
+       keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+       keyPassword: ${{ secrets.KEY_PASSWORD }}
+ 
+   - name: Upload
+     uses: actions/upload-artifact@v2
+     with:
+       name: Build Artifacts
+       path: ${{steps.sign_apk.outputs.signedReleaseFile}}

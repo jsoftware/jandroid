@@ -1,0 +1,13 @@
+api/jni - change history
+
+== 1.0.0 ==
+ * initial import
+
+== 1.0.1 ==
+ * tidy up
+
+== 1.0.2 ==
+ * add verbs
+
+== 1.0.3 ==
+ * qt/android

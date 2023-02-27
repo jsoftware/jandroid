@@ -1,0 +1,4 @@
+ide/ja - change history
+
+== 1.0.0 .. ==
+ * initial release

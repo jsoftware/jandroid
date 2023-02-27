@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" >
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+   android:orientation="vertical"
+   android:background="@drawable/dora"
+   android:layout_width="fill_parent"
+   android:layout_height="fill_parent">
+
+<AnalogClock android:id="@+id/clock1"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content" />
+
+<Button android:id ="@+id/button1"
+  android:text="Label"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent" />
+
+<Button android:id ="@+id/button2"
+  android:text="Label"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent"
+  android:typeface="serif" />
+
+<Button android:id ="@+id/button3"
+  android:text="Label"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent"
+  android:textStyle="bold_italic" />
+
+<CheckBox android:id="@+id/plain_cb"
+  android:text="Plain"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content" />
+
+<CheckBox android:id="@+id/serif_cb"
+  android:text="Serif"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:typeface="serif" />
+
+<CheckBox android:id="@+id/bold_cb"
+  android:text="Bold"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:textStyle="bold" />
+
+<CheckBox android:id ="@+id/italic_cb"
+  android:text="Italic"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:textStyle="italic" />
+
+<DatePicker android:layout_width="wrap_content"
+  android:layout_height="wrap_content" />
+
+<DigitalClock android:id="@+id/digitalclock"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"/>
+
+<EditText android:id ="@+id/edittext1"
+  android:text="EditText 1"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content" />
+
+<EditText android:id ="@+id/button4"
+  android:text="(206)555-1212"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:typeface="serif"
+  android:phoneNumber="true" />
+
+<EditText android:id ="@+id/password"
+  android:text="SuperSecret"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:textStyle="bold_italic"
+  android:password="true" />
+
+<Gallery android:id="@+id/gallery"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"/>
+
+<ImageButton android:id="@+id/imagebutton"
+  android:src="@drawable/close_window"
+  android:background="#0000"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"/>
+
+<ImageView android:id="@+id/imageview"
+  android:src="@drawable/close_window"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"/>
+
+<ProgressBar android:id="@+id/progress"
+  android:style="@android:style/Widget.ProgressBar.Horizontal"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"/>
+
+<RadioGroup android:id="@+id/widget1"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:orientation="vertical" >
+
+<RadioButton android:id="@+id/widget2"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:text="Plain"
+  android:checked="false"
+  android:layout_gravity="left"
+  android:layout_weight="0" />
+
+<RadioButton android:id="@+id/5idget3"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:text="Serif"
+  android:checked="true"
+  android:layout_gravity="left"
+  android:layout_weight="0"
+  android:typeface="serif" />
+
+<RadioButton android:id="@+id/widget25"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:text="Bold"
+  android:checked="false"
+  android:layout_weight="0"
+  android:layout_gravity="left"
+  android:textStyle="bold" />
+
+<RadioButton android:id="@+id/widget24"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:text="Bold &amp; Italic"
+  android:checked="false"
+  android:layout_weight="0"
+  android:layout_gravity="left"
+  android:textStyle="bold_italic" />
+
+</RadioGroup>
+
+<ListView android:id="@+id/listview"
+  android:layout_width="fill_parent"
+  android:layout_height="550dp"/>
+
+<Spinner android:id="@+id/spinner"
+  android:layout_width="fill_parent"
+  android:layout_height="wrap_content"
+  android:drawSelectorOnTop="false"/>
+
+<TextView android:id="@+id/plain"
+  android:text="Plain"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content" />
+
+<TextView android:id="@+id/serif"
+  android:text="Serif"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:typeface="serif" />
+
+<TextView android:id="@+id/bold"
+  android:text="Bold"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:textStyle="bold" />
+
+<TextView android:id ="@+id/italic"
+  android:text="Italic"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:textStyle="italic" />
+
+<TimePicker android:id="@+id/widget5"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"/>
+
+</LinearLayout>
+</ScrollView>

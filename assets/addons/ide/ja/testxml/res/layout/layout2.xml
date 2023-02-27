@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tableLayout1"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+ 
+    <!-- 2 columns -->
+    <TableRow
+        android:id="@+id/tableRow1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dip" >
+ 
+        <TextView
+            android:id="@+id/textView1"
+            android:text="Column 1"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+ 
+        <Button
+            android:id="@+id/button1"
+            android:onClick="button_onClick"
+            android:text="Column 2" />
+    </TableRow>
+ 
+    <!-- edittext span 2 column -->
+    <TableRow
+        android:id="@+id/tableRow2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dip" >
+ 
+        <EditText
+            android:id="@+id/editText1"
+            android:layout_span="2"
+            android:text="Column 1 &amp; 2" />
+    </TableRow>
+ 
+    <!-- just draw a red line -->
+    <View
+        android:layout_height="2dip"
+        android:background="#FF0000" />
+ 
+    <!-- 3 columns -->
+    <TableRow
+        android:id="@+id/tableRow3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dip" >
+ 
+        <TextView
+            android:id="@+id/textView2"
+            android:text="Column 1"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+ 
+        <Button
+            android:id="@+id/button2"
+            android:text="Column 2" />
+ 
+        <Button
+            android:id="@+id/button3"
+            android:text="Column 3" />
+    </TableRow>
+ 
+    <!-- display this button in 3rd column via layout_column(zero based) -->
+    <TableRow
+        android:id="@+id/tableRow4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dip" >
+ 
+        <Button
+            android:id="@+id/button4"
+            android:layout_column="2"
+            android:text="Column 3" />
+    </TableRow>
+ 
+    <!-- display this button in 2nd column via layout_column(zero based) -->
+    <TableRow
+        android:id="@+id/tableRow5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dip" >
+ 
+        <Button
+            android:id="@+id/button5"
+            android:layout_column="1"
+            android:text="Column 2" />
+    </TableRow>
+ 
+</TableLayout>

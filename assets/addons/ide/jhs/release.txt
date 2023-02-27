@@ -1,0 +1,22 @@
+release notes
+
+this version:
+ 
+ redbox close on most pages - upper right
+
+ border-box sizing everywhere
+   *,*::before,*::after {box-sizing: border-box;}
+
+ flex - col and row resizing
+  max height so flex resize will fill available space
+   html,body,form {height: 100%;margin: 0;}
+
+ tool>react
+ tool>plot-chart - chartjs 
+ tool>app - completely new - best practice
+ tool>debug javascript
+ jijs run>lineadvance line selection
+ dot_ctrl lab advance for all (advance in new plot page)
+ help>framework
+
+1.0.333:

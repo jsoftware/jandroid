@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Symbols that are commonly considered word separators in this language -->
+    <string name="word_separators">\u0020.,;:!?\n()[]*&amp;@{}/&lt;&gt;_+=|&quot;</string>
+    
+    <string name="hello">Hello World, JActivity!</string>
+    <string name="app_name">J Console</string>
+    <string name="help_name">J Help</string>
+        <string name="label_go_key">Go</string>
+    <string name="label_send_key">Send</string>
+    <string name="label_next_key">Next</string>
+
+    <string name="activity_name">Activity</string>
+    
+    <string name="help_start">http://www.jsoftware.com/help/dictionary/vocabul.htm</string>
+    <string name="learning">http://www.jsoftware.com/help/learning/contents.htm</string>
+    <string name="aboutj">docs/aboutj.txt</string>
+    <string name="readme">docs/android-readme.txt</string>
+
+    <string name="jhs_start">http://localhost:65001/jijxipad</string>
+    <string name="version">1.0.5</string>
+        
+</resources>

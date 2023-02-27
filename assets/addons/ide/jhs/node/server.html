@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html><head></head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<body onload="load()"><div><h2>JHS</h2>
+<div id="status">STATUS</div>  
+<button type="button" id="logon" onclick="logon()">logon</button>
+key: <input type="password" id="key" value="" size="12">
+</div>
+
+<script>
+var rq;    
+var busy= 0; // prevent new request until previous has completed
+
+function load()
+{
+  document.title= 'jlogon'
+  var input = byid("key");
+  input.addEventListener("keyup", function(event) {
+    if (event.keyCode === 13) {event.preventDefault(); byid("logon").click();}
+  });
+  input.focus(); 
+}
+
+function ajaxrun(p)
+{
+ if(1==busy) {return;}
+ busy= 1;
+ rq= new XMLHttpRequest();
+ rq.onreadystatechange= ajax;
+ rq.open("POST","", true);
+ rq.send(p);
+}
+
+function ajax()
+{
+  if(rq.readyState==4)
+  {
+    busy= 0;
+    t= rq.responseText;
+    byid("status").innerHTML= t;
+    if("logon valid"==t.substring(0,11))
+      window.location.href= "jijx";
+  }
+}
+
+function logon(){ajaxrun(encode("jlogon?"+idv("key")));}
+function byid(id){return document.getElementById(id);}
+function idv(id){return byid(id).value;}
+function idvs(id,v){byid(id).value=v;}
+function encode(d){return(encodeURIComponent(d)).replace("/%20/g","+");}
+</script>
+</body></html>

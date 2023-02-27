@@ -1,0 +1,16 @@
+13 april 2022
+
+* onbeforeunload finally works
+ close page if dirty gives user change to cancel close
+ kill off ctrl+\ ???
+ kill off redbarclose
+
+* jijs - load/loadd run in jijx window - alert if jijx window is gone
+
+* more consistent use of window name
+
+* more consistent use of standard jshortname
+
+* jijx menu cleanup - edit menu
+
+* mac cmd key in menu

@@ -1,0 +1,50 @@
+NB. enum KEYCODE
+
+coclass 'ja'
+
+KEYCODE_Escape                 =: 16b00f800
+KEYCODE_Tab                    =: 16b00f801
+KEYCODE_Backtab                =: 16b00f802
+KEYCODE_Backspace              =: 16b00f803
+KEYCODE_Return                 =: 16b00f804
+KEYCODE_Enter                  =: 16b00f805 NB. Typically located NB. On the keypad.
+KEYCODE_Insert                 =: 16b00f806
+KEYCODE_Delete                 =: 16b00f807
+KEYCODE_Pause                  =: 16b00f808 NB. The Pause/Break key (Note: Not anything to do with pausing media)
+KEYCODE_Print                  =: 16b00f809
+KEYCODE_SysReq                 =: 16b00f80a
+KEYCODE_Clear                  =: 16b00f80b
+KEYCODE_Home                   =: 16b00f810
+KEYCODE_End                    =: 16b00f811
+KEYCODE_Left                   =: 16b00f812
+KEYCODE_Up                     =: 16b00f813
+KEYCODE_Right                  =: 16b00f814
+KEYCODE_Down                   =: 16b00f815
+KEYCODE_PageUp                 =: 16b00f816
+KEYCODE_PageDown               =: 16b00f817
+KEYCODE_Shift                  =: 16b00f820
+KEYCODE_Control                =: 16b00f821 NB. On Mac OS X, this corresponds to the Command keys.
+KEYCODE_Meta                   =: 16b00f822 NB. On Mac OS X, this corresponds to the Control keys. On Windows keyboards, this key is mapped to the Windows key.
+KEYCODE_Alt                    =: 16b00f823
+KEYCODE_CapsLock               =: 16b00f824
+KEYCODE_NumLock                =: 16b00f825
+KEYCODE_ScrollLock             =: 16b00f826
+KEYCODE_F1                     =: 16b00f830
+KEYCODE_F2                     =: 16b00f831
+KEYCODE_F3                     =: 16b00f832
+KEYCODE_F4                     =: 16b00f833
+KEYCODE_F5                     =: 16b00f834
+KEYCODE_F6                     =: 16b00f835
+KEYCODE_F7                     =: 16b00f836
+KEYCODE_F8                     =: 16b00f837
+KEYCODE_F9                     =: 16b00f838
+KEYCODE_F10                    =: 16b00f839
+KEYCODE_F11                    =: 16b00f83a
+KEYCODE_F12                    =: 16b00f83b
+KEYCODE_Super_L                =: 16b00f853
+KEYCODE_Super_R                =: 16b00f854
+KEYCODE_Menu                   =: 16b00f855
+KEYCODE_Hyper_L                =: 16b00f856
+KEYCODE_Hyper_R                =: 16b00f857
+KEYCODE_Direction_L            =: 16b00f859
+KEYCODE_Direction_R            =: 16b00f860
