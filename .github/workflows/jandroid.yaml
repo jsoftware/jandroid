@@ -33,6 +33,9 @@ jobs:
       cp ~/libs/armeabi/* libs/armeabi/.
       cp ~/libs/armeabi-v7a/* libs/armeabi-v7a/.
       cp ~/libs/x86/* libs/x86/.
+      rm -rf assets/libexec
+      cp -r libs assets/libexec
+      find assets/libexec -type f -name '*.so' -delete
       ./gradlew build
       ./gradlew assemble
 
