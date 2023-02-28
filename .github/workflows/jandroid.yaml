@@ -63,7 +63,7 @@ jobs:
      uses: actions/upload-artifact@v2
      with:
        name: Build Artifacts
-       path: "${{steps.sign_apk.outputs.signedReleaseFile}},androidversionCode.xml,version.txt"
+       path: "jandroid-release-unsigned-signed.apk,androidversionCode.xml,version.txt"
 
 # webhook --------------------------------------------------------------
  webhook:
