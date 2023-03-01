@@ -59,12 +59,6 @@ jobs:
       allowUpdates: true
       replacesArtifacts: true
 
-   - name: Upload
-     uses: actions/upload-artifact@v2
-     with:
-       name: Build Artifacts
-       path: "jandroid-release-unsigned-signed.apk,androidversionCode.xml,version.txt"
-
 # webhook --------------------------------------------------------------
  webhook:
   name: Run Webhook
