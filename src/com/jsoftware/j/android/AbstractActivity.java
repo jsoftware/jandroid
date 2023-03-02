@@ -837,7 +837,7 @@ public abstract class AbstractActivity extends AppCompatActivity
                 public void onClick(DialogInterface dialog, int which) {
                   dialog.dismiss();
                   Intent myIntent = new Intent(Intent.ACTION_VIEW,
-                                               Uri.parse("http://www.jsoftware.com/download/j" + theApp.jversion + "/install/" + theApp.jversion + "_jandroid.apk"));
+                                               Uri.parse("http://www.jsoftware.com/download/j" + theApp.jversion + "/install/j" + theApp.jversion + "_android.apk"));
                   startActivity(myIntent);
                 }
               });
