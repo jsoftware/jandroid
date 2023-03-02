@@ -12,3 +12,8 @@ append the following line to project.properties
 android.library.reference.1=appcompat
 
 # android update project -t android-23 -p . --subprojects --library appcompat
+
+modify these 2 lines in AndroidManifest.xml
+    android:versionCode="60"
+    android:versionName="1.4.60" >
+

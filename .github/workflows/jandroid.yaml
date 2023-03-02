@@ -54,7 +54,7 @@ jobs:
      uses: ncipollo/release-action@v1
      with:
       tag: build
-      artifacts: "${{steps.sign_apk.outputs.signedReleaseFile}},androidversionCode.xml,version.txt"
+      artifacts: "${{steps.sign_apk.outputs.signedReleaseFile}},AndroidManifest.xml,version.txt"
       token: ${{ secrets.GITHUB_TOKEN }}
       allowUpdates: true
       replacesArtifacts: true

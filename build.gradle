@@ -19,8 +19,8 @@ android {
         applicationId "com.jsoftware.j.android"
         minSdkVersion rootProject.hasProperty('minSdkVersion') ? rootProject.minSdkVersion : 9
         targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : 23
-        versionCode 52
-        versionName "1.4.22"
+        versionCode 60
+        versionName "1.4.60"
     }
     namespace 'com.jsoftware.j.android'
 

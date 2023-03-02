@@ -281,7 +281,7 @@ public abstract class AbstractActivity extends AppCompatActivity
       updateJ();
       break;
     case R.id.checknewver:
-      new GetHttpTask().execute("http://www.jsoftware.com/download/j" + this.theApp.jversion + "/install/androidversionCode.xml");
+      new GetHttpTask().execute("http://www.jsoftware.com/download/j" + this.theApp.jversion + "/install/AndroidManifest.xml");
       break;
     default:
       result = false;

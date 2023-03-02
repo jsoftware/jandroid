@@ -1,6 +1,10 @@
 make sure java is compatible with gradle v18 or older
 or set up $JAVA_HOME properly
 
+modify these 2 lines in build.gradle
+ versionCode 60
+ versionName "1.4.60"
+
 ./gradlew build
 ./gradlew assemble
 
