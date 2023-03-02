@@ -313,10 +313,112 @@ documented functions:
 
 )
 
+rundemo=: 3 : 0
+t=. 'jdemo',":y
+require'~addons/ide/jhs/demo/jdemo',(":y),'.ijs'
+select. y
+case. 14 do. 'jdemo14;1 1 800 600'cojhs 'temp' [ temp__=: ?5 12$200
+case. 15 do. 'jdemo15;1 1 500 500'cojhs '' 
+case. 16 do. 'jdemo16;1 1 400 600;my-pswd'cojhs ''
+case.    do. open t
+end.
+)
+
+gettitles=: 3 : 0
+f=. 1 dir'~addons/ide/jhs/app/app*.ijs'
+n=. }.each(f i: each '/')}.each f
+a=. fread each f
+i=. 1 i.~each (<'jhtitle')E.each a
+a=. i}.each a
+a=. (a i.each  LF){.each a
+a=. }.each (a i. each '''')}.each a
+a=. (a i.each ''''){.each a
+'mismatch: file name - jhtitle' assert (4{.each n)=4{.each a
+;a,each LF
+)
+
+runapp=: 3 : 0
+if. ''-:y do. gettitles'' return. end.
+'n xywh'=. 2{.(boxopen y),<''
+t=. 'app',":n
+a=. t,'.ijs'
+f=. '~temp/app/',a
+1!:5 :: [ <jpath'~temp/app'
+(fread '~addons/ide/jhs/app/',a)fwrite f
+load f
+edit f
+(t,';',":xywh)jpage''
+)
+
+NB. push ~temp changes to git
+pushreact=: 3 : 0
+name=. y
+src=. '~temp/jhs/react/',name,'/'
+('does not exist: ',t) assert fexist t=. src,name,'.ijs'
+snk=. '~addons/ide/jhs/react/',name,'/addj/'
+n=. {."1 [1!:0 <jpath src,'*'
+(fread each (<src),each n) fwrite each (<snk),each n
+n
+)
+
+NB. create ~temp folder with all files from src/dist/
+NB.  and then all files (possibly replacing) from src/adj/
+runreact=: 3 : 0
+name=. y
+'does not exist'assert fexist'~addons/ide/jhs/react/',y,'/addj/',name,'.ijs'
+src=: '~addons/ide/jhs/react/',name,'/'
+snk=: '~temp/jhs/react/',name,'/'
+
+mkdir_j_ snk
+
+n=. {."1 [1!:0 <jpath src,'dist/*'
+(fread each (<src,'dist/'),each n) fwrite each (<snk),each n
+
+n=. {."1 [1!:0 <jpath src,'addj/*'
+(fread each (<src,'addj/'),each n) fwrite each (<snk),each n
+(fread src,'addj/',name,'.js') fwrite snk,'script.js'
+
+echo'run following sentences to run the example:'
+echo'   load''~temp/jhs/react/',name,'/',name,'.ijs'''
+echo'   ''',name,';10 10 500 200'' jpage '''''
+i.0 0
+)
+
+NB. stadard cojhs boilerplate
+shown=: 0
+
+NB. jsdata defined indicates new style app
+show=: 3 : 0
+shown=: 1
+c=. coname''
+y open ;(-.jsdata-:'"unitialized"'){(,~c);(;{.copath c),'?jlocale=',;c
+)
+
+destroy=: 3 : 0
+if. shown do. close ;coname'' end.
+codestroy''
+)
+
+ev_close_click=: 3 : 0
+jhrajax''
+shown=: 0 NB. already closed
+destroy''
+i.0 0
+)
+
+jev_get=: 3 : 0
+title jhrx (getcss''),(getjs''),gethbs''
+)
+
+create=: [
+saveonclose=: [
+NB. override jev_get, create, and savonclose to customize app
+NB. end cojhs boilerplate
+
 coclass'z'
 
 cojhs=: cojhs_jhs_
-jpage=:  jpage_jhs_
+jpage=: jpage_jhs_
 
 NB.* edit - [xywh] edit'~temp/abc.ijs
 edit=: 3 : 0
@@ -457,102 +559,6 @@ end.
 i.0 0
 )
 
-rundemo=: 3 : 0
-t=. 'jdemo',":y
-require'~addons/ide/jhs/demo/jdemo',(":y),'.ijs'
-select. y
-case. 14 do. 'jdemo14;1 1 800 600'cojhs 'temp' [ temp__=: ?5 12$200
-case. 15 do. 'jdemo15;1 1 500 500'cojhs '' 
-case. 16 do. 'jdemo16;1 1 400 600;my-pswd'cojhs ''
-case.    do. open t
-end.
-)
-
-gettitles=: 3 : 0
-f=. 1 dir'~addons/ide/jhs/app/app*.ijs'
-n=. }.each(f i: each '/')}.each f
-a=. fread each f
-i=. 1 i.~each (<'jhtitle')E.each a
-a=. i}.each a
-a=. (a i.each  LF){.each a
-a=. }.each (a i. each '''')}.each a
-a=. (a i.each ''''){.each a
-'mismatch: file name - jhtitle' assert (4{.each n)=4{.each a
-;a,each LF
-)
-
-runapp=: 3 : 0
-if. ''-:y do. gettitles'' return. end.
-'n xywh'=. 2{.(boxopen y),<''
-t=. 'app',":n
-a=. t,'.ijs'
-f=. '~temp/app/',a
-1!:5 :: [ <jpath'~temp/app'
-(fread '~addons/ide/jhs/app/',a)fwrite f
-load f
-edit f
-(t,';',":xywh)jpage''
-)
-
-NB. push ~temp changes to git
-pushreact=: 3 : 0
-name=. y
-src=. '~temp/jhs/react/',name,'/'
-('does not exist: ',t) assert fexist t=. src,name,'.ijs'
-snk=. '~addons/ide/jhs/react/',name,'/addj/'
-n=. {."1 [1!:0 <jpath src,'*'
-(fread each (<src),each n) fwrite each (<snk),each n
-n
-)
-
-NB. create ~temp folder with all files required for react app
-runreact=: 3 : 0
-name=. y
-src=. '~addons/ide/jhs/react/',name,'/addj/'
-snk=. '~temp/jhs/react/',name,'/'
-('does not exist: ',t) assert fexist t=. src,name,'.ijs'
-('already exists - backup folder and delete to allow runrect: ',t) assert -.fexist t=. snk,name,'.ijs'
-mkdir_j_ snk
-n=. {."1 [1!:0 <jpath src,'*'
-(fread each (<src),each n) fwrite each (<snk),each n
-
-f=. snk,name,'.ijs'
-load f
-edit f
-c=. conew name
-open_jhs_ name
-)
-
 jhsuqs=: uqs_jhs_  NB. viewmat
 jhtml=: jhtml_jhs_ NB. viewmat
 
-NB. stadard cojhs boilerplate
-shown=: 0
-
-NB. jsdata defined indicates new style app
-show=: 3 : 0
-shown=: 1
-c=. coname''
-y open ;(-.jsdata-:'"unitialized"'){(,~c);(;{.copath c),'?jlocale=',;c
-)
-
-destroy=: 3 : 0
-if. shown do. close ;coname'' end.
-codestroy''
-)
-
-ev_close_click=: 3 : 0
-jhrajax''
-shown=: 0 NB. already closed
-destroy''
-i.0 0
-)
-
-jev_get=: 3 : 0
-title jhrx (getcss''),(getjs''),gethbs''
-)
-
-create=: [
-saveonclose=: [
-NB. override jev_get, create, and savonclose to customize app
-NB. end cojhs boilerplate

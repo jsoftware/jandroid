@@ -1,7 +1,11 @@
 release notes
 
 this version:
+ react cleanup
+ runreact/app/demo moved from z to jhs
+ jpage/cojhs boilerplate moved from z to jhs
  
+1.0.336:
  redbox close on most pages - upper right
 
  border-box sizing everywhere

@@ -22,7 +22,7 @@ git manifest version numbers should always increase
 
 start J
    bupx'before pacman'
-   load'~Addons/ide/jhs/nopacman/jhsdev.ijs'
+   load'~Addons/ide/jhs/nopacman/dev.ijs'
    setp'ide/jhs'
    manifest_status'' NB. edit manifest to resolve problems
    bump_version''
@@ -32,13 +32,14 @@ start J
  ...$ git push
 
 *** test pacman build:
- menu>jpacman - so that it is loaded and will run after next ferase
  ferase'~addons/ide/jhs' NB. erase ln symbolic link file to git/addons/ide/jhs
- jijx>pacman>Not Installed
- check ide/jhs
- install selected
+ esc+q
+ 
+ start jconsole
+   load'pacman'
+   'install'jpkg'ide/jhs'
 
- shutdown/start/test
+ shutdown/start JHS/test
 
 *** ln to ~Addons for development:
  start JHS

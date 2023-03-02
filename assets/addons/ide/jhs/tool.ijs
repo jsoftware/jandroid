@@ -68,8 +68,9 @@ detect syntax errors with visual studio code (jshint extension)
 tool_react=: 0 : 0
 react - popular javascript framework for building apps
 you can take an existing react app and integrate it with J
-tictactoe is a simple example where J is added to play O:
-   load'~addons/ide/jhs/react/runreact.ijs'
+tictactoe is a simple example where J is added to play O
+
+run following sentence to setup tictactoe example:
    runreact_jhs_'tictactoe'
 )
 
