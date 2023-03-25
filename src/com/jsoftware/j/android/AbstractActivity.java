@@ -848,7 +848,7 @@ public abstract class AbstractActivity extends AppCompatActivity
               });
               builder.show();
             } else
-              Toast.makeText(AbstractActivity.this, "Aready up to date", Toast.LENGTH_SHORT).show();
+              Toast.makeText(AbstractActivity.this, "Already up to date", Toast.LENGTH_SHORT).show();
           }
         }
       }
