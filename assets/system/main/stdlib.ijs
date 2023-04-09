@@ -1,7 +1,7 @@
 18!:4 <'z'
 3 : 0 ''
 
-JLIB=: '9.4.20'
+JLIB=: '9.4.22'
 
 notdef=. 0: ~: 4!:0 @ <
 hostpathsep=: ('/\'{~6=9!:12'')&(I. @ (e.&'/\')@] })
@@ -29,7 +29,11 @@ end.
 if. notdef 'UNAME' do.
   if. IFUNIX do.
     if. -.IFIOS do.
-      UNAME=: (2!:0 'uname')-.10{a.
+      if. 'wasm'-:4{.9!:56 ::('Unknown'"_)'cpu' do.
+        UNAME=: 'Wasm'
+      else.
+        UNAME=: (2!:0 ::('Unknown'"_)'uname')-.10{a.
+      end.
     else.
       UNAME=: 'Darwin'
     end.
@@ -57,7 +61,7 @@ if. IF64 +. IFIOS do.
   IFWOW64=: 0
 else.
   if. IFUNIX do.
-    IFWOW64=: '64'-:_2{.(2!:0 (UNAME-:'Android'){::'uname -m';'getprop ro.product.cpu.abi')-.10{a.
+    IFWOW64=: '64'-:_2{.(2!:0 ::(''"_)(UNAME-:'Android'){::'uname -m';'getprop ro.product.cpu.abi')-.10{a.
   else.
     IFWOW64=: 'AMD64'-:2!:5'PROCESSOR_ARCHITEW6432'
   end.
@@ -75,7 +79,7 @@ end.
 
 assert. IFQT *: IFJA
 )
-jcwdpath=: jpathsep@(1!:43@(0&$),])@((*@# # '/'"_),])
+jcwdpath=: jpathsep@(1!:43@(0&$) ,`(, }.)@.(('/' = {:)@:[ *. ('/' = {.)@:]) ])@((*@# # '/'"_) , ])
 jsystemdefs=: 3 : 0
 xuname=. UNAME
 if. 0=4!:0 <f=. y,'_',(tolower xuname),(IF64#'_64'),'_j_' do.

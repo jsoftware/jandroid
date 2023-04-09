@@ -1015,14 +1015,14 @@ if. rh do.
   r=. r rplc '<I>';I,icon
   r=. r rplc '<TT>';(type-:'jc'){'false';'true'
   r fwrite f
-  2!:0'chmod +x ',f
+  2!:0 ::0: 'chmod +x ',f
 else.
   r=. desktop rplc '<N>';n
   r=. r rplc '<E>';e
   r=. r rplc '<W>';W
   r=. r rplc '<I>';I,icon
   r fwrite f
-  2!:0'chmod +x ',f
+  2!:0 ::0: 'chmod +x ',f
 end.
 )
 plist=: 0 : 0
@@ -1077,7 +1077,7 @@ fpathcreate f,'/Contents/Resources'
 plist fwrite f,'/Contents/info.plist'
 r fwrite f,'/Contents/MacOS/apprun'
 (fread '~bin/icons/',icon) fwrite f,'/Contents/Resources/i.icns'
-2!:0'chmod -R +x ',f
+2!:0 ::0: 'chmod -R +x ',f
 )
 
 new_launch=: 0 : 0
@@ -1501,7 +1501,7 @@ je_update=: 3 : 0
 if. IFIOS+.UNAME-:'Android' do. log'upgrade not supported for this platform' return. end.
 'jvno jxxx jbithw platform comm web dt'=. 7 {. revinfo_j_''
 if. -.(comm-:'commercial')*.web-:'www.jsoftware.com' do. log'upgrade not possible for this install' return. end.
-path=. je_dlpath jvno
+path=. je_dlpath''
 'plat name bname'=. je_sub''
 DLL=. hostpathsep jpath bname
 OLD=. hostpathsep jpath bname,'.old'
@@ -1518,7 +1518,8 @@ if. IF64 > IFRASPI do.
   a=. a}.~each a i.each 'j'
   a=. }.each a{.~each a i.each '.'
   try. t7=. 2!:7'' catch. t7=. '' end.
-  a=. 'j',;{:(a e. ;:t7)#a
+  t7=. (;:t7) -. ;: 'avx avx512'
+  a=. 'j',;{:(a e. t7)#a
   i=. name i.'.'
   name=. <(}:i{.name),a,i}.name
 else.
@@ -1543,10 +1544,10 @@ else.
   if. -.ferase DLL do. log'upgrade failed - ferase libj.so.old - exit all J sessions and try again' return. end.
   if. -.DLL frename NEW do. log'upgrade failed - rename libj.so.new to libj.so' return. end.
   if. FHS*.IFUNIX do.
-    2!:0 'chmod 755 "',DLL,'"'
+    2!:0 ::0: 'chmod 755 "',DLL,'"'
     if. 'root'-: user=. 2!:5'user' do.
-      2!:0 'chown ',user,':',user,' "',DLL,'"'
-      2!:0^:((<UNAME)e.'Linux';'OpenBSD';'FreeBSD') '/sbin/ldconfig'
+      2!:0 ::0: 'chown ',user,':',user,' "',DLL,'"'
+      2!:0 ::0: ^:((<UNAME)e.'Linux';'OpenBSD';'FreeBSD') '/sbin/ldconfig'
     end.
   end.
 end.
@@ -1647,7 +1648,7 @@ smoutput 'Installing ',bin,'..'
 
 if. ((<UNAME)e.'Linux';'OpenBSD';'FreeBSD') do.
   if. IFRASPI do.
-    z=. 'jqt-raspi',((-.IF64)#'-arm32'),((y-:'slim')#'-slim'),'.tar.gz'
+    z=. 'jqt-raspberry',((-.IF64)#'-arm32'),((y-:'slim')#'-slim'),'.tar.gz'
   else.
     z=. 'jqt-',(tolower UNAME),(('arm64'-:9!:56'cpu')#'-arm64'),((y-:'slim')#'-slim'),'.tar.gz'
   end.
