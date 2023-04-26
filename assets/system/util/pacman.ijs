@@ -1685,8 +1685,8 @@ else.
     echo 'cd ',(dquote jpath '~temp'),' && tar --no-same-owner --no-same-permissions -xzf ',(dquote p), ' && chmod 755 jqt && mv jqt ',BINPATH,'/jqt-',RELNO,' && cp libjqt.',suffix,' ',d1,'/libjqt.',vsuffix,' && chmod 755 ',d1,'/libjqt.',vsuffix, ((<UNAME)e.'Linux';'OpenBSD';'FreeBSD')#' && /sbin/ldconfig'
     hostcmd_jpacman_ 'cd ',(dquote jpath '~temp'),' && tar --no-same-owner --no-same-permissions -xzf ',(dquote p), ' && chmod 755 jqt && mv jqt ',BINPATH,'/jqt-',RELNO,' && cp libjqt.',suffix,' ',d1,'/libjqt.',vsuffix,' && chmod 755 ',d1,'/libjqt.',vsuffix, ((<UNAME)e.'Linux';'OpenBSD';'FreeBSD')#' && /sbin/ldconfig'
     if. 'Linux'-:UNAME do.
-      echo 'update-alternatives --install ',BINPATH,'/jqt jqt ',BINPATH,'/jqt-',RELNO,' ',RELNO
-      hostcmd_jpacman_ 'update-alternatives --install ',BINPATH,'/jqt jqt ',BINPATH,'/jqt-',RELNO,' ',RELNO
+      echo 'update-alternatives --install ',BINPATH,'/jqt jqt ',BINPATH,'/jqt-',RELNO,' ',RELNO,' || true'
+      hostcmd_jpacman_ 'update-alternatives --install ',BINPATH,'/jqt jqt ',BINPATH,'/jqt-',RELNO,' ',RELNO,' || true'
     end.
   else.
     hostcmd_jpacman_ 'cd ',(dquote d),' && tar xzf ',(dquote p)
