@@ -5,7 +5,9 @@ NB. add your sentences in startup.ijs
 systype=. 9!:12''
 jpathsep_z_=: '/'&(('\' I.@:= ])})
 BINPATH_z_=: jpathsep BINPATH_z_
-omitversion=. 'Android' -: 0:`(UNAME"_)@.(0=4!:0<'UNAME_z_')''
+ifios=. (IFIOS"_)^:(0=4!:0<'IFIOS') 0
+ifwasm=. 'Wasm' -: 0:`(UNAME"_)@.(0=4!:0<'UNAME_z_')''
+omitversion=. ifios +. ifwasm +. 'Android' -: 0:`(UNAME"_)@.(0=4!:0<'UNAME_z_')''
 
 NB. create SystemFolders
 bin=. BINPATH
@@ -25,6 +27,8 @@ system=. install,'/system'
 tools=. install,'/tools'
 home=. >(systype-5){(2!:5'HOME');2!:5'USERPROFILE'
 home=. >(0-:home){home;,'/'
+home=. ifios{::home;home,'/Documents/j'
+1!:44^:(ifios+.ifwasm) install
 isroot=. (0=#1!:0'/data') *. ('root'-:2!:5'USER') +. (<home) e. '/var/root';'/root';'';,'/'
 userx=. omitversion{::'/j9.4-user';'/j-user'
 user=. home,userx
@@ -59,4 +63,4 @@ md temp
 
 NB. boot up J and load startup.ijs if it exists
 0 0$1!:2&2 ^: (-.@*@#@(1!:0)@<) system,'/util/boot.ijs'
-0!:0 <jpathsep (4!:55 (;:'systype fhs isroot userx ids md omitversion'), ids)]system,'/util/boot.ijs'
+0!:0 <jpathsep (4!:55 (;:'systype fhs isroot userx ids ifios ifwasm md omitversion'), ids)]system,'/util/boot.ijs'
