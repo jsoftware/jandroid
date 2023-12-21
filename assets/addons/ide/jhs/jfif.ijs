@@ -194,10 +194,11 @@ jhsfixtxt=: 3 : 0
 )
 
 CSS=: 0 : 0
+#jfif{color:blue}
 *{font-family:<PC_FONTFIXED>;}
 )
 
-JS=: 0 : 0
+JS=: jsfcommon,0 : 0
 function ev_body_load()
 {
  setlast("what");
@@ -259,12 +260,5 @@ function getchkstate(id){
 function setchkstate(id,v){jbyid(id).style.backgroundColor= (v==0)?chk0:chk1;}
 
 function flipchkstate(id){setchkstate(id,getchkstate(id)!=1)};
-
-function ev_jfile_click(){window.location.assign('jfile');}
-
-function ev_jfile_click() {window.location.assign('jfile');;}
-function ev_jfiles_click(){window.location.assign('jfiles');}
-function ev_jfif_click()  {;}
-
 
 )

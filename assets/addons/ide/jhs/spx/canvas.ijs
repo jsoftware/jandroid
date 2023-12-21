@@ -1,5 +1,5 @@
 NB. graphics - drawing on an html canvas
-require'~addons/ide/jhs/cojhs/jcanvas.ijs'
+require'~addons/ide/jhs/page/jcanvas.ijs'
 'jsxw_z_ jsxh_z_'=: jsxwh_z_=: 300 300 NB. width,height 
 p=. 'jcanvas;_' cojhs jsxwh NB. create locale - no show
 title__p=: 'canvas-tour'

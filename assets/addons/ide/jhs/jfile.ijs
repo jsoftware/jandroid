@@ -346,12 +346,13 @@ end.
 )
 
 CSS=: 0 : 0
+#jfile{color:blue}
 #report{color:red}
 #pathd{color:blue;}
 *{font-family:<PC_FONTFIXED>;}
 )
 
-JS=: 0 : 0
+JS=: jsfcommon,0 : 0
 var anchor=null;
 
 function ev_body_load(){
@@ -462,9 +463,5 @@ function ev_rensx_enter(){jscdo('renamedo');}
 function ev_newname_enter(){jscdo('newfile');}
 function ev_deletedo_click(){jsubmit();}
 //function ev_adrecall_click(){adrecall("document",jbyid('path').value,"0");}
-
-function ev_jfile_click() {;}
-function ev_jfiles_click(){window.location.assign('jfiles');}
-function ev_jfif_click()  {window.location.assign('jfif');}
 
 )

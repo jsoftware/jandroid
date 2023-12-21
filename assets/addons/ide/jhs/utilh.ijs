@@ -806,7 +806,16 @@ t=. jhclose''
 t=. t,'jfile'   jhb'jfile'
 t=. t,'jfiles'  jhb'jfiles'
 t=. t,'jfif'    jhb'jfif'
+t=. t,'jcopy'   jhb'jcopy'
     t,jhbr
+)
+
+NB. jsfcommon correspondingjs event handlers
+jsfcommon=: 0 : 0 
+function ev_jcopy_click() {window.location.assign("jcopy");}
+function ev_jfile_click() {window.location.assign("jfile");}
+function ev_jfiles_click(){window.location.assign("jfiles");}
+function ev_jfif_click()  {window.location.assign("jfif");}
 )
 
 NB.* jnv*jnv_jhs_ 1 - toggle display of event name/value pairs

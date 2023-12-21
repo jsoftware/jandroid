@@ -85,15 +85,10 @@ else.
 end.
 )
 
-NB. next ijs temp file number
-nexttemp=: 3 : 0
->./;0".each _4}.each{."1 [1!:0 jpath '~temp\*.ijs'
-)
-
 NB. refresh response - not jajax
 create=: 3 : 0
 uplog''
-'jijx' jhr 'LOG IJS';LOG;":nexttemp''
+'jijx' jhr 'LOG';LOG
 )
 
 ev_advance_click=: 3 : 0
@@ -181,7 +176,7 @@ t=. t,'jpacman'jhmab'jpacman'
 t=. t,'jdebug' jhmab'jdebug'
 
 if. 1=#gethv'node-jhs:' do.
- t=. t,'jlogoff' jhmab'logoff'
+ NB. t=. t,'jlogoff' jhmab'logoff'
  t=. t,'jbreak'  jhmab'break'
 end.
 
@@ -205,7 +200,8 @@ form{margin-top:0;margin-bottom:0;}
 NB. *#log:focus{border:1px solid red;}
 NB. *#log:focus{outline: none;} /* no focus mark in chrome */
 
-JS=: 0 : 0
+JS=: 0 : 0 rplc'<NOEXIT>';":NOEXIT
+var noexit=<NOEXIT>;
 var allwins= []; // all windows created by jijx
 var phead= '<div id="prompt" class="log">';
 var ptail= '</div>';
@@ -218,6 +214,8 @@ function ev_body_focus(){if(!jisiX)setTimeout(ev_2_shortcut,TOT);}
 
 function ev_body_load()
 {
+
+ if(jisiX){visualViewport.onresize = onvpresize;}
  jijxwindow= window;
  window.name= "jijx";
  jseval(false,jbyid("log").innerHTML); // redraw canvas elements
@@ -225,33 +223,23 @@ function ev_body_load()
  jresize();
 }
 
-function isdirty(){return 0!=allwins.length;}
-
-var setvkb = function()
-{
- var sx = document.body.scrollLeft, sy = document.body.scrollTop;
- var naturalHeight = window.innerHeight;
- window.scrollTo(sx, document.body.scrollHeight);
- VKB= naturalHeight - window.innerHeight;
- window.scrollTo(sx, sy);
- jresize();
+// iX devices only
+function onvpresize(){
+   VKB= (VKB==0)?window.innerHeight-window.visualViewport.height : 0;
+   jresize();
+   // scrollz/scrollintoview is required -scrollz without setcaret
+   //setfocus(); // required by ff
+   if(null==jbyid("prompt"))return;
+   jbyid("prompt").scrollIntoView(false);
 }
+
+function isdirty(){return 0!=allwins.length;}
 
 function setfocus(){jbyid("log").focus();}
 
-// iX must get VKB and resize when log gets focus
-// iX does not call onfocus the first time - so we also do setvkb in enter
-function jecfocus()
-{
- if(jisiX)
- { 
-  setTimeout(setvkb(),TOT);
-  setTimeout(scrollz(),TOT);
- }
-}
-
-// iX must get VKB and resize when log loses focus
-function jecblur(){if(jisiX)setTimeout(setvkb(),TOT);}
+// iX - replaced by onvpresize - eventually kill off setting handlers for ecfocus/ecblur
+function jecfocus(){}
+function jecblur(){;}
 
 // remove id - normally 1 but could be none or multiples
 // remove id parent if removal of id makes it empty
@@ -354,7 +342,6 @@ function ev_dn_click(){darrow();}
 function ev_log_enter()
 {
  var t,sel,rng,tst,n,i,j,k,p,q,recall=0,name;
- if(jisiX)setvkb();
  if(window.getSelection)
  {
   sel= window.getSelection();
@@ -470,13 +457,9 @@ function ev_jfiles_click(){linkclick("jfiles");}
 function ev_jfif_click(){linkclick("jfif");}
 function ev_jpacman_click(){linkclick("jpacman");}
 function ev_jijx_click(){linkclick("jijx");}
+var jijsnum=0;
+function ev_jijs_click(){linkclick("jijs?"+jijsnum);jijsnum+=1;} 
 function ev_framework_click(){linkclick("jdoc");}
-
-function ev_jijs_click(){
- id= jbyid('ijs');
- id.value= 1+parseInt(id.value)+'';
- linkclick("jijs?jwid=~temp/"+id.value+".ijs")
-} 
 
 function ev_f_shortcut(){ev_jfile_click();}
 function ev_k_shortcut(){ev_jfiles_click();}
@@ -542,6 +525,9 @@ function ev_close_click(){
  allwins_clean();
  for(let i = 0; i < allwins.length; i++) {allwins[i].jscdo("close");}
  allwins_clean();
+ 
+ if(noexit==1){ev_jlogoff_click();return;t}
+ 
  if(0==allwins.length)
  {
   updatelog('<div id="prompt" class="log"><b><font style="color:red;"><br>JHS server for this page has exited.</font></b></div>')

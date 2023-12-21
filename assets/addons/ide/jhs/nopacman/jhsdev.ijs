@@ -21,7 +21,9 @@ git manifest version numbers should always increase
  ...$ git status - resolve problems
 
 start J
-   bupx'before pacman'
+   load'docs/ijs/spfile.ijs'  NB. define bupx etc
+   bupn__=: '~Addons/ide/jhs' NB. folder to backup
+   bupx'before pacman' NB. defined in p_jhs_jsp_
    load'~Addons/ide/jhs/nopacman/dev.ijs'
    setp'ide/jhs'
    manifest_status'' NB. edit manifest to resolve problems

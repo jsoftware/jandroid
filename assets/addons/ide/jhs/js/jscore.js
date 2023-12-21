@@ -5,12 +5,7 @@ var JASEP= '\1'; // delimit substrings in ajax response
 var jform;       // page form
 var jevev;       // event handler event object
 var jevtarget=null;   // event handler target object
-var AGENT=navigator.userAgent;
-var jisIE=-1!=AGENT.search(/MSIE/);
-var jisiPhone= -1!=AGENT.indexOf('iPhone');
-var jisiPod  = -1!=AGENT.indexOf('iPod');
-var jisiPad  = -1!=AGENT.indexOf('iPad');
-var jisiX    = jisiPhone||jisiPod||jisiPad;
+var jisiX    = iOS();
 var VKB      = 0;  // iX kb height
 var LS= location.href; // localStorage key
 var i= LS.indexOf("#");
@@ -36,6 +31,13 @@ window.addEventListener('beforeunload', function (e) {
   e.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
   e.returnValue = ''; // Chrome requires returnValue to be set
 });
+
+function iOS() {
+ return ['iPad Simulator','iPhone Simulator','iPod Simulator','iPad','iPhone','Pod'
+  ].includes(navigator.platform)
+  ||
+  (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+}
 
 //* jbyid(id)
 function jbyid(id){return document.getElementById(id);}
@@ -644,7 +646,7 @@ function jdostdsc(c)
 {
  switch(c)
  {
-  case '1': jactivatemenu('1'); break;
+  case '1': if(menublock!=null) jmenuhide(); else jactivatemenu('1'); break;
   case 'q': jscdo('close');break;
  }
 }
@@ -654,13 +656,10 @@ function keypress(ev)
 {
  var e=window.event||ev;
  var c=e.charCode||e.keyCode;
- 
- if(jisiX&&c==223){jsc=1;return false;}  // option+s or press letter s and slide right
- // if(c==96){alert("???";return false;} // press ` for debug alert info
- 
+ if(jisiX&&e.key=='è'){jsc=!jsc;return false;}  // esc shortcut - letter e + slide up
  var s= String.fromCharCode(c);
  if(!jsc)return true;
-  jsc=0;
+ jsc=0;
  try{eval("ev_"+s+"_shortcut()");}
  catch(ee){jdostdsc(s);}
  return false;
@@ -685,11 +684,8 @@ function keyup(ev)
   if(c==38&&e.shiftKey&&'function'==typeof uarrow){uarrow();return false;}
   if(c==40&&e.shiftKey&&'function'==typeof darrow){darrow();return false;}
  }
- if(c==27&&!e.shiftKey&&!e.altKey)
- {
-  jsc=!jsc;return !jsc;
- }
- return true;
+ if(c==27&&!e.shiftKey&&!e.altKey){jsc=!jsc;return !jsc;} // esc shortcut
+ return true; 
 }
 
 // return menu group node n

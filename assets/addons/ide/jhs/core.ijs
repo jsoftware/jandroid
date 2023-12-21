@@ -290,16 +290,6 @@ f=. >{.(d=m)#f#a
 ('~',f,m}.>p) NB. rplc '~home/';'~/'
 )
 
-NB. new ijs temp filename
-jnew=: 3 : 0
-d=. 1!:0 jpath '~temp\*.ijs'
-a=. 0, {.@:(0&".)@> _4 }. each {."1 d
-a=. ": {. (i. >: #a) -. a
-f=. <jpath'~temp\',a,'.ijs'
-'' 1!:2 f
->f
-)
-
 logclear=: 3 : ''''' 1!:2 logappfile'
 
 NB. log timestamp
@@ -375,11 +365,12 @@ to run a new JHS session on the next free port, run the following:
 
 NB. html config parameters
 configdefault=: 3 : 0
-PORT=: 65001       NB. private port range 49152 to 65535
-USER=: ''          NB. 'john' - login
-PASS=: ''          NB. 'abra' - login
-TIPX=: ''          NB. tab title prefix - distinguish sessions
-AUTO=: 1           NB. start browser (if necessary) and browse to http:/localhost:PORT/jijx
+PORT=:   65001       NB. private port range 49152 to 65535
+USER=:   ''          NB. 'john' - login
+PASS=:   ''          NB. 'abra' - login
+TIPX=:   ''          NB. tab title prefix - distinguish sessions
+AUTO=:   1           NB. start browser (if necessary) and browse to http:/localhost:PORT/jijxNOEXIT=: 1
+NOEXIT=: 0           NB. jijx red button close - if 1 then exit'' is not run
 
 PC_FONTFIXED=:     '"courier new","courier","monospace"'
 PC_FONTVARIABLE=:  '"sans-serif"'
@@ -532,7 +523,7 @@ cookie=: 'jcookie=',":{:6!:0''
 input_jfe_=: input_jhs_  NB. only use jfe locale to redirect input/output
 output_jfe_=: output_jhs_
 
-if. AUTO *. UNAME-:'Linux' do. NB. require linux manual start if no setsid
+if. AUTO *. (<UNAME)e.'Linux';'FreeBSD';'OpenBSD' do. NB. require linux manual start if no setsid
  try. 2!:0'which setsid' catch. echo setsid[AUTO=: 0 end.
 end. 
 
@@ -540,7 +531,7 @@ if. AUTO do.
  url=. 'http://<LOCALHOST>:<PORT>/jijx'hrplc'LOCALHOST PORT';LOCALHOST;":PORT
  select. UNAME
  case. 'Win'    do. shell_jtask_'start ',url
- case. 'Linux'  do.
+ case. 'Linux';'FreeBSD';'OpenBSD'  do.
   if. (0;'') -.@e.~ <2!:5 'DISPLAY' do.
    assert. *#t=. dfltbrowser_j_''
    2!:0 'setsid ',t,' ',url,' </dev/null >/dev/null 2>&1 &'
@@ -563,6 +554,7 @@ load__'~addons/ide/jhs/d3.ijs'
 load__'~addons/ide/jhs/chart.ijs'
 load__'~addons/ide/jhs/vocabhelp.ijs'
 load__'~addons/ide/jhs/jdoc.ijs'
+load__'~addons/ide/jhs/extra/man.ijs'
 
 NB. load addons, but do not fail init if not found
 load__ :: ['~addons/convert/json/json.ijs'
@@ -579,9 +571,10 @@ NB. app stubs to load app file
 jev_get_jijx_=:    3 : (stub'jijx')
 jev_get_jfile_=:   3 : (stub'jfile')
 jev_get_jfiles_=:  3 : (stub'jfiles')
+jev_get_jcopy_=:   3 : (stub'jcopy')
 jev_get_jijs_=:    3 : (stub'jijs')
 jev_get_jfif_=:    3 : (stub'jfif')
-jev_get_jpacman_=:  3 : (stub'jpacman')
+jev_get_jpacman_=: 3 : (stub'jpacman')
 jev_get_jlogin_=:  3 : (stub'jlogin')
 jev_get_jfilesrc_=:3 : (stub'jfilesrc')
 jev_get_jdebug_=:  3 : (stub'jdebug')
@@ -686,7 +679,7 @@ end.
 getexternalip=: 3 : 0
 z=. >2{sdgethostbyname_jsocket_ >1{sdgethostname_jsocket_''
 if. ('255.255.255.255'-:z) +. (';.'-:6{.z) +. '192.168.'-:8{.z do.
- if. UNAME-:'Linux' do.
+ if. (<UNAME)e.'Linux';'FreeBSD';'OpenBSD' do.
   a=. , 2!:0 ::_1: 'wget -q --timeout=3 --waitretry=0 --tries=3 --retry-connrefused -O - http://www.checkip.org/'
  elseif. UNAME-:'Darwin' do.
   a=. , 2!:0 ::_1: 'curl -s --max-time 7 -o - http://www.checkip.org/'
@@ -704,10 +697,10 @@ end.
 z
 )
 
-NB. shutdown JHS
+NB. shutdownx JHS
 NB. y: integer return code for 2!:55
 NB.    ''  just shutdown JHS, J not exit
-shutdown=: 3 : 0
+shutdownx=: 3 : 0
  shutdownJ_jsocket_ SKLISTEN ; 2
  sdclose_jsocket_ ::0: SKLISTEN
  sdcleanup_jsocket_''

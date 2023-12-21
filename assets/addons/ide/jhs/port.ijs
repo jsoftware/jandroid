@@ -29,9 +29,10 @@ if. UNAME-:'Win' do.
  d,:a
 else.
  NB. lsof reporting no ports gets interface error
- d=. shell_jtask_ :: 0: 'lsof -F pn -s TCP:LISTEN -i TCP'
+ NB. lsof - some always reports f field and some only if requested - always request
+ d=. shell_jtask_ :: 0: 'lsof -F pfn -s TCP:LISTEN -i TCP'
  if. d-:0 do. i.2 0 return. end.
- d=. <;._2 shell_jtask_'lsof -F pn -s TCP:LISTEN -i TCP'
+ d=. <;._2 shell_jtask_'lsof -F pfn -s TCP:LISTEN -i TCP'
  d=. (3,~<.3%~#d)$d
  pids=. ;_1".each}.each{."1 d
  a=. {:"1 d

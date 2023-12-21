@@ -29,21 +29,17 @@ t=. jshortname y
 )
 
 CSS=: 0 : 0
+#jfiles{color:blue}
 *{font-family:<PC_FONTFIXED>;}
 )
 
-JS=: 0 : 0
+JS=: jsfcommon,0 : 0
 function ev_body_load(){jresize();}
 
 function ev_file_click(){
  t= 'jijs?jwid='+jsid.value,jsid.value;
  pageopen(t,t); //? nocache???
 }
-
-function ev_jfile_click() {window.location.assign('jfile');}
-function ev_jfiles_click(){;}
-function ev_jfif_click()  {window.location.assign('jfif');}
-
 
 )
 

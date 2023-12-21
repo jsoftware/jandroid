@@ -561,4 +561,3 @@ i.0 0
 
 jhsuqs=: uqs_jhs_  NB. viewmat
 jhtml=: jhtml_jhs_ NB. viewmat
-

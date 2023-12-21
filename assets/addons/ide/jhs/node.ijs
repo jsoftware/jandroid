@@ -99,6 +99,9 @@ bin=. hostpathsep fread pjhsnode,'/argbin'
 file=. jpath'~addons/ide/jhs/node/server'
 nodeout=: hostpathsep jpath pjhsnode,'/std.log'
 t=. t rplc '<BIN>';bin;'<FILE>';file;'<ARG>';arg;'<OUT>';nodeout
+
+echo t
+
 fork_jtask_ t
 'server failed to start' assert _1~:pidfromport_jport_ nport NB. pidfromport has delays
 node_status''
@@ -118,6 +121,7 @@ remote requires router port forwarding: <NODEPORT> -> <NODEPORT> <LAN>
    node_std_jhs_'' NB. node stdout/stderr
 )
 
+NB. value error PORT
 NB. report how to access node JHS proxy server
 node_status=: 3 : 0
 'node pem port key'=. node_config_get''
@@ -127,21 +131,49 @@ nodetemplate rplc '<NODEPORT>';(":port);'<PORT>';(":PORT);'<LAN>';(getlanip_jhs_
 
 node_std=: 3 : 'fread nodeout'
 
-NB. under construction
-NB. start JHS server and node server
+NB. start JHS server to serve NODE proxy server
+NB. y - '' uses ~addons/ide/jhs/config/jhs-node.cfg
+NB. y - 'file to use '
 startJHS=: 3 : 0
-assert y=65101
-nodeport=. y
-if. _1~:pidfromport_jport_ y do. 'server already running' return. end.
+'not from JHS'assert -.IFJHS
+port=. 65001 NB. work required for other ports
+killport_jport_ port
+f=. ;(y-:''){y;'~addons/ide/jhs/config/jhs-node.cfg'
 mkdir_j_ '~temp/jhsnode'
+jhsout=: jpath'~temp/jhsnode/jhs.log'
 t=. '"<BIN>" "<FILE>" > "<OUT>" 2>&1'
-jhsout=: '/home/eric/j902-user/temp/jhsnode/jhs.log'
-a=. t rplc '<BIN>';(hostpathsep jpath'~bin/jconsole');'<FILE>';'~addons/ide/jhs/config/jhs.cfg';'<OUT>';jhsout
-echo a
+a=. t rplc '<BIN>';(hostpathsep jpath'~bin/jconsole');'<FILE>';f;'<OUT>';jhsout
 fork_jtask_ a
-nodeout=: '/home/eric/j902-user/temp/jhsnode/node.log'
-a=. t rplc '<BIN>';(hostpathsep jpath'~NODE/node');'<FILE>';'node_jhs/server';'<OUT>';nodeout
-echo a
+if. _1=pidfromport_jport_ port do. NB. pidfromport has delays
+ echo a,LF,fread jhsout_jhs_
+ 'JHS server failed to start' assert 0
+end.
+)
+
+NB. nodeport ; pem ; key - https:// required
+startNODE=: 3 : 0
+'not from JHS'assert -.IFJHS
+'nodeport pem key'=. y
+'nodeport must be 65101'assert nodeport-:65101
+mkdir_j_ '~temp/jhsnode'
+nodeout=: jpath'~temp/jhsnode/node.log'
+killport_jport_ nodeport
+port=. nodeport-100
+
+NB. breakfile needs pid from the JHS server
+breakfile=. (jpath '~break/'),(":pidfromport_jport_ port),'.node'
+
+pem=. ;(pem-:''){pem;jpath'~addons/ide/jhs/node'
+
+arg=. (":nodeport),' ',key,' ',(":port),' "',breakfile,'" "',pem,'"'
+file=. jpath'~addons/ide/jhs/node/server'
+bin=. LF-.~fread'nodebin'
+
+t=. '"<BIN>" "<FILE>" <ARG> > "<OUT>" 2>&1' 
+a=. t rplc '<BIN>';bin;'<FILE>';file;'<ARG>';arg;'<OUT>';nodeout
 fork_jtask_ a
-node_status nodeport
+if. _1=pidfromport_jport_ nodeport do. NB. pidfromport has delays
+ echo a,LF,fread nodeout_jhs_
+ 'NODE server failed to start' assert 0
+end. 
 )

@@ -46,9 +46,9 @@ try. ".UNAME,'_jinstaller_ y' catchd. echo e end.
 
 NB. switch to avx JE if available and it runs
 avx=: 3 : 0
-i=. (;:'Win Linux Darwin')i.<UNAME
-pre=. ;i{'';'lib';'lib'
-suf=. ;i{'dll';'so';'dylib'
+i=. (;:'Win Linux FreeBSD OpenBSD Darwin')i.<UNAME
+pre=. ;i{'';'lib';'lib';'lib';'lib'
+suf=. ;i{'dll';'so';'so';'so';'dylib'
 t=. jpath'~bin/'
 f=. pre,'j.',suf
 favx=. pre,'javx.',suf
@@ -80,7 +80,7 @@ L=:   hostpathsep jpath'~/Desktop/'
 W=:   hostpathsep jpath'~'
 I=:   hostpathsep jpath'~bin/icons/'
 N=:   (1 2 3{9!:14''),;IF64{'-32';''
-DS=:  ;(('Win';'Linux';'Darwin')i.<UNAME){'.lnk';'.desktop';'.app'
+DS=:  ;(('Win';'Linux';FreeBSD';'OpenBSD';'Darwin')i.<UNAME){'.lnk';'.desktop';'.desktop';'.desktop';'.app'
 LIB=: ''
 )
 
