@@ -25,6 +25,7 @@ jobs:
 
    - name: Build JANDROID
      run: |
+      ls -l /usr/local/lib/android/sdk/build-tools/*
       wget https://raw.githubusercontent.com/jsoftware/jsource/master/version.txt
       cd ~/
       wget https://github.com/jsoftware/jsource/releases/download/build/androidlibs.zip
