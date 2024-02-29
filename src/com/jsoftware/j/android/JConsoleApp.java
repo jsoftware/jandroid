@@ -91,7 +91,7 @@ public class JConsoleApp extends Application
   protected File installRoot;
   protected File currentLocalDir = null;
   private Console console;
-  public final String jversion = "9.4";
+  public final String jversion = "9.5";
   boolean localFile = false;
 
   List<EngineOutput> outputs = new LinkedList<EngineOutput>();
