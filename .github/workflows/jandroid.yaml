@@ -25,7 +25,6 @@ jobs:
 
    - name: Build JANDROID
      run: |
-      ls -l /usr/local/lib/android/sdk/build-tools/*
       wget https://raw.githubusercontent.com/jsoftware/jsource/master/version.txt
       cd ~/
       wget https://github.com/jsoftware/jsource/releases/download/build/androidlibs.zip
@@ -40,6 +39,7 @@ jobs:
       find assets/libexec -type f -name '*.so' -delete
       ./gradlew build
       ./gradlew assemble
+      ls -ld /usr/local/lib/android/sdk/build-tools/*
 
    - name: Sign apk
      id: sign_apk
@@ -51,7 +51,7 @@ jobs:
        keyStorePassword: ${{ secrets.SIGNING_STORE_PASSWORD }}
        keyPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}
      env:
-       BUILD_TOOLS_VERSION: "35.0.0"
+       BUILD_TOOLS_VERSION: "34.0.0"
  
    - name: Release
      uses: ncipollo/release-action@v1
