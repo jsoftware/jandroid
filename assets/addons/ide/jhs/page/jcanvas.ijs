@@ -58,8 +58,13 @@ coinsert'jhs'
 
 NB. cojhs boilerplate from util.ijs
 
-create=: 3 : 0
-'width height'=: y
+ev_create=: 3 : 0
+t=. y jpagedefault 200 200
+'width height'=: t
+refresh=: '' NB. blank canvas 
+NB. (getjs'BUFFER CMDS';(jsxarg refresh);CMDS),gethbs'WIDTH HEIGHT';width;height
+JS=: JS hrplc'BUFFER CMDS';(jsxarg refresh);CMDS
+HBS=: HBS hrplc'WIDTH HEIGHT';width;height
 )
 
 NB. jsc... commands and asserts
@@ -136,10 +141,6 @@ a=. (<': '),~each (<'case '),each   ":each<"0 i.#y
 )
 
 CMDS=: fixcmds ncmds
-
-jev_get=: 3 : 0
-title jhrx (getcss''),(getjs'BUFFER CMDS';(jsxarg refresh);CMDS),gethbs'WIDTH HEIGHT';width;height
-)
 
 JS=: 0 : 0
 

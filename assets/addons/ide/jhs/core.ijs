@@ -8,7 +8,7 @@ coclass'jhs'
 JIJSAPP=: 'jijs' NB. 'jijsm' for simple jijs editor
 PROMPT=: '   '
 JZWSPU8=: 226 128 139{a. NB. empty prompt kludge - &#8203; \200B
-JSPATH=: '~addons/ide/jhs/js/'
+JSPATH=: '~addons/ide/jhs/js/jsoftware/' NB. path to jsoftware js/css files
 
 NB. prevent child inherit - critical with fork
 cloexec=: 3 : 0
@@ -23,11 +23,14 @@ try.
 if. _1~:SKSERVER do. try. ".'urlresponse_',URL,'_ y' catch. end. end. NB. jijx
 if. _1~:SKSERVER do. jbad'' end.
 getdata'' NB. get and parse http request
-if. 1=NVDEBUG do. smoutput seebox NV end. NB. HNV,NV
+if. 1=NVDEBUG do. smoutput seebox HNV end. NB. HNV,NV
 if. -. ((<URL)e.boxopen OKURL)+.(cookie-:gethv'Cookie:')+.PEER-:LOCALHOST
                        do. r=. 'jev_get_jlogin_ 0'
 elseif. 1=RAW          do. r=. 'jev_post_raw_',URL,'_'''''
-elseif. 'post'-:METHOD do. r=. getv'jdo'
+elseif. 'post'-:METHOD do.
+ r=. getv'jdo'
+ t=. 0 i.~ r=' '
+ if. ')'={.t}.r do. r=. (t#' '),'jev_jcmd''',(}.t}.r),'''' end. NB.!
 elseif. '.'e.URL       do. r=. 'jev_get_jfilesrc_ URL_jhs_'
 elseif. 1              do. r=. 'jev_get_',URL,'_'''''
 end.
@@ -97,7 +100,10 @@ jev=: 3 : 0
 try.
  ".t=. 'ev_',(getv'jmid'),'_',(getv'jtype'),' 0'
 catchd.
- smoutput LF,'*** event handler error',LF,t,LF,(13!:12''),seebox NV
+ e=. LF,'error: J event handler',LF,'locale: ',;coname''
+ e=. e,LF,t,LF,13!:12''
+ echo e
+ jhrcmds'alert *',e
 end.
 )
 
@@ -159,7 +165,7 @@ while. 1 do.
   NB.  smoutput '*** getdata error: ',t
   NB. end.
   NB. recv errors expected and are not displayed
-  logapp 'getdata error: ',t
+  logapp 'getdata error: ',13!:12''
  end.
 end.
 )
@@ -363,17 +369,26 @@ to run a new JHS session on the next free port, run the following:
    nextport_jhs_''
 )
 
-NB. html config parameters
+NB. html/css/js config parameters
 configdefault=: 3 : 0
 PORT=:   65001       NB. private port range 49152 to 65535
 USER=:   ''          NB. 'john' - login
 PASS=:   ''          NB. 'abra' - login
 TIPX=:   ''          NB. tab title prefix - distinguish sessions
-AUTO=:   1           NB. start browser (if necessary) and browse to http:/localhost:PORT/jijxNOEXIT=: 1
-NOEXIT=: 0           NB. jijx red button close - if 1 then exit'' is not run
+GUEST=:  0           NB. not a guest 
+AUTO=:   1           NB. start browser (if necessary) and browse to http:/localhost:PORT/jijx
+NB. Esc-q rules
+NB. 0 - server closed     - page disabled
+NB. 1 - server not closed - page disabled
+NB. 2 - confirm() close   - guest server
+QRULES=: 0           NB. Esc-q - see ev_close_click in jijx.ijs
 
+NB. following are options and css name values
+
+PC_JICON=:         '#33D2F6'
 PC_FONTFIXED=:     '"courier new","courier","monospace"'
 PC_FONTVARIABLE=:  '"sans-serif"'
+PC_FONTSIZES=:     '"640 48px 820 36px"' NB. w0 css0 w1 css1 ...
 PC_BOXDRAW=:       0        NB. 0 utf8, 1 +-, 2 oem
 
 PC_BUTTON=:        'lightgrey'
@@ -389,7 +404,8 @@ PC_FILE_COLOR=:    'green'  NB. 1!:! file output
 PC_CHECK1_BACKGROUND=: 'darkgrey'
 PC_CHECK0_BACKGROUND=: 'white'
 
-pagexywh=:  5   5 900 450  NB. . default new window position
+NB. following are css chunks - PS_... PC_... values replaced in getcss''
+PS_FONTCODE=:      'font-family:',PC_FONTFIXED,';font-weight:550;white-space:pre;'
 
 )
 
@@ -484,10 +500,7 @@ if. _1=nc<'OKURL' do. OKURL=: '' end. NB. URL allowed without login
 
 NB. leading &nbsp; for Chrome delete all
 welcome=: 0 : 0
-<div>&nbsp;<font style="font-size:16px; color:red;" >J Http Server</font>
-<br/><font style="font-size:12px; color:red;" >
-menu>tour>overview : good place to start
-</font></div>
+<span><font style="font-size:2rem; color:blue; padding:0 8px 0 16px;" >J</font>
 )
 
 NB. SO_REUSEADDR allows server to kill/exit and restart immediately
@@ -495,7 +508,8 @@ init=: 3 : 0
 echo'JHS - J HTTP Server'
 'already initialized' assert _1=nc<'SKLISTEN'
 IFJHS_z_=: 1
-canvasnum_jhs_=: 1
+canvasnum=: 1
+chartnum=: 1
 jhscfg''
 PATH=: jpath'~addons/ide/jhs/'
 NB. IP=: getexternalip''
@@ -504,7 +518,7 @@ LOCALHOST=: '127.0.0.1'
 logappfile=: <jpath'~user/.applog.txt' NB. username
 SETCOOKIE=: 0
 NVDEBUG=: 0 NB. 1 shows NV on each input
-LOG=: jmarka,welcome,jmarkz
+LOG=: jmarka,('overview'jhb'J - click me'),jmarkz
 LOGN=: ''
 PDFOUTPUT=: 'output pdf "',(jpath'~temp\pdf\plot.pdf'),'" 480 360;'
 DATAS=: ''
@@ -555,8 +569,10 @@ load__'~addons/ide/jhs/chart.ijs'
 load__'~addons/ide/jhs/vocabhelp.ijs'
 load__'~addons/ide/jhs/jdoc.ijs'
 load__'~addons/ide/jhs/extra/man.ijs'
+load__'~addons/ide/jhs/widget/jhot.ijs'
 
 NB. load addons, but do not fail init if not found
+load__ :: ['~addons/math/misc/trig.ijs' NB. used in overview.ijs chart
 load__ :: ['~addons/convert/json/json.ijs'
 load__ :: ['~addons/convert/pjson/pjson.ijs' NB. preferred - kill off json.ijs 
 
@@ -570,7 +586,6 @@ stub=: 3 : 0
 NB. app stubs to load app file
 jev_get_jijx_=:    3 : (stub'jijx')
 jev_get_jfile_=:   3 : (stub'jfile')
-jev_get_jfiles_=:  3 : (stub'jfiles')
 jev_get_jcopy_=:   3 : (stub'jcopy')
 jev_get_jijs_=:    3 : (stub'jijs')
 jev_get_jfif_=:    3 : (stub'jfif')
@@ -578,7 +593,7 @@ jev_get_jpacman_=: 3 : (stub'jpacman')
 jev_get_jlogin_=:  3 : (stub'jlogin')
 jev_get_jfilesrc_=:3 : (stub'jfilesrc')
 jev_get_jdebug_=:  3 : (stub'jdebug')
-
+jev_get_jlocale_=: 3 : (stub'jlocale')
 
 NB. simple wget with sockets - used to get google charts png
 
@@ -709,3 +724,7 @@ shutdownx=: 3 : 0
  jfe 0
  2!:55^:(''-.@-:y)y
 ) 
+
+wd_z_=: 3 : '''wd not supported in JHS''assert 0'
+
+jxsleep_z_=: 6!:3

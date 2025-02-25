@@ -58,8 +58,8 @@ if. (-.URL-:'jlogin')*.-.URL-:'favicon.ico' do. GOURL=: URL end.
 NB.override formtmpl to stay on users desired url
 formtmpl=: formtmpl_jhs_ rplc '<LOCALE>';GOURL
 p=. PASS
-u=. getv'user'
-p=. getv'pass'
+u=. ,getv'user'
+p=. ,getv'pass'
 if. (0~:#PASS)*.(u-:USER)*.p-:PASS do.
  count=: 0
  SETCOOKIE_jhs_=: 1

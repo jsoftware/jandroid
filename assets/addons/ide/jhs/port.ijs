@@ -19,6 +19,7 @@ i.0 0
 NB. pids,.ports
 pidport=: 3 : 0
 if. UNAME-:'Win' do.
+NB.! may have same problem as lsof with multiple pid ports
  d=.  CR-.~each deb each <;._2 shell'netstat -ano -p tcp'
  b=. d#~;(<'TCP')-:each 3{.each d
  d=. ><;._2 each d,each' '
@@ -30,10 +31,23 @@ if. UNAME-:'Win' do.
 else.
  NB. lsof reporting no ports gets interface error
  NB. lsof - some always reports f field and some only if requested - always request
+ NB. p field can be followed by multiple f and n fields
  d=. shell_jtask_ :: 0: 'lsof -F pfn -s TCP:LISTEN -i TCP'
  if. d-:0 do. i.2 0 return. end.
  d=. <;._2 shell_jtask_'lsof -F pfn -s TCP:LISTEN -i TCP'
- d=. (3,~<.3%~#d)$d
+ r=. ''
+ while. #d do.
+  if. 'p'={.;{.d do.
+   p=. {.d
+   r=. r,3{.d
+   d=. 3}.d
+  else.
+   r=. r,p,2{.d
+   d=. 2}.d
+  end.
+ end.
+ 'unexpected lsof result'assert 0=3|#r
+ d=. (3,~<.3%~#r)$r
  pids=. ;_1".each}.each{."1 d
  a=. {:"1 d
  ports=. ;_1".each a}.~each >:;a i: each':'

@@ -66,9 +66,10 @@ JMP=: 0 NB. flag to clear all stops for jmp
 nosus=: 'no suspension'
 
 HBS=: 0 : 0
-'stops'    jhdiv'<STOPS>';'jcode'
+jhclose''
+'stops'    jhdiv'<STOPS>'
 jhhr
-'stack'    jhdiv '<STACK>';'jcode'
+'stack'    jhdiv '<STACK>'
 'dbrun'    jhb'run'
 'dbover'   jhb'over'
 'dbinto'   jhb'into'
@@ -112,11 +113,14 @@ help
 
 CSS=: 0 : 0
 form{margin:0px 2px 2px 2px;}
-*.jhab{font-family:<PC_FONTFIXED>;white-space:pre;}
-*.jhac{font-family:<PC_FONTFIXED>;white-space:pre;text-decoration:none;background-color:aqua;} 
+*.jhdiv{<PS_FONTCODE>}
+*.jhspan{<PS_FONTCODE>}
+*.jhab{<PS_FONTCODE>}
+*.jhac{<PS_FONTCODE>text-decoration:none;background-color:aqua;} 
 )
 
 NB. x is current - -1 or d2 or m3
+NB. jhab is changed to jhac for CSS aqua
 buttons=: 3 : 0
 'sl mid sids values sep'=. y
 p=. ''
@@ -124,7 +128,7 @@ ww=. 3+#":#sids
 for_i. i.#sids do.
  id=. mid,'*',' '-.~>i{sids
  a=. id jhab ww{.;i{values
- a=. a,'<span class="jcode">',(jhfroma_jhs_ ww}.;i{values),'</span>'
+ a=. a,'' jhspan jhfroma_jhs_ ww}.;i{values
  if. sl-:' '-.~>i{sids do.
   i=. 4+1 i.~'"jhab"'E.a
   a=. 'c' i}a

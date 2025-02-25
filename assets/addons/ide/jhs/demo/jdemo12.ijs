@@ -40,6 +40,7 @@ HEXTRA=: 0 : 0
 )
 
 HBS=: 0 : 0
+jhclose'' NB. standard menu with close
 jhh1 'WebGL 3d graphics'
 '<h2>A Cube Lit by a Viewpoint Light</h2>'
 '<input type="radio" name="projectionType" id="persproj" value="perspective" onchange="draw()"><label for="persproj">Perspective projection</label>'

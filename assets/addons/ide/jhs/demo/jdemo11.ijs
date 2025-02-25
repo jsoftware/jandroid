@@ -2,6 +2,7 @@ coclass'jdemo11'
 coinsert'jhs'
 
 HBS=: 0 : 0
+        jhclose'' NB. standard menu with close
         jhh1'Ajax interval timer'
 'start' jhb 'start'
 'stop'  jhb 'stop' 

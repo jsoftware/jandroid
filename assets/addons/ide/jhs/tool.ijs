@@ -1,30 +1,156 @@
+NB. y is noun tool_y_jijx_~ or an expression
+NB. allows wrap with &ZeroWidthSpace
+tool_jhs_=: 3 : 0
+n=. 'tool_',y,'_jijx_'
+if. 0=nc<n do. y=. n~ end.
+jhtml'<hr>',(''jhecwrap jhtmlfroma y),'<hr>'
+)
+
+lablist_jhs_=: lablist_jijx_
+labrun_jhs_=: labrun_jijx_
+
 coclass'jijx'
 coinsert'jhs'
 
-tool=: 3 : 0
+NB. jijx stuff not directly tied to contenteditable repl
+
+ev_react_click=:     3 : 'tool ''react'''
+ev_welcome_click=:   3 : 'tool ''welcome'''
+ev_shortcuts_click=: 3 : 'tool ''shortcuts'''
+ev_popups_click=:    3 : 'tool ''popups'''
+ev_closing_click=:   3 : 'tool ''closing'''
+
+ev_mobile_click=:      3 : 'tool ''mobile'''
+ev_guest_rules_click=: 3 : 'tool tool_guest_rules'
+ev_guest_files_click=: 3 : 'tool tool_guest_files'
+
+tour=: 4 : 0
 jhtml'<hr>'
-echo y
-jhtml'<hr>'
+echo x
+spx '~addons/ide/jhs/spx/',y
+jhtml'<hr/>'
 )
 
-ev_node_click=:    3 : 'tool tool_node'
-ev_react_click=:   3 : 'tool tool_react'
-ev_table_click=:   3 : 'tool tool_table'
-ev_jd3_click=:     3 : 'tool tool_jd3'
-ev_chart_click=:   3 : 'tool tool_chart'
-ev_app_click=:     3 : 'tool tool_app'
-ev_print_click=:   3 : 'tool tool_print'
-ev_demo_click=:    3 : 'tool tool_demos'
-ev_watch_click=:   3 : 'tool tool_watch'
-ev_debug_click=:   3 : 'tool tool_debug'
-ev_debugjs_click=: 3 : 'tool tool_debugjs'
-ev_sp_click=:      3 : 'tool sphelp'
-ev_labs_click=:    3 : 'tool tool_labs 0'
+ev_plot_click=:  3 : 0
+'plot tour'tour'plot.ijt'
+)
 
-ev_welcome_click=:   3 :'tool tool_welcome'
-ev_shortcuts_click=: 3 :'tool tool_shortcuts'
-ev_popups_click=:    3 :'tool tool_popups'
-ev_closing_click=:   3 :'tool tool_closing'
+ev_overview_click=: 3 : 0
+'overview lab'tour'overview.ijt'
+)
+
+ev_charttour_click=: 3 : 0
+'chart tour'tour'chart.ijt'
+)
+
+ev_canvas_click=: 3 : 0
+'canvas tour'tour'canvas.ijt'
+)
+
+jhs=: 3 : 0
+a=. 'recent';'tool';'demo';'app';'lab'
+jselect 'run 1 of the following:';(<'   jhs'),each a,each <''''''
+)
+
+jhs_z_=: jhs_jijx_
+
+jhstool=: 3 : 0
+if. ''-:y do. jselect 'run 1 of the following:',LF,;LF,~each'''',~each (<'   jhstool'''),each tools return. end.
+tool_jhs_ y
+)
+
+jhsdemo=: 3 : 0
+n=. geth1'~addons/ide/jhs/demo/*.ijs'
+n=. (demo_order i. {:"1 n){n
+a=. {."1 n
+if. ''-:y do. jselect demo_txt,;(<'   jhsdemo'''),each a,each<'''',LF return. end.
+rundemo (a i. <y){demo_order
+)
+
+jhsapp=: 3 : 0
+n=. geth1'~addons/ide/jhs/app/*.ijs'
+n=. (app_order i. {:"1 n){n
+a=. {."1 n
+if. ''-:y do. jselect app_txt,;(<'   jhsapp'''),each a,each<'''',LF return. end.
+runapp (a i. <y){app_order
+)
+
+jhspage=: 3 : 0
+n=. 1 dir'~addons/ide/jhs/page/*.ijs'
+c=. _4}.each (#jpath'~addons/ide/jhs/page/')}.each n
+if. ''-:y do. jselect page_txt,;(<'   jhspage'''),each c,each<'''',LF return. end.
+i=. c i. <y
+'invalid page'assert i~:#n
+(;i{c)jpage''
+)
+
+page_txt=: 'simple apps showing JHS gui programming - run 1 of the following:',LF
+
+jhswiki=: 3 : 0
+if. ''-:y do. jselect wiki_txt,;(<'   jhswiki'),each(<;._2 wiki_names),each LF return. end.
+jhsvocab y
+)
+
+tool_tour=: 0 : 0
+overview
+chart
+canvas
+plot
+spx
+)
+
+jhstour=: 3 : 0
+if. ''-:y do. jselect (<'   jhstour '''),each '''',~each<;._2 tool_tour return. end.
+jhtml'<hr>'
+spx '~addons/ide/jhs/spx/',y,'.ijt'
+jhtml'<hr/>'
+)
+
+jhslab=: 3 : 0
+if. ''-:y do.
+ getlabs''
+ t=. <;._2 labs_txt
+ jselect t,(<'   jhslab '''),each '''',~each~.LABCATS
+ return.
+end.
+getlabs''
+titles=. /:~(LABCATS = <dltb y)#LABTITLES
+t=. <'run one of the following sentences:'
+jselect t,(<'   jhsrun '),each'''',~each'''',each titles
+)
+
+jhstool_z_=:   jhstool_jijx_
+jhsdemo_z_=:   jhsdemo_jijx_
+jhsapp_z_=:    jhsapp_jijx_
+jhspage_z_=:   jhspage_jijx_
+jhslab_z_=:    jhslab_jijx_
+jhswiki_z_=:   jhswiki_jijx_
+jhstour_z_=:   jhstour_jijx_
+
+ev_tool_click=:   3 : 'jhstool 0{.0'
+ev_app_click=:    3 : 'jhsapp  0{.0'
+ev_page_click=:   3 : 'jhspage 0{.0'
+ev_demo_click=:   3 : 'jhsdemo 0{.0'
+ev_lab_click=:    3 : 'jhslab  0{.0'
+ev_tour_click=:   3 : 'jhstour 0{.0'
+ev_wiki_click=:   ev_helplinks_click
+
+ev_helplinks_click=: 3 : 'jhtml links wwwlinks'
+
+jhsrun_z_=:    labrun_jijx_
+
+ev_spx_click=:  3 : 0
+'spx tour'tour'spx.ijt'
+)
+
+NB. default ctrl+,./ handlers
+ADVANCE=: 'none'
+
+ev_labs_click=:      3 : 'tool tool_labs 0'
+
+NB. iphone se displays to col: 34
+
+tool_simple_project=: sphelp
 
 tool_debug=: 0 : 0
 debug facilities: suspend execution at stop or error
@@ -86,7 +212,7 @@ securely access your JHS server from any device on lan or remote
 NB. jhslinkurl'www.d3js.org' NB. link to D3 home page
 tool_jd3=: 0 : 0
 plot d3 uses D3 javascript library
-see menu wiki>JHS>help>libraries for more info
+see www.d3js.org for more info
    jd3''
 )
 
@@ -97,16 +223,15 @@ tool_chart=: 0 : 0
 
 tool_table=: 0 : 0
 table (spreadsheet) uses Handsontable javascript library
-see menu wiki>JHS>help>libraries for more info
+see www.handsontable.com for more info 
    'jtable;0 0'jpage'n' [ n=. i.3 4
 n immediately reflects any changes
 edit cells and add new rows/cols
 initial data was numeric, so non-numeric is red
    'jtable;20 20'jpage's' [ s=: 2 2$'aa';'b';'c';'dd'
-close with red button or Esc-q as this informs J server
 )
 
-tool_app=: 0 : 0 
+app_txt=: 0 : 0 
 how to build an app
 apps are built with J, JHS framework,
  HTML, CSS, DOM, and javascript
@@ -115,18 +240,15 @@ learning curve is long, but not steep
 what you learn is applicable not just to J,
  but to every aspect of web programming
 JHS IDE is built with the same facilities
+☰.options.TAB uses tabs - better if you have the screen
 run and study each script/app in order
    runapp_jhs_ N [;xywh]
     - copies appN.ijs to ~temp/app
-    - runs and opens script in a tab
-    - opens app in a tab or at xywh
-move script and app so you can study them
-
-<RUNAPP>
-   runapp_jhs_ 1 NB. ; 10 10 400 400
+    - opens app
+in app page, click button 'edit source script' 
+if tabs, move app and script tabs for easy viewing
+run 1 of the following:
 )
-
-tool_app=: tool_app rplc'<RUNAPP>';runapp''
 
 tool_print=: 0 : 0
 simple printing
@@ -138,84 +260,167 @@ simple printing
    printstyle_jhs_=: 'font-family:"courier new";font-size:16px;'
 )
 
-tool_demos=: 0 : 0
+
+wiki_txt=: 0 : 0
+look up things in the wiki
+)
+
+wiki_names=: 0 : 0
+'voc'  NB. NuVoc vocabulary
+'i.'   NB. edit i. for others - click Dyad for x i. y
+'if.'  NB. control words
+'!:'   NB. foreigns
+'12x'  NB. constants
+'a'    NB. ancilliary 
+'std'  NB. standard library
+'rel'  NB. J release notes
+'JHS'  NB. JHS info
+'807'  NB. 807 legacy html
+'main' NB. main page
+)
+
+demo_txt=: 0 : 0
 simple apps showing JHS gui programming
 run demos to see some of the possibilities
 study the source to see how it is done
-study menu tool>app first as the source
-will make more sense after that
-1  Roll submit
-2  Roll ajax
-3  Flip ajax
-4  Controls/JS/CSS
-5  Plot
-6  Grid editor
-7  Table layout
-8  Dynamic resize
-9  frames
-10 Ajax chunks
-11 Ajax interval timer
-12 WebGL 3d graphics
-13 D3 line and bar plots
-14 iframes - spreadsheet/graph
-15 Flip - no javascript
-16 pswd gen - no javascript
-   rundemo_jhs_ 1
+run 1 of the following:
+)
+
+geth1=: 3 : 0
+f=. 1 dir y
+p=. >:(jpath y) i:'/'
+r=. 0 2$''
+for_n. f do.
+ d=. fread n
+ i=. 1 i.~ 'jhh1'E.d
+ if. i=#d do.
+  t=. 'no header'
+ else.
+  t=. 4}.i}.d
+  t=. }.}:deb(t i.LF){.t
+ end.
+ r=. r,(<t),<p}.;n
+end.
+r
+)
+
+NB. presentation order may differ from file name order
+demo_order=:<;._2[ 0 : 0
+jdemo01.ijs
+jdemo02.ijs
+jdemo03.ijs
+jdemo04.ijs
+jdemo05.ijs
+jdemo06.ijs
+jdemo07.ijs
+jdemo08.ijs
+jdemo10.ijs
+jdemo11.ijs
+jdemo12.ijs
+jdemo13.ijs
+)
+
+NB. presentation order may differ from file name order
+app_order=: <;._2[0 : 0
+app01.ijs
+app02.ijs
+app03.ijs
+app04.ijs
+app05.ijs
+app06.ijs
+app07.ijs
+app08.ijs
 )
 
 tool_watch=: 0 : 0
    'jwatch;0 0' jpage '?4 6$100' NB. watch an expression
 )
 
-tool_labs_txt=: 0 : 0
-labs - interactive tutorials - a good way to learn J
-labs are not always current and may run with errors
-labs are organized into categories
-run one of the following sentences:
+labs_txt=: 0 : 0
+labs - interactive tutorials
+labs are organized in categories
+run 1 of the following:
 )
 
 tool_welcome=: 0 : 0
-welcome to the browser interface to J
-chartjs adds powerful new plot facility
- menu tool>plot-chart jcjs'tutorial'
-building an app has changed over the years
- for the latest info, see menu tool>app
-jijs script - run current line or selection
-close pages with red box in upper right corner
+welcome - browser interface to J
+
+new in release 1.0.386:
+much easier to write apps with NO javascript!
+   'app08'jpage''
+jhrcmds verb avoids many requirements for javascript
+JHS apps are now similar to Jqt wd apps
+ J event handler called with required data
+  and jhrcmds changes the browser page as required
+
+SPA (single page app) support:
+ default page open is a frame in the term window
+  rather than a browser tab (pop-up)
+ ☰>term pages lists SPA pages
+ ☰>options to toggle term/tab default open
+
+☰>dev tools>locale explorer - cobrowser
+
+jijx  ☰ reorganized
+jterm esc-z close pages and exit server
+overview tour improved
+
+new in release 1.0.385:
+click me button
+☰ menu
+overview tour improved
+guest info
+mobile right hand buttons
+jterm (jijx) wrap/nowrap
+)
+
+tool_guest_rules=: tool_guest_files=: 'this session is not a server guest'
+
+tool_mobile=: 0 : 0
+mobile real keyboard is great!
+mobile soft kb takes practice
+
+mobile jterm page has 3 buttons on the right:
+ green - ctrl+.
+ blue  - ctrl+shift+↑
+ red   - ctrl+shift+↓
+
+mobile esc key is soft keyboard è
+(iOS press e and slide up)
 )
 
 tool_shortcuts=: 0 : 0
-Esc-q (Escape key then q) - close page
- jijx close closes all pages and exits server
-Esc-1 - focus menu - arrow keys
-ctrl+shift+↑/↓ - recall previous line/input
-ctrl shortcuts are supported for
- ,./<>? (comma,dot,slash,less,larger,query)
-jijx ctrl shortcuts
- ctrl+. lab/spx advance
- ctrl+, load project (see sphelp)
- ctrl+' debug step
- ctrl+" debug stepin
-custom jijx shortcut handler for ctrl+?
- ev_query_ctrl_jijx_=: 3 : 'i.5'
-see menu>help>JHS for more info
+☰ indicates shortcuts
+browser uses most ctrl shortcuts
+J esc shortcuts avoid conflict
+
+esc-f - press and release esc then f
+
+undo/cut/copy/paste/redo
+ ctrl+zxcvy - standard
+
+J ctrl shortcuts are supported for
+ ,./<>?
+
+custom jterm (jijx) handler for ctrl+?
+ev_query_ctrl_jijx_=: 3 : 'i.5'
 )
 
 tool_popups=: 0 : 0
-if browser is set to block pop-ups, you will
- get an alert when JHS tries to create one
-most browsers let you configure to allow them
- (if possible, just allow from localhost:65001)
-see menu>help>JHS for more info
+JHS works best if pop-ups allowed
+some browers require permission
+some browsers let you configure
+ (make as restrictive as possible)
+
+   edit'jnk.txt' NB. requires pop-up
 )
 
 tool_closing=: 0 : 0
-close JHS page with Esc-q
- or, if present, the page red close button
-this lets JHS manage the close
+close J page with ☰.close/quit
+ or Esc-q
+this lets J manage the close
  (save changes and free up resources)
 browser close button misses these steps
-see menu>help>JHS for more info
 )
 
 getlabs=: 3 : 0
@@ -260,9 +465,9 @@ getlabs''
 if. 0=#LABCATS do.
  t=. 'No labs installed.',LF,'Do jal (pacman) labs/labs install and try again.'
 else.
- t=. tool_labs_txt
+ t=. labs_txt
  d=. /:~~.LABCATS
- t=. t,;LF,~each(<'   lablist_jijx_ '),each'''',~each'''',each d
+ t=. t,;LF,~each(<'   lablist_jhs_ '),each'''',~each'''',each d
 end.
 t
 )
@@ -271,7 +476,7 @@ lablist=: 3 : 0
 getlabs''
 titles=. /:~(LABCATS = <dltb y)#LABTITLES
 echo'run one of the following sentences:'
-echo ;LF,~each (<'   labrun_jijx_ '),each'''',~each'''',each titles
+echo ;LF,~each (<'   labrun_jhs_ '),each'''',~each'''',each titles
 )
 
 labrun=: 3 : 0
@@ -284,8 +489,19 @@ NB. restore spx
 spx__=:    spx_jsp_
 spx_jhs_=: spx_jsp_
 
-ADVANCE_jlab_=: 'To advance, press ctrl+. or click menu > item.'
+ADVANCE_jlab_=: 'To advance, press ctrl+.'
 smselout_jijs_=: smfocus_jijs_=: [ NB. allow introcourse to run
 echo'JHS lab advance - ctrl+. or menu >'
 lab_jlab_ f
+)
+
+NB. remove those in the help menu and other places
+toolsx=: 'react';'tour';'welcome';'guest_rules';'guest_files';'mobile';'shortcuts';'popups';'closing';'watch'
+tools=: (5}.each'tool_'nl_jijx_ 0)-.toolsx
+
+NB. validate tools:
+NB. ;".each(<'_jijx_'),~each(<'tool_'),each tools_jijx_
+
+toollist=: 3 : 0
+echo'run 1 of the following:',LF,;LF,~each'''',~each (<'   tool_jhs_ '''),each tools
 )

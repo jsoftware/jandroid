@@ -1,12 +1,12 @@
 NB. handsontable table editor - includes jhot iframe
-NB. 'jtable'cojhs'n'[n=. i.3 9
+NB. 'jtable'jpage'n'[n=. i.3 9
 
 coclass'jtable'
 coinsert'jhs'
 
 HBS=: 0 : 0
 jhclose''
-'jtable: <Y>'
+'head'jhdiv'table'
 '<div id="hots">'
 '<iframe id="hot" name="hot" src="',(;hot),'"  ></iframe>'
 '</div>'
@@ -14,7 +14,12 @@ jhclose''
 
 NB. cojhs boilerplate from util.ijs
 
-create=: 3 : 0
+ev_create=: 3 : 0
+if. ''-:y do.
+ temp__=: 2 2$'aa';'b';'c';'dd'
+ y=. 'temp'
+end.
+
 try.
  header=: dltb y
  header=: header,>('_'={:header){'__';''
@@ -23,15 +28,25 @@ try.
  assert 2>:$$d
  assert 2>L.d
  (header)=: (,:^:({.2-$$d)) d
- hot=: 'jhot;_'cojhs 'EMPTY_z_'
+ hot=: 'jhot;_'jpage'EMPTY_z_'
  setdata__hot header~
+ qa__=: JS__hot
+ fixjs__hot'' NB. apply options and data to JS
+ qz__=: JS__hot
+ NB.! show__hot 'tab' NB.!!!
+ jhcmds 'set head *table: ',header
 catchd.
  ('create failed:',LF,13!:12'') assert 0
 end.
 )
 
-jev_get=: 3 : 0
-title jhrx (getcss''),(getjs''),gethbs'Y';header
+NB. need better way to destroy embedded objects
+ev_close_click=: 3 : 0
+destroy__hot'' NB. jhot object
+jhrajax''
+shown=: 0 NB. already closed
+destroy''
+i.0 0
 )
 
 NB. currently gets all the data - could get and apply just changes
@@ -56,6 +71,7 @@ function ev_body_load()
   jdoajax([],JSON.stringify(window.frames[0].data),s);
  }
  );
+ jhrcmds(jsdata['jhrcmds']); // must do explicitly
 }
 
 function ajax(ts){;}

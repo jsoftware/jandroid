@@ -6,6 +6,8 @@ INC=: INC_d3_basic
 
 NB. J sentences - create html body
 HBS=: 0 : 0
+jhclose'' NB. standard menu with close
+jhh1 'd3 basic'
 'ha'jhdiva''
  desc
  jhdemo''

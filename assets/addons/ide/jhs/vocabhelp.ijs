@@ -1,5 +1,45 @@
 coclass'jhs'
 
+0 : 0
+   jhswiki'voc'  NB. NuVoc vocabulary
+   jhswiki'i.'   NB. edit i. for others - click Dyad for x i. y
+   jhswiki'if.'  NB. control words
+   jhswiki'!:'   NB. foreigns
+   jhswiki'12x'  NB. constants
+   jhswiki'a'    NB. ancilliary 
+   jhswiki'std'  NB. standard library
+   jhswiki'rel'  NB. J release notes
+   jhswiki'JHS'  NB. JHS info
+   jhswiki'807'  NB. 807 legacy html
+   jhswiki'main' NB. main page
+)   
+
+NB. add label for each link
+wwwlinks=: <;._2 [ 0 : 0
+vocabulary         https://code.jsoftware.com/wiki/NuVoc
+control structures https://code.jsoftware.com/wiki/Vocabulary/ControlStructures
+foreigns !:        https://code.jsoftware.com/wiki/Vocabulary/Foreigns
+constants          https://code.jsoftware.com/wiki/Vocabulary/Constants
+ancilliary         https://code.jsoftware.com/wiki/NuVoc#bottomrefs
+standard library   https://code.jsoftware.com/wiki/Standard_Library/Overview
+release notes      https://code.jsoftware.com/wiki/System/ReleaseNotes
+JHS                https://code.jsoftware.com/wiki/Guides/JHS
+807 legacy html    https://www.jsoftware.com/help/index.htm
+main page          https://code.jsoftware.com/wiki/Main_Page
+)
+
+links=: 3 : 0
+t=. '<div class="transient">Jsoftware www/wiki links:<br>'
+for_n. wwwlinks do.
+ a=. ;n
+ i=. a i: ' '
+ b=. deb i}.a
+ a=. deb i{.a
+ t=. t,LF,'<div contenteditable="false"><a href="',b,'" target="_blank">',a,'</a></div>'
+end.
+t=. t,LF,'</div>'
+)
+
 NB. borrows from ide/qt/help.ijs
 
 jhsvocab=: 3 : 0
@@ -7,11 +47,18 @@ top=. {.;:y
 first=. {.;top
 last=. {:;top
 b=. 'https://code.jsoftware.com/wiki/Vocabulary'
-if.     ''-:;top                        do. t=. b
-elseif. top e. DICTNV_jhs_              do. t=. b,'/',>DICTNVX {~ DICTNV i.top
+a=. ;top
+if.     top e. DICTNV_jhs_              do. t=. b,'/',>DICTNVX {~ DICTNV i.top
 elseif. (first e. Alpha_j_) *. '.'=last do. t=. b,'/ControlStructures'
+elseif. '!:'-:a                         do. t=. 'https://code.jsoftware.com/wiki/Vocabulary/Foreigns'
 elseif. (first='_')+.first e. Num_j_    do. t=. b,'/Constants'
-elseif. 1                               do. t=. 'https://code.jsoftware.com/wiki/NuVoc','#bottomrefs'
+elseif. 'JHS'-:a                        do. t=. 'https://code.jsoftware.com/wiki/Guides/JHS'
+elseif. a-:,'a'                         do. t=. 'https://code.jsoftware.com/wiki/NuVoc','#bottomrefs'
+elseif. a-:'807'                        do. t=. 'https://www.jsoftware.com/help/index.htm'
+elseif. a-:'std'                        do. t=. 'https://code.jsoftware.com/wiki/Standard_Library/Overview'
+elseif. a-:'rel'                        do. t=. 'https://code.jsoftware.com/wiki/System/ReleaseNotes'
+elseif. a-:'main'                       do. t=. 'https://code.jsoftware.com/wiki/Main_Page'
+elseif. 1                               do. t=. b
 end.
 jjs_jhs_  'urlopen("',t,'");'
 i.0 0
@@ -19,7 +66,7 @@ i.0 0
 
 wiki_z_=: jhsvocab_jhs_
 
-NB. !: changed from bangco to Foreigns
+NB. banco replaced by  !:
 j=. <;._2 (0 : 0)
 = eq
 =. eqdot

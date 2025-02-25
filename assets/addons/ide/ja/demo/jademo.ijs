@@ -1,5 +1,5 @@
 
-18!:55 <'jademo'
+271828&(18!:55) ::(18!:55) ::0: <'jademo'
 coclass 'jademo'
 
 onStart=: jademo_run

@@ -151,7 +151,7 @@ helpcontext1=: 3 : 0
 require '~addons/ide/ja/help.ijs'
 helpcontext1 y
 )
-18!:4 IFJA{'ja';'z'
+cocurrent IFJA{'ja';'z'
 wd=: 11!:0
 wdhandler=: 3 : 0
 wdq=: wd 'q'

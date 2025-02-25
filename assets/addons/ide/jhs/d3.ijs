@@ -3,8 +3,6 @@ coclass'jhs'
 
 NB. jd3 plots
 
-jd3x__=: ''
-
 jd3doc=: 0 : 0
 jd3'help'
 jd3'options'     NB. plot options
@@ -41,6 +39,7 @@ jd3'option arg'    - add option to jd3x__
 )
 
 jd3=: 3 : 0
+if. _1=nc<'jd3x__' do. jd3x__=: '' end.
 assert 'literal'-:datatype y
 if. ';'e. y do.
  t=. jd3 each a:-.~<;._2 y,';'

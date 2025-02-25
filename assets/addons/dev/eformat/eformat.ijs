@@ -72,10 +72,13 @@ EVMISSINGGMP
 EVSIDAMAGE
 EVDEADLOCK
 EVASSEMBLY
+EVOFLO
+EVTYPECHG
+EVNORESULT
 )
 
 NB. x and y are strings to be joined.  We insert a space if not doing so would change the words
-efjoinstgs_j_ =: (([,' ',]) [^:(-.@-:&;:) (,))
+efjoinstgs_j_ =: ([,' ',]) [^:(-.@-:&(;: ::(a:"_))) ,
 NB.x is (1 if all of main name always needed),(max # characters allowed),(par),(use gerund if possible); y is AR
 NB. par is:0=no parens needed; 1=parens needed for train but not AC exec; parens needed for train and AC
 NB. result is string to display, or ... if string too long
@@ -208,15 +211,18 @@ efindexaudit_j_ =: {{
    if. 0 (<L.) t=. x efindexaudit y do. (0&{ , (1 , {:)&.>@(1&{) , 2&{) t return. end. NB.oob excluded index
    y - #@~. x + y * x<0                    NB.overall length.  Need to regularise to correctly compute #excluded hyperrows(?), which needs linear space.  But { would have needed at least that much space anyway, and more besides, so it seems 
   }}
+  if. 0 (>:L.) x do.                        NB.array of integers, each selecting 1 cell
+   if. (2-m)<#@$x  do. _2;0 0 0;'' return. end.NB.rank too high (rank 2 allowed only for 1st box
+   if. ({:$x) > #y do. _1;(0 0,{:$x);'' return. end.NB.index list too long
+   'f cs'=. ({:$x)({.;}.)y                   NB.frame; cell shapesmoutput'`'
+   offi=. /:~ ~. (x ;@:(<@I.@:>:"1) f) , (x ;@:(<@I.@:<"1) -f) NB.list of offending indices
+   if. ''-:offi do.                       NB.everything in range
+    (}:$x) , ({:$x) }. y return.
+   else. 3;(({.offi) , 0 , ({.offi){x);({.offi) return. end. end.
+  NB.boxed x; consider each element in turn
   if. 1<#@$x  do. _2;0 0 0;'' return. end.NB.rank too high
   if. x >&# y do. _1;(0 0,#x);'' return. end.NB.index list too long
   'f cs'=. (#x)({.;}.)y                   NB.frame; cell shape
-  if. 0 (>:L.) x do.                        NB.simple list of integers
-   offi=. /:~ (x I.@:>: f) , (x I.@:< -f) NB.list of offending indices
-   if. ''-:offi do.                       NB.everything in range
-    (#x) }. y return.
-   else. 3;(({.offi) , 0 , ({.offi){x);({.offi) return. end. end.
-  NB.boxed x; consider each element in turn
   rs=. 0$0                                NB.result shape
   for_i. i.#x do.
    if. 0 (>:L.) t=. (i{::x) auditselector i{f do.
@@ -226,7 +232,7 @@ efindexaudit_j_ =: {{
  }}
  rs=. 0$0                                 NB.result shape
  for_i. i.*/$x do.                        NB.boxed x; consider each index in turn
-  if. 0 (>:L.) t=. (i{::,x) auditindex y do. NB.if no error, then pad out shape appropriately
+  if. 0 (>:L.) t=. (i{::,x) ((*i_index) auditindex) y do. NB.if no error, then pad out shape appropriately
    rs=. rs shapeunion t                   NB. and update result shape
   else.
    (2{.t) , (($x)#:i)&;&.>2{t return. end. end.NB.otherwise, add top-level path and return error desc
@@ -419,14 +425,14 @@ NB. Handle environment-dependent and non-execution errors
 select. e
 case. EVATTN do. emsg =. 'the executing entity was interrupted by user action'
 case. EVBREAK do. emsg =. 'the executing sentence was aborted by user action'
-case. EVFACE do. emsg =. 'file system error'
+case. EVFACE do. emsg =. ('11!:' -: 4 {. eflinearself selfar) {:: 'file system error';'host does not support wd'
 case. EVLIMIT do. emsg =. 'a system limit was exceeded'
 case. EVSTACK do.  emsg =. 'infinite recursion'
 case. EVFACCESS do. emsg =. 'nonexistent file or missing permissions'
 case. EVFNAME do. emsg =. 'nonexistent file or invalid filename '
 case. EVFNUM do. emsg =. 'the specified file number is not open'
 case. EVTIME do. emsg =. 'the execution time limit was exceeded'
-case. EVRO do. emsg =. 'attempt to modify a read-only mapped file'
+case. EVRO do. emsg =. 'attempt to modify a read-only mapped file, or the xyz_index created by for_xyz. (perhaps with nested loops having the same index variable)'
 case. EVCTRL do. emsg =. 'the line, with its number in its definition shown in brackets, has a mismatched control structure'
 case. EVEMPTYT do. emsg =. 'no sentences following for. or select.'
 case. EVEMPTYDD do. emsg =. 'unmatched {{ or }}'
@@ -436,7 +442,6 @@ case. EVSPELL do. if. selfar -: <'".' do. emsg =. check_spelling_j_ a
                   elseif. selfar -: <,':' do. emsg=. check_spelling_j_ w 5!:0 end.
                   if. 0-:#emsg do. emsg =. 'words with . or : inflections must be J primitive words' end.
 case. EVMISSINGGMP do. emsg =. 'extended-precision library not found.  Run  install ''gmp''  or refer to your installation instructions'
-case. EVSIDAMAGE do. if. prim -.@-: ;:'T.' do. emsg =. 'you must turn debugging off before you redefine an entity other than the one at the top of the execution stack' end.
 case. EVDEADLOCK do. emsg =. 'this action would deadlock the system'
 end.
 if. #emsg do. hdr , emsg return. end.  NB. pee
@@ -573,7 +578,11 @@ case. 3 do.
     case. ;:'/./..' do.
       if. e=EVLENGTH do. emsg =. 'shapes ' , (":$a) , ' and ' , (":$w) , ' have different numbers of items' end.
     case. ;:'{' do.
-      if. e e. EVINDEX,EVLENGTH,EVDOMAIN do. if. 0 (<L.) rc=. a efindexaudit $w do. emsg=. ($w) ('x';'y') effrommsg rc end. end.
+      if. e e. EVINDEX,EVLENGTH,EVDOMAIN do.
+        wcs=. ($w) {.~ -(0{ovr) <. #$w NB. w cell shape
+        if. 0 (<L.) rc=. a efindexaudit wcs do.
+          rc=. rc 1}~ < (0}~ (($w) -&# wcs) + 0&{) 1{::rc NB. add frame rank to y-axis#.  No }::; annoying
+          emsg=. ($w) ('x';'y') effrommsg rc end. end.
     fcase. ;:'{.{:' do.
       if. e=EVINHOMO do. hdr ,  'y argument and fill are incompatible: ' , efandlist w efhomo@:(,&(*@(#@,) * 3!:0)) fill return. end.
     case. ;:'}.}:' do.
@@ -613,10 +622,10 @@ case. 3 do.
             hdr,((1 < #@, selshape) # 'in box ' , (":errbox) , ' of m, ') , ($w) ('m';'y') effrommsg errbox {:: ,selshape return.
           end.
         end.
-        cellshapes =. ,selshape  NB. all the selections
+        cellshapes =. ,selshape  NB. all the selections, which are all boxed shapes of selected regions
         if. -. *./ (-:"_1 _  {.) cellshapes do. if. e=EVDOMAIN do. hdr,'the boxes of m must specify regions of the same shape' return. end. end.
-        cellshapes =. (# , }.@>@{.) cellshapes  NB. shape of the selected region
-        if. -. ($a) ([ -: -@#@[ {.!._1 ]) cellshapes do. if. e=EVRANK do. hdr,'the shape of x (' , (":$a) ,') must be a suffix of the shape of the selection (' , (":cellshapes) , ')' return. end. end.
+        cellshapes =. ;`(# , >@{.)@.(1 < */@$) cellshapes  NB. shape of the selected region
+        if. -. ($a) ([ -: -@#@[ {.!._1 ]) cellshapes do. if. e e. EVRANK`EVLENGTH do. hdr,'the shape of x (' , (":$a) ,') must be a suffix of the shape of the selection (' , (":cellshapes) , ')' return. end. end.
       end.
 NB. ". domain
     case. ;:'b.' do.
@@ -852,9 +861,12 @@ case. 2 do.
     end.
   end.
 end.
-NB. not yet specifically diagnosed nan or nonce error
+NB. not yet specifically diagnosed error
+if. (0=#emsg) *. e=EVOFLO do. hdr , 'an operation on fixed-size integers does not fit in that size' return. end.
 if. (0=#emsg) *. e=EVNAN do. hdr , 'you have calculated the equivalent of _-_ or _%_' return. end.
 if. (0=#emsg) *. e=EVNONCE do. hdr , 'this computation is not yet supported' return. end.
+if. (0=#emsg) *. e=EVTYPECHG do. hdr , 'a name changed part of speech since definition, usually because an undefined name was taken to be a verb' return. end.
+if. (0=#emsg) *. e=EVNORESULT do. hdr , 'a fold did not execute anything that could contribute to the result' return. end.
 (}:^:(0=#emsg) hdr) , emsg return.  NB. if we have a line, return it; otherwise remove LF from hdr to avoid empty line
 }}
 

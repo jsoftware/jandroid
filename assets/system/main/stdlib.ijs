@@ -1,7 +1,7 @@
-18!:4 <'z'
+cocurrent <'z'
 3 : 0 ''
 
-JLIB=: '9.6.1'
+JLIB=: '9.6.12'
 
 notdef=. 0: ~: 4!:0 @ <
 hostpathsep=: ('/\'{~6=9!:12'')&(I. @ (e.&'/\')@] })
@@ -14,6 +14,7 @@ IFBE=: 'a'~:{.2 (3!:4) a.i.'a'
 'IFUNIX IFWIN IFWINCE'=: 5 6 7 = 9!:12''
 IFJHS=: 0
 IFWINE=: (0 ~: 'ntdll wine_get_version >+ x'&(15!:0)) ::(0:@(15!:10))`0:@.IFUNIX ''
+IFWA64=: IFWIN*.'arm64'-:9!:56'cpu'
 if. notdef 'IFIOS' do.
   IFIOS=: 0
 end.
@@ -89,7 +90,7 @@ else.
   0!:0 <jpath '~system/defs/',y,'_',(tolower xuname),(IF64#'_64'),'.ijs'
 end.
 )
-18!:4 <'j'
+cocurrent <'j'
 
 setjdefs=: 4 : 'if. _1=4!:0 y do. (>y)=: x end.'
 
@@ -133,8 +134,8 @@ end.
 
 4!:55 <'setjdefs'
 
-18!:4 <'z'
-18!:4 <'z'
+cocurrent <'z'
+cocurrent <'z'
 UNXLIB=: ([: <;._1 ' ',]);._2 (0 : 0)
 libc.so.6 libc.so.7 libc.so.7 libc.so libc.dylib libc.so
 libz.so.1 libz.so.7 libz.so.6 libz.so libz.dylib libz.so
@@ -167,7 +168,7 @@ r=. (;: 'c z sqlite3 libxml2 pcre2') i. <,y
 c=. (;: 'Linux OpenBSD FreeBSD Android Darwin') i. <UNAME_z_
 (<r,c) {:: UNXLIB_z_
 )
-18!:4 <'z'
+cocurrent <'z'
 anddf=: 4 : '''libj.so android_download_file > i *c *c'' 15!:0 x;y'
 andunzip=: 3 : 0
 '' andunzip y
@@ -200,7 +201,7 @@ end.
 'DM_density_ja_ DM_densityDpi_ja_ DM_scaledDensity_ja_'=: 1 2 4{dm
 dm
 )
-18!:4 <'z'
+cocurrent <'z'
 'TAB LF FF CR DEL EAV'=: 9 10 12 13 127 255{a.
 LF2=: LF,LF
 CRLF=: CR,LF
@@ -240,9 +241,11 @@ if. 1 < #$y do. <"_1 y return. end.
 )
 datatype=: 3 : 0
 n=. 1 2 4 8 16 32 64 128 1024 2048 4096 8192 16384 32768 65536 131072 262144
+n=. n,5 6 7 9 10 11
 t=. '/boolean/literal/integer/floating/complex/boxed/extended/rational'
 t=. t,'/sparse boolean/sparse literal/sparse integer/sparse floating'
 t=. t,'/sparse complex/sparse boxed/symbol/unicode/unicode4'
+t=. t,'/integer1/integer2/integer4/floating2/floating4/floating16'
 (n i. 3!:0 y) pick <;._1 t
 )
 def=: :
@@ -353,8 +356,8 @@ Note=: 3 : '0 0 $ 0 : 0' : [
 on=: @:
 pick=: >@{
 rows=: "1
-script=: [: 3 : '0!:0 y [ 4!:55<''y''' jpath_z_ &.: >
-scriptd=: [: 3 : '0!:1 y [ 4!:55<''y''' jpath_z_ &.: >
+script=: [: 3 : '0!:0 y_:' jpath_z_ &.: >
+scriptd=: [: 3 : '0!:1 y_:' jpath_z_ &.: >
 stdout=: 1!:2&4
 stderr=: 1!:2&5
 stdin=: 1!:1@3: :. stdout
@@ -422,10 +425,8 @@ else.
 end.
 1
 )
-18!:4 <'z'
-coclass=: 18!:4 @ boxxopen
+cocurrent <'z'
 cocreate=: 18!:3
-cocurrent=: 18!:4 @ boxxopen
 codestroy=: coerase @ coname
 coerase=: 18!:55
 cofullname=: 3 : 0
@@ -528,9 +529,10 @@ memu=: '' 1 : 'try. 15!:15 m catch. a: { ] return. end. 15!:15'
 cdf=: 15!:5
 cder=: 15!:10
 cderx=: 15!:11
-symget=: 15!:6
 symset=: 15!:7
+symdad=: 15!:14
 symdat=: 15!:14
+memhad=: (15!:12)@<
 cdcb=: 15!:13
 JB01=: 1
 JCHAR=: 2
@@ -781,8 +783,8 @@ if. y do.
   if. _1 = 4!:0 <'jdb_open_jdebug_' do.
     0!:0 <jpath '~addons/ide/qt/debugs.ijs'
   end.
-  jdb_open_jdebug_''
-  13!:0 [ 1
+  jdb_open_jdebug_ y
+  13!:0 y
 else.
   jdb_close_jdebug_ :: ] ''
   13!:15 ''
@@ -1647,7 +1649,7 @@ c=. b +. y=' '
 b=. b > (1,}:b) +. }.c,0
 ' ' (I. b) } y
 )
-18!:4 <'z'
+cocurrent <'z'
 3 : 0''
 if. IFIOS>IFQT do.
   r=. 'Engine: ',9!:14''

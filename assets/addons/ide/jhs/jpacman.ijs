@@ -4,6 +4,15 @@ coinsert'jhs'
 require'pacman'
 
 HBS=: 0 : 0
+
+jhmenu''
+'menu0'  jhmenugroup ''
+         jhmpage''
+'close'  jhmenuitem 'close';'q'
+         jhmenugroupz''
+
+jhmpagez''
+
 'J Package Manager <a href="http://code.jsoftware.com/wiki/addons">code.jsoftware.com/wiki/addons</a>'
 '<hr>'
 'upable' jhb'Upgradeable'
@@ -20,8 +29,8 @@ jhresize''
 checkers=: ('check'jhb'Check all'),'uncheck'jhb'Uncheck all'
 
 maketable=: 3 : 0
-b=. ((<'c_'),each{."1 y)jhcheckbox each <'';0
-NB. b=. ,.(('c'),each ":each <"0 i.#y)jhcheckbox each <'';0
+b=. ((<'c_'),each{."1 y)jhchk each <'';0;'';'';'~'
+NB. b=. ,.(('c'),each ":each <"0 i.#y)jhchk each <'';0
 t=. jhtablea
 t=. t,,jhtr"1 b,.y
 t,jhtablez
@@ -76,9 +85,11 @@ create b;t
 doselect=: 3 : 0
 d=. {."1 NV
 b=. (<'c_')=2{.each d
-d=. b#d
-y jpkg 2}.each d
-jev_get''
+d=. b#{."1 NV
+n=. ;0".each b#{:"1 NV
+d=. 2}.each n#d
+r=. y jpkg d
+jhrcmds'set result *',r
 )
 
 ev_install_click=: 3 : 0
@@ -110,40 +121,39 @@ create '';r rplc LF;'<br>'
 )
 
 JS=: 0 : 0
-function ev_body_load(){jresize();cbfocus();}
-
-function cbfocus()
-{
- var n=document.getElementsByTagName("input");
- for(var i=0;i<n.length;++i)
-  if("checkbox"==n[i].getAttribute("type")){n[i].focus();break;}
-}
+function ev_body_load(){jresize();}
 
 function ev_upable_click(){jsubmit();}
 function ev_remable_click(){jsubmit();}
 function ev_inst_click(){jsubmit();}
 function ev_notin_click(){jsubmit();}
 function ev_desc_click(){jsubmit();}
-function ev_upgrade_click(){jsubmit();}
-function ev_install_click(){jsubmit();}
 function ev_all_click()
 {
  jbyid("result").innerHTML= 'this may take a few minutes ...';
  jsubmit();
 }
-function ev_remove_click(){jsubmit();}
+
+//function ev_remove_click(){jdojax();}
+//function ev_upgrade_click(){jsubmit();}
+//function ev_install_click(){jsubmit();}
+
 
 function check(v)
 {
- var n=document.getElementsByTagName("input");
+ var marks= "□▣";
+ var n=document.getElementsByClassName("jhchk");
  for(var i=0;i<n.length;++i)
  {
-  if("checkbox"==n[i].getAttribute("type")){n[i].checked=v;}
+  n[i].innerHTML= marks[v]+'&nbsp;';
+  n[i].setAttribute("data-jhscheck",v);
+  //("checkbox"==n[i].getAttribute("type")){n[i].checked=v;}
  }
- cbfocus();
 }
 
-function ev_check_click(){check("checked");}
-function ev_uncheck_click(){check("");}
+function ev_check_click(){check("1");}
+function ev_uncheck_click(){check("0");}
+
+function ev_close_click(){winclose();}
 
 )

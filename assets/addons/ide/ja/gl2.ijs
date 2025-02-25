@@ -1,4 +1,4 @@
-18!:4 <'jgl2'
+cocurrent <'jgl2'
 
 NB. 2D graphics definitions for legacy j6 gl2
 

@@ -3,7 +3,7 @@ coclass'jum'
 coinsert'jhs'
 
 3 : 0''
-if. IF64 do.
+if. IF64 do. NB.
  JHS=: jpath'~user/jhs/'
 else.
  JHS=: jpath'~home/j805-user/jhs/'
@@ -159,11 +159,23 @@ NB. y is user
 starttask=: 3 : 0
 t=. '-js "load''~addons/ide/jhs/core.ijs''" "init_jhs_''',y,'''"'
 if. IFUNIX do.
- 2!:1 ('"',jpath'~bin/jconsole'),'" ',t,' &'
+ 2!:1 q__=: ('"',jpath'~bin/jconsole'),'" ',t,' &'
 else.
  doscmd ('"',jpath'~bin/jconsole.exe'),'"  ',t
 end.
 )
+
+starttask=: 3 : 0
+t=. '-js "load''~addons/ide/jhs/core.ijs''" "PORT_jhs_=:65002" "USER_jhs_=:''ericx''" "PASS_jhs_=:''ericx''" "AUTO_jhs_=:0" "init_jhs_''''"'
+t=. '-js "load''~addons/ide/jhs/core.ijs''" "PORT_jhs_=:65003" "USER_jhs_=:''''" "PASS_jhs_=:''''" "AUTO_jhs_=:0" "init_jhs_''''"'
+if. IFUNIX do.
+ 2!:1 q__=: ('"',jpath'~bin/jconsole'),'" ',t,' &'
+else.
+ doscmd ('"',jpath'~bin/jconsole.exe'),'"  ',t
+end.
+)
+
+
 
 NB. & at end of command is critical
 unixshell=: 3 : 0

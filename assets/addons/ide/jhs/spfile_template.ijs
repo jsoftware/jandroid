@@ -14,16 +14,8 @@ focus works in firefox, but may not work in other browsers
 
 p_aaa=: 3 : 0
 edit       '~temp/spexample.ijs'
-open_jhs_  'jfif'
-open_jhs_  'jfiles'
-focus_jhs_ 'jijx'
-)
-
-p_bbb=: 3 : 0
-open_jhs_ 'jfile'
-10 10 open_jhs_ 'jdebug'
-focus_jhs_ 'jijx'
-load 'git/addons/data/jd/jd.ijs'
+'jfif' jpage''
+'jfile'jpage''
 testdata=: i.3 4
 echo testdata
 )

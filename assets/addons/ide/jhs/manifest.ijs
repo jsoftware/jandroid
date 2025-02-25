@@ -6,19 +6,22 @@ DESCRIPTION=: 0 : 0
 JHS IDE
 )
 
-VERSION=: '1.0.365'
+VERSION=: '1.0.391'
 
 FILES=: 0 : 0
 app/
 aws/
 config/
 demo/
+guest/
 js/
 node/
 page/
 react/
 spx/
 extra/
+test/
+widget/
 core.ijs
 chart.ijs
 d3.ijs
@@ -33,7 +36,6 @@ jbeacon.ijs
 jbinfo.ijs
 jfif.ijs
 jfile.ijs
-jfiles.ijs
 jcopy.ijs
 jfilesrc.ijs
 jgcp.ijs

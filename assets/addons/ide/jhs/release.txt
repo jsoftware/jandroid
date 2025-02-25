@@ -1,6 +1,31 @@
 release notes
 
-this version:
+1.0.386 ?
+jterm esc-z close pages and exit server
+jed - opens edit page in jterm
+jed newpage - first step for SPA (single-page-app)
+jterm esc-1 to jijx page
+jterm esc=2 to next page
+overview tour further improved
+jijx  ☰ reorganized
+
+1.0.385 ?
+click me button
+☰ menu
+overview tour improved
+guest info
+mobile right hand buttons
+jterm (jijx) wrap/nowrap
+
+1.0.384
+ ☰ menu
+ server guest
+ overview tour
+ jijx->jterm
+ wrap/nowrap
+ mobile right buttons
+
+1.0.383
  react cleanup
  runreact/app/demo moved from z to jhs
  jpage/cojhs boilerplate moved from z to jhs

@@ -2,7 +2,8 @@ coclass'jdemo10'
 coinsert'jhs'
 
 HBS=: 0 : 0
-      jhh1'Ajax chunks'
+jhclose'' NB. standard menu with close
+jhh1'Ajax chunks'
 'run' jhb'get ajax response in 4 chunks with 2 second delays'
 jhtablea         
 jhtr 'chunk:'  ; 'chunk'  jhtext '';20

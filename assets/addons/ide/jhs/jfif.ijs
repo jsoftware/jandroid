@@ -4,17 +4,29 @@ coinsert'jhs'
 MAXFILES=: 100000 NB. fails if too many files in search path
 
 HBS=: 0 : 0
-jhfcommon''
+jhmenu''
+'menu0'  jhmenugroup ''
+         jhmpage''
+'close'  jhmenuitem 'close';'q'
+         jhmenugroupz''
+jhmpagez''
+
 'find'     jhb'Find'
-'what'     jhtext '';25
-'where'    jhtext '';20
 'context'  jhselect(<;._2 FIFCONTEXT);1;0
 'mcase'    jhb 'Aa'
 'mfolders' jhb '/...'
 'nameonly' jhb 'lines'
 jhbr
+'what'     jhtext '<what>';50
+jhbr
+'where'    jhtext '<where>';50
+jhbr
 jhresize''
 'area'     jhdiv''
+)
+
+CSS=: 0 : 0
+*{font-family:PC_FONTFIXED;}
 )
 
 jev_get=: 3 : 0
@@ -193,12 +205,7 @@ jhsfixtxt=: 3 : 0
 '<br>',jhfroma y
 )
 
-CSS=: 0 : 0
-#jfif{color:blue}
-*{font-family:<PC_FONTFIXED>;}
-)
-
-JS=: jsfcommon,0 : 0
+JS=: 0 : 0
 function ev_body_load()
 {
  setlast("what");
@@ -235,9 +242,21 @@ function ev_find_click()
 }
 
 function ev_file_click(){
- t= 'jijs?jwid='+jsid.value,jsid.value;
- pageopen(t,t);
+ t= 'jijs?jwid='+jsid.value;
+ jijxwindow.pageopen(t,t);
 }
+
+function ev_file_click(){
+  if(null!=window.frameElement){
+    var a= 'jifr-jijs?jwid='+decodeURIComponent(jsid.value);
+    var b= 'jijs?jwid='+(jsid.value);
+    jijxwindow.newpage(a,'jifr',b);
+  }else{
+    var t= 'jijs?jwid='+jsid.value;
+    jijxwindow.pageopen(t,t);
+  } 
+}
+
 
 function ev_mcase_click(){flipchkstate('mcase');jscdo('find');}
 function ev_mfolders_click(){flipchkstate('mfolders');jscdo('find');}
@@ -261,4 +280,5 @@ function setchkstate(id,v){jbyid(id).style.backgroundColor= (v==0)?chk0:chk1;}
 
 function flipchkstate(id){setchkstate(id,getchkstate(id)!=1)};
 
+function ev_close_click(){winclose();}
 )

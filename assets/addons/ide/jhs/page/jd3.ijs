@@ -12,27 +12,25 @@ jhclose''
 
 NB. cojhs boilerplate from util.ijs
 
-create=: 3 : 0
+ev_create=: 3 : 0
+if. ''-: y do.
+ jd3'reset;type line;title My Data;legend "line one","line two","line three"'
+ y=. jd3x__;?3 4$100
+end.
+
 try.
  'opt d'=. y
  data=: (opt rplc LF;'\n'),jd3data d
 catchd.
  ('create failed:',LF,13!:12'') assert 0
 end.
-)
-
-NB. J handlers for app events
-jev_get=: 3 : 0
-title jhrx(getcss''),(getjs'TABDATA';data),gethbs''
-)
-
-CSS=: 0 : 0
+JS=: JS hrplc 'TABDATA';data NB. adjust JS here!
 )
 
 NB. javascript
 JS=: 0 : 0
 
-tabdata="<TABDATA>"; // set by J jev_get handler
+tabdata="<TABDATA>"; // set by ev_create
 
 function ev_body_load()
 {

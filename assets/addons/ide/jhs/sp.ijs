@@ -134,26 +134,20 @@ sptable(shorts_jsp_ t),.t
 )
 
 spxinit=: 3 : 0
-assert. fexist spf y['must exist'
-if. IFJHS do.
- ADVANCE_jijx_=: 'spx'
- a=. 'ctrl+. or menu > advances'
-elseif. IFQT do.
- if. _1=4!:0<'qtsave' do.
-  qtsave=: 5!:1<'labs_run_jqtide_'
- end.
- labs_run_jqtide_=: 3 : 'spxqt_jsp_ y'
- a=. 'ctrl+j advances'
-elseif. 1 do.
-  a=. 'spx'''' NB. advances (create a shortcut key!)'
-end.
-echo a,' (see noun spxhelp)'
+'only runs in JHS'assert IFJHS
+'file must exist' assert fexist spf y
+ADVANCE_jijx_=: 'spx'
 SPXFILE_z_=: spf y
 SEM=: get SPXFILE
 SEMN=: 1
-status''
+a=. SPXFILE,LF,'advance through lab:',LF
+b=. 'keyboard: ctrl+. (ctrl+dot)<br>touchscreen: right <span style="color:green;">green</span> button'
+echo a
+echo jhtml'<div><font style="color:red;font-weight:bold">',b,'</font></div>'
+NB. status''
 i.0 0
 )
+
 
 spxqt=: 3 : 0
 if. 0-:y do.
@@ -197,7 +191,7 @@ if. 2=#y do.
  SEMN=: {.y
  b=. ({:y)<.#SEM
  while. SEMN<:b do.
-  spx a
+  spx SEMN
   a=. SEMN
  end.
  i.0 0
@@ -212,6 +206,7 @@ if. SEMN>#SEM do. 'end of script' return. end.
 ot=. 0 NB. lines
 ndx=. <:SEMN
 d=. >ndx{SEM
+if. 0=#d do. SEMN=:>:SEMN goto_top. end. NB. empty line ignored
 if. 0=#d-.' ' do. SEMN=:>:SEMN[echo ;IFJHS{'';LF goto_top. end.
 
 if. 'NB.spxhr:'-:9{.deb d do.
@@ -219,6 +214,13 @@ if. 'NB.spxhr:'-:9{.deb d do.
  if. IFJHS do. jhtml_jhs_'<hr/>' else. echo 80$'_'end.
  goto_top.
 end.
+
+if. 'NB.spxrun:'-:10{.deb d do.
+ SEMN=:>:SEMN
+ ".10}.d
+ i.0 0
+ return.
+end. 
 
 if. 'NB.spxaction:'-:13{.deb d do.
  SEMN=:>:SEMN
@@ -279,12 +281,8 @@ end.
   a=. <;.2 d
   b=. ;:}:;{.a
   if. b-:;:'0 : 0' do.
-   NB. foldtext for 0 : 0 that has long lines
-   if. +/80<;#each a do.
-    echo 80 foldtext ;}.}:a
-   else. 
-    echo ;}.}:a
-   end. 
+   jhtml_jhs_'<hr/>'
+   echo ;}.}:a
   else.
    if. IFJHS do.
     jhtml_jhs_'<font color="blue">',(jhfroma_jhs_ ;a),'</font>'
@@ -317,7 +315,8 @@ i=. t i. <,':'
 )
 
 isnb=: 3 : 0
-'NB.'-:3{.dltb y
+t=. dltb y
+('NB.'-:3{.t)*.~.'NB.spx'-:6{.t
 )
 
 get=: 3 : 0
@@ -365,3 +364,142 @@ bind -s ^R "spx''\n"
 editrc fwrite '~home/.editrc'
 )
 
+NB.! run wiki page as spx style tutorial - proof of concept
+NB. wikiinit_jsp_'CalorieCounting'
+
+coclass'jsp'
+
+require'pacman'
+
+NB. wrap html text in jijx
+htmla=: '<div  class="html" contenteditable="false" style="overflow-x: auto;white-space: normal;">'
+htmlz=: '</div>'
+
+prea=: '<div class="log">'
+prez=: '</div>'
+
+fn=: '~wiki.html'
+
+getwiki=: 3 : 0
+d=. fread 1{httpget_jpacman_ y
+
+NB.! make https links work in new tab - should ensure href is in <a tag
+d=. d rplc ' href="https:';' target="_blank"  href="https:'
+
+NB. make wiki links work in new tab - not rigourous and could make false changes
+d=. d rplc '<a href="/wiki/';'<a target="_blank" href="https:///code.jsoftware.com/wiki/'
+
+NB. rid of cruft at start and end
+d=. ('<p>'findfirst d)}.d              NB. discard stuff before first <p>
+d=. (('</p>'findlast d)>.'</pre>'findlast d){.d  NB. discard stuff after last </p> or </pre?
+
+NB. LFs to make it more readable
+d=. d rplc '<div'  ; LF,'<div'
+d=. d rplc '<p'    ; LF,'<p'
+d=. d rplc '<code' ; LF,'<code'
+d=. d rplc '<div'  ; LF,'<div'
+d=. d rplc '<pre'  ; LF,'<pre'
+
+d=. d rplc 'onaoclines';'   onaclines' NB. log line without 3 spaces
+
+d fwrite 't.txt'
+
+r=. ''
+
+while. #d do.
+ i=. 1 i.~ '<pre>' E. d
+ if. i<#d do.
+   NB. get html stuff upto pre
+   r=. r,LF,htmla,LF,(i{.d),htmlz NB. html stuff
+   d=. i}.d
+   
+   NB. process pre stuff
+   i=. 1 i.~ '</pre>' E. d
+   'pre without end'assert i<#d
+   i=. 6+i
+   pre=. i{.d
+   b=. _6}.5}.pre
+   z=. <;._2 b
+   z=. ((<'   ')=3{.each z,each<'xxx')#z NB. assume non-empty line starting with 3 blanks is log input line
+   z=. jhfroma_jhs_ 3}.each z
+   z=. ;(<prea),each z,each <prez
+   r=. r,LF,z
+   d=. i}.d
+ else.
+  r=. r,LF,htmla,LF,d,htmlz
+  d=. ''
+ end.
+end.
+r fwrite fn
+)
+
+findfirst=: 4 : '(x E. y)i.1'
+findlast=: 4 : '(#x)+(x E. y)i:1'
+
+classhtml=: LF,'<div  class="html"'
+classlog=:  LF,'<div class="log">'
+
+wikiinit=: 3 : 0
+'only CalorieCounting currently supported'assert y-:'CalorieCounting'
+link=. 'https://code.jsoftware.com/wiki/ShareMyScreen/AdventOfCode/2022/01/CalorieCounting'
+cb_jhs_=:cbfix_jhs_'1000\n2000\n3000\n\n4000\n\n5000\n6000\n\n7000\n8000\n9000\n\n10000'
+clipboarddata__=: cb_jhs_  
+  
+ADVANCE_jijx_=: 'wiki'
+echo'ctrl+. or menu > advances'
+echo link
+getwiki link
+wikidata=: fread fn
+i.0 0
+)
+
+wikistep=: 3 : 0
+if. 0=#wikidata do. echo'end of wiki page' end.
+if. classhtml-:(#classhtml){.wikidata do.
+ i=. 1 i.~  classlog E. wikidata
+ t=. i{.wikidata
+ wikidata=: i}.wikidata
+ jhtml_jhs_ t
+else.
+ i=. 1 i.~  classhtml E. wikidata
+ t=. i{.wikidata
+ t=. t rplc '<div class="log">';'';'</div>';LF
+ t=. t rplc 'wd ''clippaste''';'clipboarddata'
+ 
+ t=. afromh t
+ 
+ wikidata=: i}.wikidata
+ wikilines__=: t
+ 9!:27'0!:111 wikilines'
+ 9!:29[1
+end.
+)
+
+NB. ascii from html - remove <tags> and &...;
+afromh=: 3 : 0
+t=. y
+r=. ''
+while. #t do.
+ i=. t i. '<'
+ r=. r,i{.t
+ t=. i}.t
+ i=. t i. '>'
+ t=. }.i}.t
+end.
+r=. r rplc '&nbsp;';' ';'&lt;';'<';'&gt;';'>';'&amp;';'&';'&#160;';' ' NB. non-breaking space
+)
+
+NB. x is total ms for animation
+animate=: 4 : 0
+a=. >.x%#y NB. delay time
+n=. ":100
+p=. >:0 i.~y=' '
+t=. 'setTimeout(newinput,X,"D");'rplc 'X';n;'D';p{.y
+for_i. i.(#y)-p do.
+ t=. t,'setTimeout(newinput,X,"D");'rplc 'X';n;'D';(p+i){.y
+ n=. ":a+".n
+end.
+t=. t,'setTimeout(colorinput,',n,',"red");'
+n=. ":500+a+".n
+t=. t,'setTimeout(runinput,',n,',"',y,'");'
+)

@@ -1,44 +1,145 @@
 NB. utils
 
+cojhs_z_=: cojhs_jhs_
+jpage_z_=: jpage_jhs_
+
 coclass'jhs'
+
+0 : 0
+opening/reopening page from J or url is fundamental
+
+function pageopen(url,wid,specs)
+
+open - [xywh] open url [; jwid ] - calls pageopen
+edit - [xywh] edit'~temp/abc.ijs - calls open
+
+jpage - 'class;show;title' jpage data - calls open
+
+cojhs - same as jpage
+
+jpage create numbered locale for the page 
+
+'term' open does jjs newpage to get iframe page in SPA
+'tab'  open jjs pageopen to get new or exisiting page
+''     open isSPA chooses term or tab
+
+default jev_get calls jpageget if ev_create is defined (indicates jpage)
+ jpageget creates numbered locale for the page
+)
+
 NB.* see ~addons/ide/jhs/util.ijs for complete information
 NB.* 
 NB.* jhs locale definitions:
 NB.* 
 
+NB.* jcreatetestapp - jcreatetestapp 'test';'app1'
+jcreatetestapp=: 3 : 0
+'snk src'=. y
+f=. snk,src
+t=. fread '~addons/ide/jhs/app/',src,'.ijs'
+i=. t i. LF
+a=. deb i{.t
+'src must start with coclass'assert a-:'coclass''',src,''''
+b=. a i.''''
+t=. ( (b{.a),'''',f,''''),i}.t
+t fwrite'~temp/',f,'.ijs'
+fn=. '~temp/',f,'.ijs'
+edit fn
+load fn
+echo'   ''',f,''' jpage '''''
+)
+
+NB.* jtestall'app' - app/page/demo
+NB.*  run all files in folder with jpage
+NB.*  test suite for changes
+jtestall=: 3 : 0
+'bad y'assert (<y)e.'app';'demo';'page'
+f=. jpath'~addons/ide/jhs/',y
+n=. 1 dir f
+xywh=. 10 10 700 700
+for_a. n do.
+ load a
+ b=. (>:#f)}.;a
+ b=. (b i.'.'){.b
+ echo b
+ c=. <b
+ try.
+  (b,';',":xywh)jpage''
+ catch.
+  echo 'failed: ',;a
+ end. 
+ xywh=. xywh+60 20 0 0
+end.
+i.0 0
+)
+
 NB.* jpage - locale=. 'class;show;title' jpage data
-NB.*    show: empty default show , _ no show , . pagexywh , x y [w h] window location
-NB.*    title: tab title -  empty class default
-NB.*    'jwatch;10 10;abc' jpage '?4 6$100'
-NB.*    creates locale from ~/addons/ide/jhs/page/locale.ijs if it exists
+NB.*   show: '' JS var defaultopen or '_' no show or 'tab' or 'term' or x y [w h] window location
+NB.*   title: tab title -  empty class default
+NB.*   if class has ev_create -> create object on class (numbered locale)
+NB.*     'jwatch;10 10;abc' jpage '?4 6$100'
+NB.*      app/page folder files have ev_create
+NB.*
+NB.*  if class does not have ev_create then no object is created and data is ignored
+NB.*  jfile/... and demo folder files do not have ev_create
+NB.*    'jfile'jpage''
+NB.*    'jdemo01'jage''
+NB.*
+NB.*  jpage show calls open which calls JS pageopen
 jpage=: 4 : 0
 d=. dltb each<;._2 x,';'
-'c s t'=. 3{.d
+'c s t'=. 3{.d,'';''
 if. -.(<c)e. conl 0 do.
- f=. '~addons/ide/jhs/page/',c,'.ijs'
- if. fexist f do. load f end.
+ f=. (<'~addons/ide/jhs/'),each ('app/';'page/';'demo/'),each<c,'.ijs'
+ b=. fexist f
+ f=. b#f
+ if. 1=#f do. load f end.
  if. -.(<c)e. conl 0 do. ('locale ',c,' must be created first')assert 0 end.
 end.
+
+NB. class with ev_create not defined does open
 s=. fixshow s
+if. 3~:nc<'ev_create_',c,'_' do. s open c return. end. 
 r=. conew c
-title__r=: ;(''-:t){t;c,'-',;r
-create__r y
-if. -._={.s do. show__r s end.
+createpage__r (;(''-:t){t;c,'-',;r);s;<y
 r
+)
+
+createpage=: 3 : 0
+LASTY=: y
+'t s a'=. y
+title=: t
+ev_create a
+NB.! if.     3=nc<'ev_create' do. ev_create a
+NB. elseif. 3=nc<'create'    do. create a
+NB. elseif. do. 'app must define ev_create or create verb'assert 0 end.
+if. '_'~:s do. show s end.
 )
 
 NB.* jpagedefault - arg jpagedefault defaultarg - default if x is ''
 jpagedefault=: 4 : 0
-if. x-:'' do. y else. x end.
+(''-:x){::x;<y
 )
 
 NB.* jpageget - jev_get for a page
+NB. getv'locale' is a: if request from browser url
+NB.              is new locale if request from jpage 
 jpageget=: 3 : 0
 n=. <getv'jlocale'
-if. a:-:n do.
+if. a:-:n do. NB.!!!!!
+
+ if. Num_j_ e.~ {.;coname'' do.
+  NB. jtable with jhot iframe - in object and createpage has run
+  title jhrx (getcss''),(getjs''),gethbs''
+  return.
+ end. 
+
+ NB. browser needs to do what jpage would do
+ NB. browser url?sentence="i.5" can pass args to init
  n=. conew ;coname''
- title__n=: (;coname''),'-',;n
- create__n'' NB. with default args
+ createpage__n  ((;coname''),'-',;n);'_';<''
+ NB. title__n=: (;coname''),'-',;n
+ NB. create__n'' NB. with default args
 end.
 cocurrent n NB. run in app locale
 title jhrx (getcss''),(getjs''),gethbs''
@@ -47,11 +148,12 @@ title jhrx (getcss''),(getjs''),gethbs''
 NB.* 
 
 NB. return valid open show
+NB. '_' or 'tab' or 'term' or xywh
 fixshow=: 3 : 0
-s=. y
-if. '_'={.s do. _ return. end.
-if. '.'={.s do. s=. pagexywh else. s=. _".s end.
-if. (_ e. s)+.(-.0 2 4 e.~#s)+.0><./s do. '' return. end.
+s=. deb y
+if. (<s) e. ('term';'tab';'';,'_') do. s return. end.
+s=. _".s
+'invalid show'assert -.(_ e. s)+.(-.0 2 4 e.~#s)+.0><./s
 s
 )
 
@@ -61,6 +163,12 @@ NB.*
 NB.* close - close wid
 close=: 3 : 0
 jjs_jhs_'getwindow("',y,'").close();'
+)
+
+NB.*
+NB.* cbfix - fix ' \ \n from clipboard paste in jijx prompt
+cbfix=: 3 : 0
+cbdata_jhs_=. y rplc '\n';LF;'\\';'\';'\''';''''
 )
 
 NB.*
@@ -150,6 +258,17 @@ smoutput jmarka_jhs_,y,jmarkz_jhs_
 i.0 0
 )
 
+NB.* jhlatex - jhlatex'\frac{1+sin(x)}{x^3}'
+jhlatex=: 3 : 0
+jhtml_jhs_'<img src="http://latex.codecogs.com/svg.latex?',y,'" border="0"/>'
+)
+
+NB.* jselect - jselect 'i.5',LF,'a=:2' - sentences into log for selection
+jselect=: 3 : 0
+if. 1=L.y do. y=. ;y,each LF end.
+jhtml_jhs_'<div class="transient">',(jhtmlfroma  y),'</div>'
+)
+
 NB.* jjs - jjs 'alert("foo");' - eval javascript sentences in ajax response
 NB. y starting with ; is run in refresh and in ajax
 NB. blank first char is added if there is no ; - indicates run in ajax and refresh
@@ -166,39 +285,73 @@ d=. enc_json <"1 d
 if. d-:'[]' do. d=. '[[]]' end.
 )
 
-NB. note that ugs (cache avoidance is on url) - it not on wid!
-NB.* open - [xywh] open url [; jwid ]
-NB.* open new tab if not already open - reload url?... into existing tab
-NB.*    xywh elided is broswer default (probably new tab)
-NB.*    xywh gives xywh for new window
-NB.*    wh elided defaults to 500 500
-NB.*    jwid elided is the same as url
-NB.*    open 'jfif'
-NB.*    10 10 open'jfif'
-NB.*    ?jwid= is only url paramter supported - see kludge below
-NB.*    javascript window open URL,jwid,specs,replace
-NB.*    jwid is the window id - javascript uses term window name
-NB.*    jwid is not the page or tab title
-NB. NOPOPUP is supported
-NB. page (table/watch/... use open - locale is url - jwid???
+0 : 0
+different kinds of open
+
+J cmd
+ 'jfif;'       jpage'' - defaultopen
+ 'jfif;tab'    jpage''
+ 'jfif;term'  jpage''
+
+ 'app07;'      jpage'' - defaultopen
+ 'app07;tab'   jpage''
+ 'app07;term' jpage''
+
+menu command
+ jfif - defaultopen
+
+url
+ jfjf - defaultopen
+
+)
+
+NB.* open - [''/xywh/'tab'/'term'] open url
+NB.*  x
+NB.*   elided is same as ''
+NB.*   '' uses JS var defaultopen
+NB.*   xy[wh] - new window location - wh default 500 500
+NB.*   'tab' open/reopen in tab
+NB.*   'term' open/reopen in term iframe spa page
+NB.*
+NB.* y 
+NB.*  url - class - e.g., jfile/jfif/jdemo01/app01
+NB.*   jijs class can have arg - jijs?jwid=foo.ijs
+NB.*  jurlencode url is used as window name (allows reopen)
+NB.*
+NB.*                 open 'jfif' NB. js: var defaultopen - term/tab
+NB.* ''              open 'jfif' NB. same as x elided
+NB.* 10 10 [500 500] open 'jfif' NB. window at location 10 10
+NB.* 'tab'           open 'jfif'
+NB.* 'term'         open 'jfif'
+NB.*
+NB.* tab pages are activated if already open
+NB.* term pages are activatd if already open
+NB.* tab pages do not look for active term pages
+NB.* term pages do not look for active tab pages
+NB.*
+NB.* jpage creates class object (numbered locale) and calls open with term
 open=: 3 : 0
 ''open y
 :
-a=. boxopen y
-if. 1=#a do. a=. a,a end.
-'a b'=. ,each a
-if. ''-:x do.
- s=: ''
-else.
- 'bad xywh' assert (4=3!:0 x+0)*.(1=$$x)*.+./2 4 e.#x
+'a b s'=. x pageopenargs y
+jjs 'pageopen(''',a,''',''',b,''',''',s,''');'
+)
+
+pageopenargs=: 3 : 0
+''pageopenargs y
+:
+if. 0~:L.y do. 'unexpected boxed arg' assert 1[echo y end.
+s=. deb x
+
+NB. new or existing term or tab 
+a=. b=. y
+if. 2~:3!:0 s do.
+ 'bad xywh' assert (4=3!:0 s+0)*.(1=$$s)*.+./2 4 e.#s
  s=. 'left=<X>,top=<Y>,width=<W>,height=<H>'hrplc 'X Y W H';":each 4{.x,500 500
+else.
+ NB.! validate s! s=. ''
 end.
 
-if. NOPOPUP do.
- JWID=: b NB. needs work
- jhslinknopu a
- return.
-end.
 i=. 1 i.~'?jwid='E.a
 if. i<#a do.
  i=. i+6
@@ -206,9 +359,8 @@ if. i<#a do.
  a=. (i{.a),jurlencode i}.a NB. jurlencode just the parameter
 end. 
 JWID=: b
-NB.a=. a,(('?'e.a){'?&'),'nocache=',}.uqs''
 b=. jurlencode b
-jjs 'pageopen(''',a,''',''',b,''',''',s,''');'
+a;b;s
 )
 
 NB.* pages - pages'' - report locale wid,tab,class,locale
@@ -294,9 +446,9 @@ html element ids are mid[*sid] (main id and optional sub id)
 
 functions defined by you:
 
-ev_body_load()   - page load (open)
-ev_body_unload() - page unload (close)
-ev_body_focus()  - page focus
+ev_body_load()   - onload jevload
+ev_body_unload() - onunload jevunload
+ev_body_focus()  - onfocus jevfocus (menu focus)
   
 ev_mid_event() - event handler - click, change, keydown, ...
 
@@ -314,14 +466,9 @@ documented functions:
 )
 
 rundemo=: 3 : 0
-t=. 'jdemo',":y
-require'~addons/ide/jhs/demo/jdemo',(":y),'.ijs'
-select. y
-case. 14 do. 'jdemo14;1 1 800 600'cojhs 'temp' [ temp__=: ?5 12$200
-case. 15 do. 'jdemo15;1 1 500 500'cojhs '' 
-case. 16 do. 'jdemo16;1 1 400 600;my-pswd'cojhs ''
-case.    do. open t
-end.
+t=. ;y
+load'~addons/ide/jhs/demo/',t
+open _4}.t NB. less .ijs
 )
 
 gettitles=: 3 : 0
@@ -333,21 +480,17 @@ a=. i}.each a
 a=. (a i.each  LF){.each a
 a=. }.each (a i. each '''')}.each a
 a=. (a i.each ''''){.each a
-'mismatch: file name - jhtitle' assert (4{.each n)=4{.each a
+if. -.(4{.each n)=4{.each a do. echo 'mismatch app folder: file name - jhtitle' end.
 ;a,each LF
 )
 
 runapp=: 3 : 0
-if. ''-:y do. gettitles'' return. end.
-'n xywh'=. 2{.(boxopen y),<''
-t=. 'app',":n
-a=. t,'.ijs'
-f=. '~temp/app/',a
+t=. ;y
+f=. '~temp/app/',t
 1!:5 :: [ <jpath'~temp/app'
-(fread '~addons/ide/jhs/app/',a)fwrite f
+(fread '~addons/ide/jhs/app/',t)fwrite f
 load f
-edit f
-(t,';',":xywh)jpage''
+(_4}.t) jpage''
 )
 
 NB. push ~temp changes to git
@@ -391,7 +534,8 @@ NB. jsdata defined indicates new style app
 show=: 3 : 0
 shown=: 1
 c=. coname''
-y open ;(-.jsdata-:'"unitialized"'){(,~c);(;{.copath c),'?jlocale=',;c
+t=. ;(Num_j_ e.~{.;c){(,~c);(;{.copath c),'?jlocale=',;c
+y open t
 )
 
 destroy=: 3 : 0
@@ -407,7 +551,7 @@ i.0 0
 )
 
 jev_get=: 3 : 0
-title jhrx (getcss''),(getjs''),gethbs''
+if. 3=nc<'ev_create' do. jpageget'' else. title jhrx (getcss''),(getjs''),gethbs'' end.
 )
 
 create=: [
@@ -417,19 +561,28 @@ NB. end cojhs boilerplate
 
 coclass'z'
 
-cojhs=: cojhs_jhs_
-jpage=: jpage_jhs_
 
-NB.* edit - [xywh] edit'~temp/abc.ijs
+reload=: 3 : 'load RELOAD[echo RELOAD'
+
+NB.!   jjs_jhs_'newpage("jifr-jfile","jifr","jfile")'
+NB.!   jjs_jhs_'newpage("jifr-jpacman","jifr","jpacman")'
+
+NB.* edit - [tab/term/xywh] edit'~temp/abc.ijs
+NB.* monadic is '' which is js var defaultopen
 edit=: 3 : 0
-''edit y
+ '' edit y
 :
-x open_jhs_'jijs?jwid=',jshortname_jhs_ jpath y
+  x open_jhs_'jijs?jwid=',jshortname_jhs_ jpath y
 )
 
-NB.* jd3 - jd3''
-jd3=: jd3_jhs_
+NB.* jslog - jslog'window.location'
+jslog=:   {{ jjs_jhs_'addlog(eval("',y,'"));' }}
 
+NB.* jsalert - jsalert'window.location'
+jsalert=: {{ jjs_jhs_'alert(',y,');' }}
+
+NB.* jd3 - jd3''q
+jd3=: jd3_jhs_
 
 NB.* decho - decho string - same as echo - easy removal after debugging
 decho=: echo_z_
@@ -561,3 +714,4 @@ i.0 0
 
 jhsuqs=: uqs_jhs_  NB. viewmat
 jhtml=: jhtml_jhs_ NB. viewmat
+jhlatex=: jhlatex_jhs_

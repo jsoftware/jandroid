@@ -6,8 +6,8 @@ systype=. 9!:12''
 jpathsep_z_=: '/'&(('\' I.@:= ])})
 BINPATH_z_=: jpathsep BINPATH_z_
 ifios=. (IFIOS"_)^:(0=4!:0<'IFIOS') 0
-ifwasm=. 'Wasm' -: 0:`(UNAME"_)@.(0=4!:0<'UNAME_z_')''
-omitversion=. ifios +. ifwasm +. 'Android' -: 0:`(UNAME"_)@.(0=4!:0<'UNAME_z_')''
+ifwasm=. 'Wasm' -: (UNAME"_)^:(0=4!:0<'UNAME_z_')''
+omitversion=. ifios +. ifwasm +. 'Android' -: (UNAME"_)^:(0=4!:0<'UNAME_z_')''
 
 NB. create SystemFolders
 bin=. BINPATH
@@ -41,8 +41,7 @@ temp=. user,'/temp'
 temp=. >isroot{temp;(*#1!:0'/tmp'){::'/tmp';~(0-:2!:5'TMPDIR'){::(2!:5'TMPDIR');temp
 ids=. ;:'addons bin break config home install snap system tools temp user'
 
-0!:0 :: ] <(({.~ i:&'/') jpathsep >{.4!:3''),'/profilex.ijs' NB. override
-0!:0 :: ] ^:(0=#1!:0 (({.~ i:&'/') jpathsep >{.4!:3''),'/startup_android.ijs') <home,>(systype-5){'/.jprofile.ijs';'/_jprofile.ijs' NB. override per user except for standalone script
+0!:0^:(1:@(1!:4) ::0:) <(({.~ i:&'/') jpathsep >{.4!:3''),'/profilex.ijs' NB. override
 
 SystemFolders_j_=: ids,.jpathsep@".&.>ids
 
@@ -62,5 +61,5 @@ md snap
 md temp
 
 NB. boot up J and load startup.ijs if it exists
-0 0$1!:2&2 ^: (-.@*@#@(1!:0)@<) system,'/util/boot.ijs'
-0!:0 <jpathsep (4!:55 (;:'systype fhs isroot userx ids ifios ifwasm md omitversion'), ids)]system,'/util/boot.ijs'
+4!:55 (<'system') -.~ (;:'systype fhs isroot userx ids md omitversion'), ids
+0!:0 <jpathsep system_:,'/util/boot.ijs'

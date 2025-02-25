@@ -17,11 +17,14 @@ NB. share remaining vertical space
 jhdiva'' NB. reopen main div
 )
 
-create=: 3 : 0
-jsdata=: y NB. arg passed to javascript in jsdata dictionary
+ev_create=: 3 : 0
+if. ''-:y do.
+ jcjs'reset'
+ jcjs'data';>:5?20
+ jcjs'labels';5
+end. 
+jhcmds 'chartjs charta *',cjsdata
 )
-
-jev_get=: jpageget NB. called by app_jhs or browser browse
 
 NB. style html elements (color,size,border,..)
 CSS=: 0 : 0
@@ -32,7 +35,6 @@ CSS=: 0 : 0
 
 NB. javascript code
 JS=: 0 : 0
-function ev_body_load(){cjs_init('charta');} // run when page loads - init chart chart
 
 function show(t){
  t= t.replace(/</g, '&lt;')
