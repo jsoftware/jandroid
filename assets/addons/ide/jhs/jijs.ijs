@@ -4,7 +4,7 @@ coclass'jijs'
 coinsert'jhs'
 
 HBS=: 0 : 0
-'<script async type="module" src="~addons/ide/jhs/js/jsoftware/editor.js"></script>'
+'<script type="module" src="~addons/ide/jhs/js/jsoftware/editor.js"></script>'
 
 'saveasdlg'    jhdiva''
  'saveasdo'    jhb'save as'
@@ -104,9 +104,6 @@ line=. ,/:~2 2$line NB. sorted selection
 f=. getv'filename'
 ta=. getv'textarea'
 bta=. <;._2 ta,LF,LF NB. ensure trailing LF and extra one for emtpy last line
-
-decho dirty;f;ta
-
 if. 'chelp'-:getv'jmid' do.
  'a b'=. 2{.line
  t=. dltb;{.;:b}.;a{bta

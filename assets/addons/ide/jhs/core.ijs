@@ -30,7 +30,7 @@ elseif. 1=RAW          do. r=. 'jev_post_raw_',URL,'_'''''
 elseif. 'post'-:METHOD do.
  r=. getv'jdo'
  t=. 0 i.~ r=' '
- if. ')'={.t}.r do. r=. (t#' '),'jev_jcmd''',(}.t}.r),'''' end. NB.!
+ NB. if. ')'={.t}.r do. r=. (t#' '),'jev_jcmd''',(}.t}.r),'''' end. NB.!
 elseif. '.'e.URL       do. r=. 'jev_get_jfilesrc_ URL_jhs_'
 elseif. 1              do. r=. 'jev_get_',URL,'_'''''
 end.

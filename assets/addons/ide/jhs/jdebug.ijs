@@ -85,7 +85,7 @@ jhresize''
 )
 
 help=: 0 : 0
-   dbhelp NB. standard library documentation
+   dbhelp NB. noun with standard library documentation
    
 x marks stops - click to set/unset
 > marks current line
@@ -109,6 +109,15 @@ dohelp=: 3 : 0
 jhslinkurlx'https://code.jsoftware.com/wiki/Vocabulary/Foreigns#m13'; 'nuvoc documentation'
 jhslinkurlx'https://www.jsoftware.com/help/dictionary/dx013.htm';'dictionary documentation'
 help
+)
+
+dohelp=: 3 : 0
+t=. '<div class="transient">'
+t=. t,jhslinkurlxx'https://code.jsoftware.com/wiki/Vocabulary/Foreigns#m13'; 'nuvoc documentation'
+t=. t,'<br/>',jhfroma help_jdebug_
+t=. t,'</div>'
+jhtml t
+i.0 0
 )
 
 CSS=: 0 : 0
@@ -246,6 +255,11 @@ else.
 end. 
 )
 
+0 : 0
+9.6 changed 13!:13 to have only the monad or dyad defn
+this broke getdata as it looked for the : to separate monad/dyad
+)
+
 NB. 13!:13 - name,error,line,class,rep,script,args,locals,*
 getdata=: 3 : 0
 if. JMP do. JMP=: 0[dbss(>:';'i.~dbsq'')}.dbsq'' end.
@@ -256,6 +270,7 @@ s=. ;8{"1 t
 i=. s i. '*'
 if. i=#s do. '';'';nosus;stps return. end.
 s=. i{t
+
 'n err line class args'=. 0 1 2 3 6{s
 name=:  n
 namex=: basename n
@@ -263,16 +278,17 @@ monad=: (class=3)*.1=#args
 
 d=. <;._1 ;LF,;4{s
 if. 1~:#d do.
- d=. }.}:d
- if. 3=class do.
-  i=.d i.<,':'
-  if. monad do.
-   d=. i{.d
-  else.
-   d=. (i+1)}.d
-  end. 
- end.
+  d=. }.}:d
+  if. 3=class do.
+    i=.d i.<,':'
+    if. monad do.
+      d=. i{.d
+    else.
+      if. (i+1)<#d do. d=. (i+1)}.d end. NB. 9.6 defn only has dyad defn
+    end. 
+  end.
 end.
+
 defn=: d
 cdefn=. #defn
 
@@ -290,9 +306,14 @@ e=. 1{::s
 try. a=. (<:(0=e){e,34){::9!:8'' catch. a=. ":e end.
 a=. (0{::s),'[',(':'#~-.monad),(":line),'] ',a
 n=. +/'*'=;8{"1[13!:13''
-a=. a,(1<n)#' - ',(":n),' suspensions in dbs'''''
+a=. a,(1<n)#' - ',(":n),' suspensions'
+
+NB. would be very nice if 13!:12 was in 13!:13
+a=. a,' - formatted last error (13!:12):',LF,13!:12''
+
 r=. r;(":line);a;stps
 )
+
 
 jev_get=: 3 : 0
 'jdebug' jhrx (getcss''),(getjs''),gethbs'FILES CURLINE STACK STOPS';getdata''
@@ -327,7 +348,6 @@ function update(ts){ajax(ts= decodeURIComponent(ts).split(JASEP));}
 function jdoit(t)
 {
  if("no suspension"==jbyid("stack").innerHTML) return;
- // v= (t=="dbxline") ? " "+jbyid("val").value : "''";
  if(t=="dbxline")
  {
   v= parseInt(jbyid("val").value);

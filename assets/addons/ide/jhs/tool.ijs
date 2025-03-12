@@ -84,6 +84,13 @@ i=. c i. <y
 (;i{c)jpage''
 )
 
+jhsgif=: 3 : 0
+t=. '<div class="gif"><img src="~addons/ide/jhs/src/gif/<FILE>.gif"  width="500" height="400"/><div>'rplc'<FILE>';y
+t=. t,'<br><button id="gifstop" name="gifstop" class="jhb"style="width:500px" onclick="removeElementsByClass(''gif'');return true;" >stop</button>'
+jhtml t
+)
+jhsgif_z_=: jhsgif_jijx_
+
 page_txt=: 'simple apps showing JHS gui programming - run 1 of the following:',LF
 
 jhswiki=: 3 : 0
