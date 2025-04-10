@@ -281,7 +281,7 @@ public abstract class AbstractActivity extends AppCompatActivity
       updateJ();
       break;
     case R.id.checknewver:
-      new GetHttpTask().execute("http://www.jsoftware.com/download/j" + this.theApp.jversion + "/install/AndroidManifest.xml");
+      new GetHttpTask().execute("https://www.jsoftware.com/download/j" + this.theApp.jversion + "/install/AndroidManifest.xml");
       break;
     default:
       result = false;
@@ -562,7 +562,7 @@ public abstract class AbstractActivity extends AppCompatActivity
     if(file.exists())
       myIntent.setDataAndType(Uri.fromFile(file), "text/html");
     else
-      myIntent.setData(Uri.parse("http://www.jsoftware.com/help/"+getResources().getString(resId)));
+      myIntent.setData(Uri.parse("https://www.jsoftware.com/help/"+getResources().getString(resId)));
     startActivity(myIntent);
   }
   public void showTextFile(int resId)
@@ -837,7 +837,7 @@ public abstract class AbstractActivity extends AppCompatActivity
                 public void onClick(DialogInterface dialog, int which) {
                   dialog.dismiss();
                   Intent myIntent = new Intent(Intent.ACTION_VIEW,
-                                               Uri.parse("http://www.jsoftware.com/download/j" + theApp.jversion + "/install/j" + theApp.jversion + "_android.apk"));
+                                               Uri.parse("https://www.jsoftware.com/download/j" + theApp.jversion + "/install/j" + theApp.jversion + "_android.apk"));
                   startActivity(myIntent);
                 }
               });

@@ -4,7 +4,7 @@ ant is required but not eclipse.
 
 download J binaries from
 
-http://www.jsoftware/download/jandroid/libs
+https://www.jsoftware/download/jandroid/libs
 
 and copy them to libs folder
 

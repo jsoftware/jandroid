@@ -116,7 +116,7 @@ htmlhelpbaselib=: 3 : 0
   if. fexist f=. jpath '~.Main/', y do.
     open f
   else.
-    browse_j_ 'http://www.jsoftware.com/wsvn/base8/trunk/', y
+    browse_j_ 'https://www.jsoftware.com/wsvn/base8/trunk/', y
   end.
 ''
 )

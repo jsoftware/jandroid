@@ -23,7 +23,7 @@ wd 'bin z'
 wd 'pshow'
 wd 'set e text http://news.yahoo.com'
 wd 'set w1 url http://news.yahoo.com'
-wd 'set w2 baseurl http://www.jsoftware.com'
+wd 'set w2 baseurl https://www.jsoftware.com'
 wd 'set w2 html <html><body><img src=''./zippy.gif'' /></body></html>'
 )
 

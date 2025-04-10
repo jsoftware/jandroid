@@ -12,8 +12,8 @@
 
     <string name="activity_name">Activity</string>
     
-    <string name="help_start">http://www.jsoftware.com/help/dictionary/vocabul.htm</string>
-    <string name="learning">http://www.jsoftware.com/help/learning/contents.htm</string>
+    <string name="help_start">https://www.jsoftware.com/help/dictionary/vocabul.htm</string>
+    <string name="learning">https://www.jsoftware.com/help/learning/contents.htm</string>
     <string name="aboutj">docs/aboutj.txt</string>
     <string name="readme">docs/android-readme.txt</string>
 
