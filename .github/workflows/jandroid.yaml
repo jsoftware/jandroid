@@ -18,7 +18,7 @@ jobs:
 # jandroid -------------------------------------------------------------
  jandroid:
   name: JANDROID
-  runs-on: ubuntu-20.04
+  runs-on: ubuntu-22.04
   steps:
    - name: Checkout Git repository
      uses: actions/checkout@v2
