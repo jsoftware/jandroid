@@ -5,13 +5,13 @@ annotations
 v7 external with res
 
 cd appcompat
-android update lib-project -p . --target android-23
+android update lib-project -p . --target android-24
 cd -
 append the following line to project.properties
 
 android.library.reference.1=appcompat
 
-# android update project -t android-23 -p . --subprojects --library appcompat
+# android update project -t android-24 -p . --subprojects --library appcompat
 
 modify these 2 lines in AndroidManifest.xml
     android:versionCode="60"
