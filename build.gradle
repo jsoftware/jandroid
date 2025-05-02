@@ -18,7 +18,7 @@ android {
     defaultConfig {
         applicationId "com.jsoftware.j.android"
         minSdkVersion rootProject.hasProperty('minSdkVersion') ? rootProject.minSdkVersion : 9
-        targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : 23
+        targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : 24
         versionCode 60
         versionName "1.4.60"
     }
