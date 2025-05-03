@@ -12,13 +12,13 @@ android {
           lintConfig file("lint.xml")
       }
 
-    compileSdkVersion rootProject.hasProperty('compileSdkVersion') ? rootProject.compileSdkVersion : 32
-    buildToolsVersion rootProject.hasProperty('buildToolsVersion') ? rootProject.buildToolsVersion : "32.0.0"
+    compileSdkVersion rootProject.hasProperty('compileSdkVersion') ? rootProject.compileSdkVersion : 24
+    buildToolsVersion rootProject.hasProperty('buildToolsVersion') ? rootProject.buildToolsVersion : "30.0.3"
 
     defaultConfig {
         applicationId "com.jsoftware.j.android"
-        minSdkVersion rootProject.hasProperty('minSdkVersion') ? rootProject.minSdkVersion : 9
-        targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : 24
+        minSdkVersion rootProject.hasProperty('minSdkVersion') ? rootProject.minSdkVersion : 10
+        targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : 30
         versionCode 60
         versionName "1.4.60"
     }
@@ -49,4 +49,12 @@ android {
 
 dependencies {
    implementation 'com.android.support:appcompat-v7:25.1.0'
+}
+
+allprojects {
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+        }
+    }
 }
