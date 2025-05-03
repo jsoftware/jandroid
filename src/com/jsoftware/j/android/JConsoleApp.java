@@ -188,8 +188,10 @@ public class JConsoleApp extends Application
           ActivityCompat.requestPermissions(jActivity, new String[] {"android.permission.WRITE_EXTERNAL_STORAGE"}, 100);
         }
       }
-      root = getDir(LogTag, Context.MODE_WORLD_READABLE
-                    | Context.MODE_WORLD_WRITEABLE);
+      if (Build.VERSION.SDK_INT < 24)
+        root = getDir(LogTag, Context.MODE_WORLD_READABLE | Context.MODE_WORLD_WRITEABLE);
+      else
+        root = getDir(LogTag, Context.MODE_PRIVATE);
 
       File binDir = new File(root, "bin");
       binDir.mkdir();
@@ -750,8 +752,10 @@ public class JConsoleApp extends Application
       publishProgress("installing addons");
       installDirectory(base, "addons");
 
-      File root = getDir(LogTag, Context.MODE_WORLD_READABLE
-                         | Context.MODE_WORLD_WRITEABLE);
+      if (Build.VERSION.SDK_INT < 24)
+        root = getDir(LogTag, Context.MODE_WORLD_READABLE | Context.MODE_WORLD_WRITEABLE);
+      else
+        root = getDir(LogTag, Context.MODE_PRIVATE);
       installDirectory(root , "libexec");
       final Runtime runtime = Runtime.getRuntime();
       setWorldReadable(runtime, new File(root, "libexec"), true);
