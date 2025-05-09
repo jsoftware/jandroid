@@ -12,13 +12,13 @@ android {
           lintConfig file("lint.xml")
       }
 
-    compileSdkVersion rootProject.hasProperty('compileSdkVersion') ? rootProject.compileSdkVersion : 24
+    compileSdkVersion rootProject.hasProperty('compileSdkVersion') ? rootProject.compileSdkVersion : 29
     buildToolsVersion rootProject.hasProperty('buildToolsVersion') ? rootProject.buildToolsVersion : "30.0.3"
 
     defaultConfig {
         applicationId "com.jsoftware.j.android"
         minSdkVersion rootProject.hasProperty('minSdkVersion') ? rootProject.minSdkVersion : 10
-        targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : 36
+        targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : 29
         versionCode 60
         versionName "1.4.60"
     }

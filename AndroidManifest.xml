@@ -3,7 +3,7 @@
     android:versionCode="87"
     android:versionName="1.4.87" >
 
-    <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="36"/>
+    <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="29"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.PERSISTENT_ACTIVITY"/>
     <uses-permission android:name="android.permission.BIND_INPUT_METHOD"/>
