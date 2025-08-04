@@ -156,12 +156,14 @@ public class Glcmds
   {
     if (null!=canvas) {
       canvas.translate(-andorgx,-andorgy);
-      canvas.clipRect(0,0,view.getWidth(),view.getHeight(),Region.Op.REPLACE);
+      canvas.save();
+      canvas.clipRect(0,0,view.getWidth(),view.getHeight());
       if (clear) {
         canvas.drawARGB(255, 255, 255, 255);
       } else {
         canvas.drawColor(0, PorterDuff.Mode.MULTIPLY);
       }
+      canvas.restore();
     }
     andrgb = Color.argb(255,0,0,0);
     if (0!=glfont0("profont")) return 1;
@@ -349,7 +351,8 @@ public class Glcmds
           break;
         }
         andclipped= 1;
-        canvas.clipRect(buf[p + 2],buf[p + 3],buf[p + 2]+buf[p + 4],buf[p + 3]+buf[p + 5], Region.Op.REPLACE);
+        canvas.save();
+        canvas.clipRect(buf[p + 2],buf[p + 3],buf[p + 2]+buf[p + 4],buf[p + 3]+buf[p + 5]);
         break;
 
       case 2079 : // glclipreset
@@ -363,7 +366,8 @@ public class Glcmds
           break;
         }
         andclipped= 0;
-        canvas.clipRect(0,0,view.getWidth(),view.getHeight(),Region.Op.REPLACE);
+        canvas.clipRect(0,0,view.getWidth(),view.getHeight());
+        canvas.restore();
         break;
 
       case 2999 : // glcmds
