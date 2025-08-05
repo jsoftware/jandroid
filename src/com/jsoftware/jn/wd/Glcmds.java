@@ -558,6 +558,8 @@ public class Glcmds
           this.nodblbuf = anodblbuf;
           break;
         }
+        break;
+
       case 2020 :    // glpaint
         if (cnt != 2) {
           errmsg = "invalid argument";
