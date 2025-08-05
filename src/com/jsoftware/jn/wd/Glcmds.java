@@ -169,7 +169,7 @@ public class Glcmds
     if (0!=glfont0("profont")) return 1;
     andunderline = 0;
     andfontangle = 0;
-    andclipped= 0;
+    andclipped = 0;
     andorgx = 0;
     andorgy = 0;
     andpenrgb = andrgb;
@@ -350,7 +350,7 @@ public class Glcmds
           rc=appendsbuf(buf, p, cnt);
           break;
         }
-        andclipped= 1;
+        andclipped += 1;
         canvas.save();
         canvas.clipRect(buf[p + 2],buf[p + 3],buf[p + 2]+buf[p + 4],buf[p + 3]+buf[p + 5]);
         break;
@@ -365,9 +365,11 @@ public class Glcmds
           rc=appendsbuf(buf, p, cnt);
           break;
         }
-        andclipped= 0;
-        canvas.clipRect(0,0,view.getWidth(),view.getHeight());
-        canvas.restore();
+        if (andclipped>0){ 
+         andclipped -= 1;
+         canvas.clipRect(0,0,view.getWidth(),view.getHeight());
+         canvas.restore();
+        }
         break;
 
       case 2999 : // glcmds
