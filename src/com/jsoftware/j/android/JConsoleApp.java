@@ -802,6 +802,7 @@ public class JConsoleApp extends Application
         for (File file3 : file.listFiles()) {
           int n;
           File file4 = new File((Object)file2 + "/" + file3.getName());
+          if(file.getName().equals("config") && (file3.getName().equals("base.cfg")||file3.getName().equals("case.cfg")||file3.getName().equals("folders.cfg")) && file4.exists()) continue;
           if (!file4.isFile() && file4.exists()) continue;
           FileInputStream fileInputStream = new FileInputStream(file3);
           FileOutputStream fileOutputStream = new FileOutputStream((Object)file2 + "/" + file3.getName());
