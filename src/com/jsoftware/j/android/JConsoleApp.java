@@ -210,11 +210,13 @@ public class JConsoleApp extends Application
         userDir = new File(SDCARD, "j-user");
         installRoot = getExternalFilesDir(null);
         installRoot.mkdirs();
+        installRoot.setExecutable(true, false); installRoot.setReadable(true, false); installRoot.setWritable(true, false);
         currentExternDir = userDir;
         currentLocalDir = root;
       } else if (Environment.MEDIA_MOUNTED.equals(state)) {
         installRoot = getExternalFilesDir(null);
         installRoot.mkdirs();
+        installRoot.setExecutable(true, false); installRoot.setReadable(true, false); installRoot.setWritable(true, false);
         jInterface.JSetEnv("HOME", installRoot.getAbsolutePath());
         home = installRoot.getAbsolutePath();
         userDir = new File(installRoot, "j-user");
@@ -229,10 +231,13 @@ public class JConsoleApp extends Application
       }
       currentExternDir = userDir;
       userDir.mkdirs();
+      userDir.setExecutable(true, false); userDir.setReadable(true, false); userDir.setWritable(true, false);
       tmpDir = new File(userDir, "temp");
       cfgDir = new File(userDir, "config");
       tmpDir.mkdirs();
       cfgDir.mkdirs();
+      tmpDir.setExecutable(true, false); tmpDir.setReadable(true, false); tmpDir.setWritable(true, false);
+      cfgDir.setExecutable(true, false); cfgDir.setReadable(true, false); cfgDir.setWritable(true, false);
       installSystemFiles(jActivity, console, installRoot, false);
       if (!asyncj) {
         String string2 = jInterface.dors("jpath ::(''\"_) '~config'");
@@ -820,6 +825,7 @@ public class JConsoleApp extends Application
     {
       File f = new File(base, d);
       f.mkdirs();
+      f.setExecutable(true, false); f.setReadable(true, false); f.setWritable(true, false);
       return f;
     }
 
