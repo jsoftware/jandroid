@@ -20,9 +20,9 @@ mkdir -p $S/$A/bin
 echo "j903 install" > $S/$A/bin/installer.txt
 
 copyaddon() {
-rm -rf $S/$A/addons/$1/$2
-mkdir -p $S/$A/addons/$1
-cp -r $P/$1/$2 $S/$A/addons/$1
+ rm -rf $S/$A/addons/$1/$2
+ mkdir -p $S/$A/addons/$1
+ cp -r $P/$1/$2 $S/$A/addons/$1
 }
 
 # copyaddon api expat
