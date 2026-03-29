@@ -35,6 +35,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
@@ -566,6 +567,8 @@ public class Wd
         wdmenu(c);
       else if (c.equals("msgs"))
         wdmsgs();
+      else if (c.equals("open"))
+        wdopen();
       else if (c.equals("openj"))
         wdopenj();
       else if (c.equals("NB."))
@@ -665,6 +668,49 @@ public class Wd
     String p=Util.remquotes(cmd.getparms());
     if (noform()) return;
     form.pane.bin(p,n);
+  }
+
+// ---------------------------------------------------------------------
+  private void wdopen()
+  {
+    List<String> exttext = Arrays.asList("txt", "ijs", "jproj", "cfg", "c", "h", "cpp", "sh", "cmd", "bat", "yml", "md", "log", "S", "asm", "mk", "xml", "json" );
+    List<String> extimage = Arrays.asList("jpg", "jpeg", "png", "bmp" );
+    String url = Util.remquotes(cmd.getparms());
+    Intent myIntent;
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      myIntent = new Intent(Intent.ACTION_VIEW);
+      myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION );
+      myIntent.addCategory(Intent.CATEGORY_BROWSABLE);
+      myIntent.setDataAndType(Uri.parse(url), "text/html");
+    } else if (exttext.contains(url.substring(url.lastIndexOf(".")+1))) {
+      myIntent = new Intent(Intent.ACTION_VIEW);
+      myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION );
+      myIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION );
+      myIntent.setDataAndType(Uri.fromFile(new File(url)), "text/plain");
+    } else if (extimage.contains(url.substring(url.lastIndexOf(".")+1))) {
+      myIntent = new Intent(Intent.ACTION_EDIT);
+      myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION );
+      myIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION );
+      myIntent.setDataAndType(Uri.parse(url), "image/*");
+    } else if (url.endsWith(".pdf")) {
+      myIntent = new Intent(Intent.ACTION_EDIT);
+      myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION );
+      myIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION );
+      myIntent.setDataAndType(Uri.fromFile(new File(url)), "application/pdf");
+    } else if (url.endsWith(".xls") || url.endsWith(".xlsx")) {
+      myIntent = new Intent(Intent.ACTION_EDIT);
+      myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION );
+      myIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION );
+      myIntent.setDataAndType(Uri.fromFile(new File(url)), "application/vnd.ms-excel");
+    } else {
+      error("unknown file type");
+      return;
+    }
+    try {
+      context.startActivity(myIntent);
+    } catch (Exception e) {
+      error(e.getMessage());
+    }
   }
 
 // ---------------------------------------------------------------------
