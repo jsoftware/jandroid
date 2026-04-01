@@ -8,6 +8,7 @@ ISGUI=: 0
 INITDONE=: 0
 HASFILEACCESS=: 0
 HASADDONSDIR=: 0
+JINSTALL=: 0
 ONLINE=: 0
 PKGDATA=: 0 7$a:
 SECTION=: ,<'All'
@@ -65,7 +66,9 @@ end.
 3 : 0''
 HTTPCMD=: ''
 nc=. '--no-cache'
-RELNO=: ,'0,p<.>0' (8!:2) 2 {. 100 #.inv >{.revinfo_j_''
+n=. 2 {. 100 #.inv >{.revinfo_j_''
+RELNO=: ,'0,p<.>0' (8!:2) n
+VERNO=: 100 #. n
 if. IFUNIX do.
   IFWGET=. IFCURL=. 0
   if. -. IFIOS +. UNAME-:'Android' do.
@@ -776,7 +779,7 @@ many=. 1 < num
 msg=. 'Installing ',(":num),' package',many#'s'
 log msg
 installdo pkgs
-log 'Done.'
+if. -. JINSTALL do. log 'Done.' end.
 readlocal''
 pacman_init ''
 checkstatus''
@@ -859,6 +862,50 @@ write_config=: 3 : 0
 txt=. 'NB. Addon configuration',LF2
 txt=. txt,'ADDLABS=: 0 : 0',LF,ADDLABS,')',LF
 txt fwrites ADDCFGIJS
+)
+jinstall=: 3 : 0
+
+JINSTALL=: 1
+
+'j ide addons shorts'=. 4 {. ;: y
+
+ifide=. -. ide -: 'none'
+ifaddons=. -. addons -: 'none'
+ifshorts=. -. shorts -: 'false'
+
+echo 'Installing ', 1 pick revinfo_j_''
+
+'update' jpkg ''
+echo 'Updating J engine...'
+je_update''
+
+if. ifshorts *. -. 'Darwin'-:UNAME do.
+  if. 2~:ftype jpath'~/Desktop' do.
+    echo 'No Desktop folder, so shortcuts not installed'
+  else.
+    echo 'Installing shortcuts...'
+    shortcut'jbreak'
+    shortcut'jc'
+    shortcut'jhs'
+    if. ifide do. shortcut'jqt' end.
+  end.
+end.
+
+if. ifide do.
+  echo 'Installing Jqt IDE...'
+  'install' jpkg 'base library ide/qt'
+  getqtbin ide
+end.
+
+if. addons -: 'all' do.
+  echo 'Installing Addons...'
+  'install' jpkg addons
+end.
+
+echo 'Installation complete'
+
+exit 0
+
 )
 installer=: 3 : 0
 echo 'these steps can take several minutes'
@@ -983,6 +1030,8 @@ Linuxx y
 
 Linuxx=: 3 : 0
 select. y
+case.'jbreak' do.
+  linux'jbreak' ;'jbrk';'jyellow.png';LIB
 case.'jc' do.
   linux'jc' ;'jconsole';'jgray.png';LIB
 case. 'jhs' do.
@@ -1317,6 +1366,7 @@ readlocal=: 3 : 0
 readlin''
 ADDONS=: fixjal freads ADDCFG,'addons.txt'
 ADDINS=: fixjal2 freads ADDCFG,'addins.txt'
+ADDINS=: ADDINS {~ <<< I. -. ({."1 ADDINS) e. {."1 ADDONS
 REV=: fixrev freads ADDCFG,'revision.txt'
 LASTUPD=: fixupd freads ADDCFG,'lastupdate.txt'
 LIBS=: fixlibs freads ADDCFG,'library.txt'
@@ -1537,7 +1587,8 @@ else.
   name=. <name
 end.
 
-r=. je_get jxxx;platform;(3{.jbithw);name
+p=. IFWA64 pick (3{.jbithw);'jarm64'
+r=. je_get jxxx;platform;p;name
 if. _1=r do. log'upgrade file not found' return. end.
 if. r-:fread DLL do. log'upgrade not required - already current' return. end.
 
@@ -1571,6 +1622,7 @@ je_get=: 3 : 0
 'jvno plat bits name'=. y
 arg=. (je_dlpath''),plat,'/',bits,'/',name
 ferase'~temp/',name
+if. -. JINSTALL do. echo 'get: ', arg end.
 httpget arg
 fread '~temp/',name
 )
@@ -1609,8 +1661,9 @@ m=. 2":>:(;:'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec')i.<3{.date
 date=. ((_4{.date),'-',m,'-',4 5{date)rplc' ';'0'
 (_20}.s),date,11}.dt
 )
-JQTVERSION=: '2.0.3'
+JQTVERSION=: '2.6.1'
 do_install=: 3 : 0
+if. 'system' -: 6 {. y do. jinstall y return. end.
 if. -. checkaccess_jpacman_ '' do. return. end.
 if. y -: 'gmp' do. do_getgmpbin '' return. end.
 if. ':' e. y do. install_gitrepo y return. end.
@@ -1714,7 +1767,9 @@ else.
   m=. m,'check that you have write permission for: ',LF,BINPATH
 end.
 smoutput m
-if. ((<UNAME)e.'Linux';'OpenBSD';'FreeBSD') do.
+linux=. (UNAME -: 'Linux') *. 907 <: VERNO
+
+if. linux < (<UNAME)e.'Linux';'OpenBSD';'FreeBSD' do.
   qt_ldd_test d1
   smoutput 'If libjqt cannot be loaded, see this guide for installing the Qt library'
   smoutput 'https://code.jsoftware.com/wiki/Guides/Qt_IDE/Install'
@@ -1726,18 +1781,20 @@ y=. (*#y){::0;y
 
 smoutput 'Installing Qt library...'
 if. IFWA64 do.
-  z=. 'qt68-win-arm64-slim.zip'
+  z=. 'qt610-win-arm64-slim.zip'
+elseif. linux do.
+  z=. 'qt610-linux',((y-:'slim')#'-slim'),'.tar.gz'
 elseif. IFWIN do.
-  z=. 'qt68-win',((y-:'slim')#'-slim'),'.zip'
+  z=. 'qt610-win',((y-:'slim')#'-slim'),'.zip'
 elseif. do.
-  z=. 'qt68-mac',((y-:'slim')#'-slim'),'.zip'
+  z=. 'qt610-mac',((y-:'slim')#'-slim'),'.zip'
 end.
 'rc p'=. httpget_jpacman_ www,'/qtlib/',z
 if. rc do.
   smoutput 'unable to download: ',z return.
 end.
 d=. jpath IFWIN{::'~install';'~bin'
-if. IFWIN do.
+if. IFWIN +. linux do.
   unzip_jpacman_ p;d
 else.
   hostcmd_jpacman_ 'unzip -o ',(dquote p),' -d ',dquote d

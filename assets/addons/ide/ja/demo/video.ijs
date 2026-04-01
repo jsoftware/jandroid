@@ -60,7 +60,7 @@ wd 'pclose'
 NB. =========================================================
 demo_run=: 3 : 0
 wd MULTIMEDIA
-wd 'set url text "https://archive.org/download/test-mpeg/test-mpeg_512kb.mp4"'
+wd 'set url text "https://www.sample-videos.com/video321/mp4/480/big_buck_bunny_480p_2mb.mp4"'
 wd 'pshow'
 )
 

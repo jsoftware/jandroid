@@ -1,7 +1,7 @@
 cocurrent <'z'
 3 : 0 ''
 
-JLIB=: '9.6.14'
+JLIB=: '9.7.11'
 
 notdef=. 0: ~: 4!:0 @ <
 hostpathsep=: ('/\'{~6=9!:12'')&(I. @ (e.&'/\')@] })
@@ -44,6 +44,8 @@ if. notdef 'UNAME' do.
 end.
 if. notdef 'LIBFILE' do.
   LIBFILE=: BINPATH,'/',IFUNIX{::'j.dll';(UNAME-:'Darwin'){::'libj.so';'libj.dylib'
+else.
+  LIBFILE=: jpathsep LIBFILE
 end.
 if. notdef 'FHS' do.
   FHS=: IFUNIX>'/'e.LIBFILE
@@ -344,11 +346,13 @@ if. 0 e. #nms do. return. end.
 
 if. #t=. x -. ' ' do.
   'n s'=. '~*' e. t
-  t=. t -. '~*'
+  l=. '_' = {.t
+  t=. }.^:l t -. '~*'
   b=. t&E. &> nms
   if. s do. b=. +./"1 b
   else. b=. {."1 b end.
   nms=. nms #~ n ~: b
+  if. l do.nms=. nms (,'_',,&'_') each coname '' end.
 end.
 )
 names=: list_z_ @ nl
@@ -1644,6 +1648,7 @@ r
 )
 topara=: 3 : 0
 if. 0=#y do. '' return. end.
+y=. toJ y
 b=. y=LF
 c=. b +. y=' '
 b=. b > (1,}:b) +. }.c,0
@@ -2523,9 +2528,8 @@ if. (3!:0 y) e. 2 32 do. y=. cutopen y
 else. y=. (4!:1 y) -. (,'y');,'y.' end.
 wid=. {.wcsize''
 sub=. '.'&(I. @(e.&(9 10 12 13 127 254 255{a.))@]})
-den=: {{ try. 0 $.y [ 3 $. y catch. y end. }}
 j=. '((1<#$t)#(":$t),''$''),":,t'
-j=. 'if. L. t=. den ".y do. 5!:5 <y return. end.';j
+j=. 'if. L. t=. $.^:_1 ".y do. 5!:5 <y return. end.';j
 j=. 'if. 0~:4!:0 <y do. 5!:5 <y return. end.';j
 a=. (,&'=: ',sub @ (3 : j)) each y
 }: ; ((wid <. #&> a) {.each a) ,each LF

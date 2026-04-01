@@ -450,7 +450,8 @@ NB. Take valence error without further ado
 if. (e=EVVALENCE) do.
   if. selfar -: {. ;:'[:' do. hdr1 , '[: must be part of a capped fork' return.
   else.
-    if.  isexplicit do. hdr1 , 'explicit definition has no ',(dyad{::'monad';'dyad'),'ic valence' return. end.  NB. could be {{ or m : and we can't distinguish
+    if. ('defining explicit entity',LF) ([ -: -@#@[ {. ]) hdr do. hdr , 'modifier may have only one valence unless it refers to x or y' return. end.
+    if. isexplicit do. hdr1 , 'explicit definition has no ',(dyad{::'monad';'dyad'),'ic valence' return. end.  NB. could be {{ or m : and we can't distinguish
     hdr ,  ('verb has no ',(dyad{::'monad';'dyad'),'ic valence') return.
   end.
 end.
@@ -563,7 +564,9 @@ case. 3 do.
           hdr , xmsg , ' but ' , ymsg return.
         end.
       elseif. e=EVDOMAIN do. emsg=. 'x has '&,^:(*@#) a efindexmsg a 9!:23 (1;0)
-      elseif. e=EVINHOMO do. emsg =. 'arguments and fill are incompatible: ' , efandlist w efhomo@:(,&(*@(#@,) * 3!:0)) fill
+      elseif. e=EVINHOMO do.
+        if. #emsg=. efcknumericargs a  do. hdr,'x is ' , emsg return. end.
+        emsg =. 'arguments and fill are incompatible: ' , efandlist w efhomo@:(,&(*@(#@,) * 3!:0)) fill
       end.
     case. ;:'#.' do.
       if. e=EVLENGTH do.
@@ -746,8 +749,8 @@ NB. most decoding omitted
 
     NB. ******* Monads - but the argument is called a *******
     select. prim
-    case. ;:'<.<:>.>:++:**:-%%:^^.|!j.H.??.' do.  NB. atomic dyads and u"v
-      NB. Primitive atomic verb.  Check for agreement
+    case. ;:'<.<:>.>:++:**:--.-:%%:^^.|!j.o.H.??.' do.  NB. atomic monads and u"v
+      NB. Primitive atomic verb.
       if. e=EVDOMAIN do.
         if. #emsg=. efcknumericargs a  do. hdr,'y is ',emsg return. end.
         if. prim e. ;:'??.' do.

@@ -100,7 +100,7 @@ dtabs=: 'tabs' rundemo
 dtimer=: 'timer' rundemo
 dvideo=: 'video' rundemo
 dviewmat=: 'viewmat' rundemo
-dwebd3=: 'webd3' rundemo
+dwebd3=: 'webd3' rundemo`notsupport@.1
 dwebview=: 'webview' rundemo
 
 NB. =========================================================
