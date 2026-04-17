@@ -28,6 +28,8 @@ jobs:
       sudo apt install openjdk-17-jdk-headless
       sudo update-alternatives --config java
       sudo update-alternatives --config javac
+      export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+      export PATH=$JAVA_HOME/bin:$PATH
       wget https://raw.githubusercontent.com/jsoftware/jsource/master/version.txt
       cd ~/
       wget https://github.com/jsoftware/jsource/releases/download/build/androidlibs.zip
