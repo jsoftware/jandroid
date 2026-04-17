@@ -11,7 +11,6 @@
     <uses-permission android:name="android.permission.PERSISTENT_ACTIVITY"/>
     <uses-permission android:name="android.permission.BIND_INPUT_METHOD"/>
     <uses-permission android:name="android.permission.READ_INPUT_STATE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"/>
     <uses-permission android:name="android.permission.REORDER_TASKS"/>
 

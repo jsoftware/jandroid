@@ -25,7 +25,7 @@ android {
       }
 
     compileSdkVersion rootProject.hasProperty('compileSdkVersion') ? rootProject.compileSdkVersion : 29
-    buildToolsVersion rootProject.hasProperty('buildToolsVersion') ? rootProject.buildToolsVersion : "30.0.3"
+//    buildToolsVersion rootProject.hasProperty('buildToolsVersion') ? rootProject.buildToolsVersion : "30.0.3"
 
     defaultConfig {
         applicationId "com.jsoftware.j.android"
