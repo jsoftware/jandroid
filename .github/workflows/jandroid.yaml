@@ -25,26 +25,7 @@ jobs:
 
    - name: Build JANDROID
      run: |
-      sudo apt install openjdk-17-jdk-headless
-      sudo update-alternatives --config java
-      sudo update-alternatives --config javac
-      export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-      export PATH=$JAVA_HOME/bin:$PATH
-      wget https://raw.githubusercontent.com/jsoftware/jsource/master/version.txt
-      cd ~/
-      wget https://github.com/jsoftware/jsource/releases/download/build/androidlibs.zip
-      unzip androidlibs.zip
-      cd -
-      cp ~/libs/arm64-v8a/* libs/arm64-v8a/.
-      cp ~/libs/armeabi/* libs/armeabi/.
-      cp ~/libs/armeabi-v7a/* libs/armeabi-v7a/.
-      cp ~/libs/x86/* libs/x86/.
-      rm -rf assets/libexec
-      cp -r libs assets/libexec
-      find assets/libexec -type f -name '*.so' -delete
-      ./gradlew build
-      ./gradlew assemble
-      ls -ld /usr/local/lib/android/sdk/build-tools/*
+      script/build-gradle.sh
 
    - name: Sign apk
      id: sign_apk
