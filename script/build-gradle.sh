@@ -16,6 +16,9 @@ rm -rf assets/libexec
 cp -r libs assets/libexec
 find assets/libexec -type f -name '*.so' -delete
 find assets/libexec -type f -name 'libj.a' -delete
+find assets/libexec -type f -name 'jamalgam' -delete
+find assets/libexec -type f -name 'hostdefs' -delete
+find assets/libexec -type f -name 'netdefs' -delete
 sed -i -e 's/targetSdkVersion="29"/targetSdkVersion="33"/' AndroidManifest.xml
 sed -i -e 's/android-29/android-33/' project.properties
 ./gradlew build
